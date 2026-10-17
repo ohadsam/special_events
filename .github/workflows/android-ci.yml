@@ -4,6 +4,9 @@ on:
     branches: [main, 'ccr-*', 'claude/**']
   pull_request:
   workflow_dispatch:
+concurrency:
+  group: android-ci-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -21,11 +24,19 @@ jobs:
         run: |
           chmod +x gradlew
           ./gradlew ktlintCheck detekt lintDebug testDebugUnitTest compileDebugAndroidTestKotlin assembleDebug assembleRelease --stacktrace
+      - name: Name the APK (version + commit) so the right build is always identifiable
+        if: steps.has.outputs.ok == 'true'
+        run: |
+          VER=$(grep -m1 'versionName' app/build.gradle.kts | sed -E 's/.*"([^"]+)".*/\1/')
+          SHA=$(git rev-parse --short HEAD)
+          mkdir -p dist
+          cp app/build/outputs/apk/debug/app-debug.apk "dist/SpecialEvents-v${VER}-${SHA}-debug.apk"
+          echo "Built SpecialEvents v${VER} @ ${SHA}"
       - name: Signing certificate of the debug APK (must stay identical across builds)
         if: steps.has.outputs.ok == 'true'
-        run: keytool -printcert -jarfile app/build/outputs/apk/debug/app-debug.apk | grep -E 'SHA256|Owner' || true
+        run: keytool -printcert -jarfile dist/*-debug.apk | grep -E 'SHA256|Owner' || true
       - uses: actions/upload-artifact@v4
         if: steps.has.outputs.ok == 'true'
         with:
           name: debug-apk
-          path: app/build/outputs/apk/debug/*.apk
+          path: dist/*.apk

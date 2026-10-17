@@ -1,0 +1,35 @@
+name: Publish latest APK
+# On every merge to main: build the signed release APK and (re)publish it as the pre-release "latest",
+# so a correctly named, current APK is always available to download and share.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: 17 }
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Build release APK
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleRelease --stacktrace
+      - name: Publish release "latest"
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VER=$(grep -m1 'versionName' app/build.gradle.kts | sed -E 's/.*"([^"]+)".*/\1/')
+          SHA=$(git rev-parse --short HEAD)
+          SRC=$(ls app/build/outputs/apk/release/*.apk | head -1)
+          APK="SpecialEvents-v${VER}-${SHA}.apk"
+          cp "$SRC" "$APK"
+          gh release delete latest --yes --cleanup-tag || true
+          gh release create latest "$APK" --prerelease --target "$GITHUB_SHA" \
+            --title "Latest build v${VER} (${SHA})" \
+            --notes "Automatic build of main @ ${SHA}. Sideload-signed: installs over any previous build of this app."

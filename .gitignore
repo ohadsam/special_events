@@ -8,4 +8,4 @@ captures/
 .cxx/
 *.jks
 *.keystore
-# if you commit a sideload key on purpose: !app/sideload.jks
+!app/sideload.jks

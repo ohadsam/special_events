@@ -59,7 +59,7 @@ Package layout (grow by batch; don't pre-create empty packages):
 ## 6. Bootstrapping a new app (what to copy)
 `templates/` in this skill holds the proven files — copy, then adjust names:
 - `editorconfig` → `.editorconfig` · `gitignore` → `.gitignore` · `gradle.properties` · `config/detekt.yml`
-- `workflows/android-ci.yml` (ktlint, detekt, lintDebug, unit tests, androidTest compile, assembleDebug/Release; skips cleanly until `gradlew` exists) · `workflows/release.yml` (tag/manual → signed APK+AAB+mapping) · `workflows/ui-tests.yml` (emulator, screenshots)
+- `workflows/android-ci.yml` (ktlint, detekt, lintDebug, unit tests, androidTest compile, assembleDebug/Release; skips cleanly until `gradlew` exists) · `workflows/latest-apk.yml` (merge to main → release `latest` with a versioned APK) · `workflows/release.yml` (tag/manual → signed APK+AAB+mapping) · `workflows/ui-tests.yml` (emulator, screenshots)
 - `libs.versions.toml` = known-good version baseline (AGP 8.9.2, Kotlin 2.1.20, Compose BOM 2025.05.01 …). Bump deliberately, then confirm via CI; newer is not automatically better when you can't compile locally.
 - Gradle wrapper (8.14.x), `settings.gradle.kts` (google/mavenCentral, `FAIL_ON_PROJECT_REPOS`), root + `app/build.gradle.kts` (ktlint+detekt plugins, `ignoreFailures`, signing configs, R8 + shrinkResources on release) — take them from a sibling app (`ohadsam/Tehilim_Daily`) as the reference.
 - Docs skeleton: `CLAUDE.md` (≤ ~60 lines: purpose, stack, layout, conventions, sandbox, token rules), `docs/PLAN.md` (batch table + status), `docs/SPEC.md`, `docs/CHANGELOG.md`, `AGENT.md` (agent memory: recently done / open items / not verifiable), `STRUCTURE.md` (code map).

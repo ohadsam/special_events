@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">אירועים מיוחדים</string>
+
+    <string name="tab_upcoming">קרובים</string>
+    <string name="tab_calendar">לוח שנה</string>
+    <string name="tab_settings">הגדרות</string>
+
+    <string name="upcoming_empty_title">עוד אין אירועים</string>
+    <string name="upcoming_empty_body">בקרוב תוכלו להוסיף ימי הולדת, ימי נישואין, אזכרות ועוד — עם תאריך עברי ולועזי ותזכורות חכמות.</string>
+    <string name="calendar_empty_title">לוח השנה בדרך</string>
+    <string name="calendar_empty_body">תצוגות יום, שבוע, חודש ושנה — עברי ולועזי — יגיעו בקרוב.</string>
+
+    <string name="settings_whats_new">מה חדש</string>
+    <string name="settings_logs">יומן המערכת</string>
+    <string name="settings_logs_desc">לאבחון תקלות — צפייה, העתקה ושיתוף</string>
+    <string name="settings_about">אודות</string>
+    <string name="settings_version">גרסה %1$s (%2$d)</string>
+    <string name="whats_new_title">מה חדש בגרסה %1$s</string>
+    <string name="whats_new_error">לא ניתן לטעון את רשימת השינויים</string>
+
+    <string name="logs_title">יומן המערכת</string>
+    <string name="logs_empty">אין רשומות ביומן</string>
+    <string name="logs_copy">העתק הכול</string>
+    <string name="logs_share">שתף</string>
+    <string name="logs_clear">נקה יומן</string>
+    <string name="logs_copied">היומן הועתק</string>
+    <string name="logs_clear_confirm_title">לנקות את היומן?</string>
+    <string name="logs_clear_confirm_body">כל הרשומות יימחקו ולא ניתן יהיה לשחזר אותן.</string>
+    <string name="log_level_all">הכול</string>
+    <string name="log_level_info">מידע ומעלה</string>
+    <string name="log_level_warn">אזהרות</string>
+    <string name="log_level_error">שגיאות</string>
+
+    <string name="action_close">סגור</string>
+    <string name="action_back">חזרה</string>
+    <string name="action_refresh">רענון</string>
+    <string name="action_more">עוד אפשרויות</string>
+    <string name="action_clear">נקה</string>
+    <string name="action_cancel">ביטול</string>
+</resources>
