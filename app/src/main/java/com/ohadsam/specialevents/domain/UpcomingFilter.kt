@@ -14,7 +14,7 @@ object UpcomingFilter {
         return items.filter { matchesType(it.event.type, filter) && (q.isEmpty() || matchesText(it.event, q)) }
     }
 
-    private fun matchesType(type: EventType, filter: TypeFilter): Boolean = when (filter) {
+    fun matchesType(type: EventType, filter: TypeFilter): Boolean = when (filter) {
         TypeFilter.ALL -> true
         TypeFilter.BIRTHDAYS -> type == EventType.BIRTHDAY || type == EventType.BAR_BAT_MITZVAH
         TypeFilter.ANNIVERSARIES -> type == EventType.ANNIVERSARY
@@ -23,7 +23,7 @@ object UpcomingFilter {
     }
 
     /** [normalizedQuery] must already be normalized; every word has to appear somewhere in the event's text fields or tags. */
-    private fun matchesText(event: SpecialEvent, normalizedQuery: String): Boolean {
+    fun matchesText(event: SpecialEvent, normalizedQuery: String): Boolean {
         val haystack = TextSearch.normalize(
             listOfNotNull(event.title, event.personName, event.relation, event.notes).plus(event.tags.map { it.name }).joinToString(" "),
         )
