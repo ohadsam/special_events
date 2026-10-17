@@ -17,11 +17,11 @@ enum class TopLevel(val route: String, @StringRes val label: Int, val icon: Imag
 
 object Routes {
     const val LOGS = "logs"
-    const val EDITOR = "editor/{id}"
+    const val EDITOR = "editor/{id}?date={date}"
     const val DETAIL = "event/{id}"
 
     /** [id] 0 = a new event. */
-    fun editor(id: Long) = "editor/$id"
+    fun editor(id: Long, date: java.time.LocalDate? = null) = "editor/$id" + (date?.let { "?date=$it" } ?: "")
 
     fun detail(id: Long) = "event/$id"
 }

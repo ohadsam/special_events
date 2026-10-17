@@ -31,6 +31,7 @@ data class UpcomingItem(
 /** Pure computation of what is coming up; no Android, clock injected through [from]. */
 object EventTimeline {
     private const val DEFAULT_HORIZON_DAYS = 366L
+    private const val MAX_YEARS_IN_RANGE = 200
 
     fun upcoming(
         events: List<SpecialEvent>,
@@ -48,6 +49,38 @@ object EventTimeline {
             }
             mitzvahInfo(event, inIsrael, rules)?.takeIf { it.date >= from && it.date <= until }?.let { m ->
                 items.add(item(event, ItemKind.MITZVAH, m.date, null, from, null, m))
+            }
+        }
+        return items.sortedWith(compareBy<UpcomingItem> { it.date }.thenBy { it.kind }.thenBy { it.event.title })
+    }
+
+    /** Every occurrence (recurring, one-time and bar/bat mitzvah) falling in [from]..[to]; [today] only feeds `daysUntil`. */
+    fun between(
+        events: List<SpecialEvent>,
+        from: LocalDate,
+        to: LocalDate,
+        today: LocalDate,
+        inIsrael: Boolean,
+        rules: DateRules = DateRules(),
+    ): List<UpcomingItem> {
+        val items = ArrayList<UpcomingItem>()
+        for (event in events) {
+            if (event.archived) continue
+            when (event.recurrence) {
+                Recurrence.ONCE -> originDate(event)?.takeIf { it >= from && it <= to }?.let { items.add(item(event, ItemKind.OCCURRENCE, it, null, today, null)) }
+                Recurrence.YEARLY -> {
+                    var cursor = from
+                    var guard = 0
+                    while (guard++ < MAX_YEARS_IN_RANGE) {
+                        val o = AnnualDates.next(event.origin, cursor, rules)
+                        if (o.date > to) break
+                        items.add(item(event, ItemKind.OCCURRENCE, o.date, o.number, today, milestoneFor(event, o.number)))
+                        cursor = o.date.plusDays(1)
+                    }
+                }
+            }
+            mitzvahInfo(event, inIsrael, rules)?.takeIf { it.date >= from && it.date <= to }?.let { m ->
+                items.add(item(event, ItemKind.MITZVAH, m.date, null, today, null, m))
             }
         }
         return items.sortedWith(compareBy<UpcomingItem> { it.date }.thenBy { it.kind }.thenBy { it.event.title })

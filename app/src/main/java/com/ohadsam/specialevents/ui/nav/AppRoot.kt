@@ -21,9 +21,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.ohadsam.specialevents.AppContainer
-import com.ohadsam.specialevents.R
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.ohadsam.specialevents.ui.common.PlaceholderScreen
+import com.ohadsam.specialevents.ui.calendar.CalendarScreen
 import com.ohadsam.specialevents.ui.common.ViewModelFactory
 import com.ohadsam.specialevents.ui.upcoming.UpcomingScreen
 import com.ohadsam.specialevents.ui.detail.DetailScreen
@@ -78,7 +77,11 @@ fun AppRoot(container: AppContainer) {
                 )
             }
             composable(TopLevel.CALENDAR.route) {
-                PlaceholderScreen(R.string.tab_calendar, R.string.calendar_empty_title, R.string.calendar_empty_body)
+                CalendarScreen(
+                    viewModel(factory = factory),
+                    onOpenEvent = { nav.navigate(Routes.detail(it)) },
+                    onAddEvent = { nav.navigate(Routes.editor(0, it)) },
+                )
             }
             composable(TopLevel.SETTINGS.route) {
                 SettingsScreen(viewModel(factory = factory), onOpenLogs = { nav.navigate(Routes.LOGS) })
@@ -88,9 +91,20 @@ fun AppRoot(container: AppContainer) {
                 val vm: DetailViewModel = viewModel(key = "detail-$id", factory = DetailViewModel.Factory(container, id))
                 DetailScreen(vm, onBack = { nav.popBackStack() }, onEdit = { nav.navigate(Routes.editor(id)) })
             }
-            composable(Routes.EDITOR, arguments = listOf(navArgument("id") { type = NavType.LongType })) { entry ->
+            composable(
+                Routes.EDITOR,
+                arguments = listOf(
+                    navArgument("id") { type = NavType.LongType },
+                    navArgument("date") {
+                        type = NavType.StringType
+                        nullable = true
+                        defaultValue = null
+                    },
+                ),
+            ) { entry ->
                 val id = entry.arguments?.getLong("id") ?: 0L
-                val vm: EditorViewModel = viewModel(key = "editor-$id", factory = EditorViewModel.Factory(container, id))
+                val date = entry.arguments?.getString("date")?.let { runCatching { java.time.LocalDate.parse(it) }.getOrNull() }
+                val vm: EditorViewModel = viewModel(key = "editor-$id-$date", factory = EditorViewModel.Factory(container, id, date))
                 EditorScreen(vm, onClose = { nav.popBackStack() }, onSaved = { nav.popBackStack() })
             }
             composable(Routes.LOGS) {

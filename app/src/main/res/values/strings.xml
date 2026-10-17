@@ -8,8 +8,6 @@
 
     <string name="upcoming_empty_title">עוד אין אירועים</string>
     <string name="upcoming_empty_body">בקרוב תוכלו להוסיף ימי הולדת, ימי נישואין, אזכרות ועוד — עם תאריך עברי ולועזי ותזכורות חכמות.</string>
-    <string name="calendar_empty_title">לוח השנה בדרך</string>
-    <string name="calendar_empty_body">תצוגות יום, שבוע, חודש ושנה — עברי ולועזי — יגיעו בקרוב.</string>
 
     <string name="settings_whats_new">מה חדש</string>
     <string name="settings_logs">יומן המערכת</string>
@@ -195,4 +193,45 @@
     <string name="editor_discard_body">השינויים שעשיתם באירוע לא יישמרו.</string>
     <string name="editor_discard_action">צא בלי לשמור</string>
     <string name="editor_discard_keep">המשך לערוך</string>
+    <string name="mark_rosh_hashana">ראש השנה</string>
+    <string name="mark_tzom_gedaliah">צום גדליה</string>
+    <string name="mark_yom_kippur">יום כיפור</string>
+    <string name="mark_sukkot">סוכות</string>
+    <string name="mark_sukkot_chol">חול המועד סוכות</string>
+    <string name="mark_hoshana_raba">הושענא רבה</string>
+    <string name="mark_shmini_atzeret">שמיני עצרת</string>
+    <string name="mark_simchat_torah">שמחת תורה</string>
+    <string name="mark_chanukah">חנוכה</string>
+    <string name="mark_tenth_of_tevet">עשרה בטבת</string>
+    <string name="mark_tu_bishvat">ט״ו בשבט</string>
+    <string name="mark_purim_katan">פורים קטן</string>
+    <string name="mark_taanit_esther">תענית אסתר</string>
+    <string name="mark_purim">פורים</string>
+    <string name="mark_shushan_purim">שושן פורים</string>
+    <string name="mark_pesach">פסח</string>
+    <string name="mark_pesach_chol">חול המועד פסח</string>
+    <string name="mark_pesach_sheni">פסח שני</string>
+    <string name="mark_lag_baomer">ל״ג בעומר</string>
+    <string name="mark_shavuot">שבועות</string>
+    <string name="mark_seventeenth_of_tammuz">י״ז בתמוז</string>
+    <string name="mark_tisha_bav">תשעה באב</string>
+    <string name="mark_tu_bav">ט״ו באב</string>
+    <string name="mark_rosh_chodesh">ראש חודש</string>
+    <string name="mark_chanukah_day">חנוכה · נר %1$d</string>
+    <string name="calendar_level_agenda">סדר יום</string>
+    <string name="calendar_level_day">יום</string>
+    <string name="calendar_level_week">שבוע</string>
+    <string name="calendar_level_month">חודש</string>
+    <string name="calendar_level_year">שנה</string>
+    <string name="calendar_today">היום</string>
+    <string name="calendar_jump">קפיצה לתאריך</string>
+    <string name="calendar_previous">הקודם</string>
+    <string name="calendar_next">הבא</string>
+    <string name="calendar_layer_events">האירועים שלי</string>
+    <string name="calendar_layer_holidays">חגים ומועדים</string>
+    <string name="calendar_layer_parsha">פרשת השבוע</string>
+    <string name="calendar_parsha">פרשת %1$s</string>
+    <string name="calendar_day_empty">אין אירועים ביום הזה.</string>
+    <string name="calendar_add_for_day">הוסף אירוע ליום הזה</string>
+    <string name="calendar_agenda_empty">אין אירועים או מועדים בתקופה הקרובה.</string>
 </resources>

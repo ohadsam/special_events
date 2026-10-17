@@ -67,6 +67,7 @@ import com.ohadsam.specialevents.calendar.CalendarBasis
 import com.ohadsam.specialevents.domain.EditorDate
 import com.ohadsam.specialevents.domain.EventType
 import com.ohadsam.specialevents.domain.Gender
+import com.ohadsam.specialevents.ui.common.GregorianDatePickerDialog
 import com.ohadsam.specialevents.ui.common.gregorianLong
 import com.ohadsam.specialevents.ui.common.gregorianNoYear
 import com.ohadsam.specialevents.ui.common.labelRes
@@ -249,22 +250,6 @@ private fun CheckRow(title: String, checked: Boolean, description: String?, onCh
             description?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
         }
     }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun GregorianDatePickerDialog(initial: LocalDate, onDismiss: () -> Unit, onConfirm: (LocalDate) -> Unit) {
-    val picker = rememberDatePickerState(initialSelectedDateMillis = initial.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli())
-    DatePickerDialog(
-        onDismissRequest = onDismiss,
-        confirmButton = {
-            TextButton(
-                enabled = picker.selectedDateMillis != null,
-                onClick = { picker.selectedDateMillis?.let { onConfirm(Instant.ofEpochMilli(it).atZone(ZoneOffset.UTC).toLocalDate()) } },
-            ) { Text(stringResource(R.string.action_ok)) }
-        },
-        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.action_cancel)) } },
-    ) { DatePicker(state = picker) }
 }
 
 @OptIn(ExperimentalLayoutApi::class)

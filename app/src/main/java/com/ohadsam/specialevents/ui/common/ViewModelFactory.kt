@@ -3,6 +3,7 @@ package com.ohadsam.specialevents.ui.common
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.ohadsam.specialevents.AppContainer
+import com.ohadsam.specialevents.ui.calendar.CalendarViewModel
 import com.ohadsam.specialevents.ui.settings.SettingsViewModel
 import com.ohadsam.specialevents.ui.upcoming.UpcomingViewModel
 
@@ -12,6 +13,7 @@ class ViewModelFactory(private val container: AppContainer) : ViewModelProvider.
     override fun <T : ViewModel> create(modelClass: Class<T>): T = when {
         modelClass.isAssignableFrom(UpcomingViewModel::class.java) -> UpcomingViewModel(container)
         modelClass.isAssignableFrom(SettingsViewModel::class.java) -> SettingsViewModel(container)
+        modelClass.isAssignableFrom(CalendarViewModel::class.java) -> CalendarViewModel(container)
         else -> throw IllegalArgumentException("Unknown ViewModel ${modelClass.name}")
     } as T
 }

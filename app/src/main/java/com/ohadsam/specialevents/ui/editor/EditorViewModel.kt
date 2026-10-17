@@ -49,7 +49,7 @@ data class EditorState(
     val yearOptional: Boolean get() = type.yearly
 }
 
-class EditorViewModel(private val container: AppContainer, private val eventId: Long) : ViewModel() {
+class EditorViewModel(private val container: AppContainer, private val eventId: Long, private val initialDate: LocalDate? = null) : ViewModel() {
     private val _state = MutableStateFlow(EditorState())
     val state: StateFlow<EditorState> = _state.asStateFlow()
     private var original: SpecialEvent? = null
@@ -61,7 +61,7 @@ class EditorViewModel(private val container: AppContainer, private val eventId: 
             val event = if (eventId != 0L) container.events.get(eventId) else null
             original = event
             _state.value = if (event == null) {
-                _state.value.copy(loading = false, knownTags = tags)
+                _state.value.copy(loading = false, knownTags = tags, date = initialDate?.let { EditorDate.today(it) } ?: _state.value.date)
             } else {
                 val today = LocalDate.now()
                 EditorState(
@@ -154,8 +154,8 @@ class EditorViewModel(private val container: AppContainer, private val eventId: 
         }
     }
 
-    class Factory(private val container: AppContainer, private val eventId: Long) : ViewModelProvider.Factory {
+    class Factory(private val container: AppContainer, private val eventId: Long, private val initialDate: LocalDate? = null) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
-        override fun <T : ViewModel> create(modelClass: Class<T>): T = EditorViewModel(container, eventId) as T
+        override fun <T : ViewModel> create(modelClass: Class<T>): T = EditorViewModel(container, eventId, initialDate) as T
     }
 }

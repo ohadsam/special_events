@@ -1,7 +1,9 @@
 package com.ohadsam.specialevents.ui.common
 
+import com.ohadsam.specialevents.calendar.HebrewCalendar
 import com.ohadsam.specialevents.calendar.HebrewDate
 import com.ohadsam.specialevents.data.prefs.CalendarMode
+import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
@@ -31,5 +33,34 @@ fun dateLabel(date: LocalDate, hebrew: HebrewDate, mode: CalendarMode, long: Boo
         CalendarMode.HEBREW -> hebrew.format()
         CalendarMode.GREGORIAN -> greg
         CalendarMode.DUAL -> "${hebrew.format()} · $greg"
+    }
+}
+
+private val MONTH_YEAR: DateTimeFormatter = DateTimeFormatter.ofPattern("LLLL yyyy", HE)
+private val MONTH_ONLY: DateTimeFormatter = DateTimeFormatter.ofPattern("LLLL", HE)
+
+/** "אוקטובר 2026" */
+fun gregorianMonthYear(date: LocalDate): String = MONTH_YEAR.format(date)
+
+/** "חשוון תשפ״ז" */
+fun hebrewMonthYear(h: HebrewDate): String = "${h.monthName} ${HebrewCalendar.yearLabel(h.year)}"
+
+fun weekdayShort(day: DayOfWeek): String = day.getDisplayName(TextStyle.NARROW, HE)
+
+/** "אוקטובר–נובמבר 2026" for a span of days (just "אוקטובר 2026" inside one month). */
+fun gregorianSpanLabel(first: LocalDate, last: LocalDate): String = when {
+    first.year == last.year && first.month == last.month -> MONTH_YEAR.format(first)
+    first.year == last.year -> "${MONTH_ONLY.format(first)}–${MONTH_YEAR.format(last)}"
+    else -> "${MONTH_YEAR.format(first)} – ${MONTH_YEAR.format(last)}"
+}
+
+/** "תשרי–חשוון תשפ״ז" for the Hebrew months a span of days touches. */
+fun hebrewSpanLabel(first: LocalDate, last: LocalDate): String {
+    val a = HebrewCalendar.fromLocalDate(first)
+    val b = HebrewCalendar.fromLocalDate(last)
+    return when {
+        a.year == b.year && a.month == b.month -> hebrewMonthYear(a)
+        a.year == b.year -> "${a.monthName}–${hebrewMonthYear(b)}"
+        else -> "${hebrewMonthYear(a)} – ${hebrewMonthYear(b)}"
     }
 }
