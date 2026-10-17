@@ -46,6 +46,7 @@ Real incidents carried over from earlier apps (keep concrete; add new ones below
 - Domain data (schedules, halachic/legal/business rules) must be confirmed by the owner, not inferred from another repo or an unverified web summary.
 - Glance widgets: data captured once in `provideGlance` goes stale after `update()` — collect flows / read state inside `provideContent`.
 - Sealed-class additions must be handled in every `when` (planner, codec, list text, editor) — grep before pushing.
+- Kotlin block comments NEST: a glob like `dir/*.json` inside a KDoc opens a second comment and breaks the whole file (ktlint reports "Unclosed comment"). Never write `/*` in comment text.
 - KSP occasionally flakes (`Expected start of the object '{', but had 'EOF'`) — re-run CI, don't "fix".
 
 ## 8. Merge
