@@ -1,0 +1,11 @@
+*.iml
+.gradle/
+build/
+local.properties
+.idea/
+captures/
+.externalNativeBuild/
+.cxx/
+*.jks
+*.keystore
+# if you commit a sideload key on purpose: !app/sideload.jks

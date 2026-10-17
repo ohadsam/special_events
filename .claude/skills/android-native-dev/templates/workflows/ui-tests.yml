@@ -1,0 +1,46 @@
+name: UI tests (emulator)
+on:
+  workflow_dispatch:
+jobs:
+  connected:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - name: Free disk space for the emulator image
+        run: |
+          sudo rm -rf /usr/share/dotnet /opt/ghc /opt/hostedtoolcache/CodeQL /usr/local/share/boost /usr/local/lib/android/sdk/ndk || true
+          df -h /
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: 17 }
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Instrumented smoke tests
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          target: google_apis
+          disk-size: 3072M
+          disable-animations: true
+          script: |
+            chmod +x gradlew
+            ./gradlew connectedDebugAndroidTest --stacktrace || echo "UI_TESTS_FAILED"
+            adb shell screencap -p /sdcard/final.png || true
+            adb pull /sdcard/final.png final.png || true
+            adb logcat -d | grep -E "AppTest|AndroidRuntime|FATAL" | tail -300 || true
+            adb logcat -d -v raw -s AppShot > shots.txt || true
+            echo "SHOTS_BEGIN"; cat shots.txt; echo "SHOTS_END"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ui-test-results
+          path: |
+            app/build/reports/androidTests
+            app/build/outputs/androidTest-results
+            final.png
