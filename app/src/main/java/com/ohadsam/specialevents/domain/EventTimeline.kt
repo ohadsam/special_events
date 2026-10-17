@@ -31,7 +31,6 @@ data class UpcomingItem(
 /** Pure computation of what is coming up; no Android, clock injected through [from]. */
 object EventTimeline {
     private const val DEFAULT_HORIZON_DAYS = 366L
-    private const val MAX_PER_EVENT = 4
 
     fun upcoming(
         events: List<SpecialEvent>,
@@ -60,9 +59,8 @@ object EventTimeline {
     private fun occurrencesOf(event: SpecialEvent, from: LocalDate, until: LocalDate, rules: DateRules): List<Pair<LocalDate, Int?>> =
         when (event.recurrence) {
             Recurrence.ONCE -> originDate(event)?.takeIf { it >= from && it <= until }?.let { listOf(it to null) } ?: emptyList()
-            Recurrence.YEARLY -> AnnualDates.upcoming(event.origin, from, MAX_PER_EVENT, rules)
-                .takeWhile { it.date <= until }
-                .map { it.date to it.number }
+            // The list shows each recurring event once (its next occurrence); range views use their own query.
+            Recurrence.YEARLY -> AnnualDates.next(event.origin, from, rules).takeIf { it.date <= until }?.let { listOf(it.date to it.number) } ?: emptyList()
         }
 
     /** The exact date of a one-time event (needs a year); null when it cannot be resolved. */
