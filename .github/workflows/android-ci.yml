@@ -24,6 +24,12 @@ jobs:
         run: |
           chmod +x gradlew
           ./gradlew ktlintCheck detekt lintDebug testDebugUnitTest compileDebugAndroidTestKotlin assembleDebug assembleRelease --stacktrace
+      - name: Print Room schemas (commit them under app/schemas when they change)
+        if: steps.has.outputs.ok == 'true'
+        run: |
+          echo "ROOM_SCHEMA_BEGIN"
+          find app/schemas -name '*.json' 2>/dev/null | sort | while read -r f; do echo "== $f"; cat "$f"; done
+          echo "ROOM_SCHEMA_END"
       - name: Name the APK (version + commit) so the right build is always identifiable
         if: steps.has.outputs.ok == 'true'
         run: |
