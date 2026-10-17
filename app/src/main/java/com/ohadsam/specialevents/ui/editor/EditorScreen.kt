@@ -1,0 +1,330 @@
+package com.ohadsam.specialevents.ui.editor
+
+import androidx.annotation.StringRes
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.toggleable
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material.icons.outlined.Close
+import androidx.compose.material.icons.outlined.Edit
+import androidx.compose.material.icons.outlined.SwapHoriz
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.InputChip
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SuggestionChip
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.rememberDatePickerState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.ohadsam.specialevents.R
+import com.ohadsam.specialevents.calendar.CalendarBasis
+import com.ohadsam.specialevents.domain.EditorDate
+import com.ohadsam.specialevents.domain.EventType
+import com.ohadsam.specialevents.domain.Gender
+import com.ohadsam.specialevents.ui.common.gregorianLong
+import com.ohadsam.specialevents.ui.common.gregorianNoYear
+import com.ohadsam.specialevents.ui.common.labelRes
+import com.ohadsam.specialevents.ui.common.weekdayName
+import java.time.Instant
+import java.time.LocalDate
+import java.time.ZoneOffset
+
+private val PALETTE = listOf(0xFFE57373, 0xFFFFB74D, 0xFFFFD54F, 0xFF81C784, 0xFF4DB6AC, 0xFF64B5F6, 0xFF9575CD, 0xFFF06292, 0xFFA1887F, 0xFF90A4AE)
+    .map { it.toInt() }
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun EditorScreen(viewModel: EditorViewModel, onClose: () -> Unit, onSaved: (Long) -> Unit) {
+    val state by viewModel.state.collectAsStateWithLifecycle()
+    LaunchedEffect(state.savedId) { state.savedId?.let(onSaved) }
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text(stringResource(if (state.isNew) R.string.editor_title_new else R.string.editor_title_edit)) },
+                navigationIcon = {
+                    IconButton(onClick = onClose) { Icon(Icons.Outlined.Close, contentDescription = stringResource(R.string.action_close)) }
+                },
+                actions = {
+                    TextButton(onClick = viewModel::save, enabled = !state.saving && !state.loading) { Text(stringResource(R.string.action_save)) }
+                },
+            )
+        },
+    ) { padding ->
+        if (state.loading) return@Scaffold
+        Column(
+            Modifier.fillMaxSize().padding(padding).imePadding().verticalScroll(rememberScrollState()).padding(horizontal = 16.dp, vertical = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+        ) {
+            TypeChips(state.type, viewModel::setType)
+            OutlinedTextField(
+                value = state.title,
+                onValueChange = viewModel::setTitle,
+                label = { Text(stringResource(titleLabel(state.type))) },
+                isError = state.titleError,
+                supportingText = if (state.titleError) {
+                    { Text(stringResource(R.string.editor_title_required)) }
+                } else {
+                    null
+                },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+            )
+            if (state.type == EventType.BIRTHDAY || state.type == EventType.YAHRZEIT || state.type == EventType.BAR_BAT_MITZVAH) {
+                GenderChips(state.gender, viewModel::setGender)
+            }
+            DateSection(state.date, state.yearOptional, viewModel::setDate)
+            MoreOptions(state, viewModel)
+        }
+    }
+}
+
+@StringRes
+private fun titleLabel(type: EventType): Int = when (type) {
+    EventType.BIRTHDAY, EventType.YAHRZEIT, EventType.BAR_BAT_MITZVAH -> R.string.editor_label_person
+    EventType.ANNIVERSARY -> R.string.editor_label_couple
+    else -> R.string.editor_label_title
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun TypeChips(selected: EventType, onSelect: (EventType) -> Unit) {
+    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        EventType.entries.forEach { type ->
+            FilterChip(selected = type == selected, onClick = { onSelect(type) }, label = { Text(stringResource(type.labelRes())) })
+        }
+    }
+}
+
+@Composable
+private fun GenderChips(selected: Gender?, onSelect: (Gender?) -> Unit) {
+    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+        Text(stringResource(R.string.editor_gender), style = MaterialTheme.typography.labelLarge)
+        FilterChip(selected = selected == Gender.MALE, onClick = { onSelect(if (selected == Gender.MALE) null else Gender.MALE) }, label = { Text(stringResource(R.string.gender_male)) })
+        FilterChip(selected = selected == Gender.FEMALE, onClick = { onSelect(if (selected == Gender.FEMALE) null else Gender.FEMALE) }, label = { Text(stringResource(R.string.gender_female)) })
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun DateSection(date: EditorDate, yearOptional: Boolean, onChange: (EditorDate) -> Unit) {
+    var pickGregorian by rememberSaveable { mutableStateOf(false) }
+    var pickHebrew by rememberSaveable { mutableStateOf(false) }
+    val hebrewPrimary = date.basis == CalendarBasis.HEBREW
+
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Text(stringResource(R.string.editor_date), style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.primary)
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            FilterChip(selected = !hebrewPrimary, onClick = { onChange(date.withBasis(CalendarBasis.GREGORIAN)) }, label = { Text(stringResource(R.string.editor_basis_gregorian)) })
+            FilterChip(selected = hebrewPrimary, onClick = { onChange(date.withBasis(CalendarBasis.HEBREW)) }, label = { Text(stringResource(R.string.editor_basis_hebrew)) })
+        }
+        OutlinedButton(onClick = { if (hebrewPrimary) pickHebrew = true else pickGregorian = true }, modifier = Modifier.fillMaxWidth()) {
+            Icon(Icons.Outlined.Edit, contentDescription = null, modifier = Modifier.padding(end = 8.dp))
+            Text(primaryLabel(date), style = MaterialTheme.typography.titleMedium)
+        }
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Icon(Icons.Outlined.SwapHoriz, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(secondaryLabel(date), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+        if (yearOptional) {
+            CheckRow(stringResource(R.string.editor_year_known), date.hasYear, null) { onChange(date.withHasYear(it)) }
+        }
+        if (!hebrewPrimary) {
+            CheckRow(stringResource(R.string.editor_after_sunset), date.afterSunset, stringResource(R.string.editor_after_sunset_desc)) { onChange(date.withAfterSunset(it)) }
+        }
+    }
+
+    if (pickGregorian) {
+        GregorianDatePickerDialog(
+            initial = date.gregorian,
+            onDismiss = { pickGregorian = false },
+            onConfirm = {
+                pickGregorian = false
+                onChange(date.withGregorian(it))
+            },
+        )
+    }
+    if (pickHebrew) {
+        HebrewDatePickerDialog(
+            initial = date.hebrew,
+            hasYear = date.hasYear,
+            onDismiss = { pickHebrew = false },
+            onConfirm = {
+                pickHebrew = false
+                onChange(date.withHebrew(it))
+            },
+        )
+    }
+}
+
+@Composable
+private fun primaryLabel(date: EditorDate): String = when (date.basis) {
+    CalendarBasis.GREGORIAN -> if (date.hasYear) gregorianLong(date.gregorian) else gregorianNoYear(date.gregorian)
+    CalendarBasis.HEBREW -> date.hebrew.format(withYear = date.hasYear)
+}
+
+/** The equivalent date in the other calendar, with the weekday when the year is known. */
+@Composable
+private fun secondaryLabel(date: EditorDate): String = when (date.basis) {
+    CalendarBasis.GREGORIAN -> stringResource(R.string.editor_equiv_hebrew, date.hebrew.format(withYear = date.hasYear))
+    CalendarBasis.HEBREW -> {
+        val text = if (date.hasYear) "${weekdayName(date.gregorian)}, ${gregorianLong(date.gregorian)}" else gregorianNoYear(date.gregorian)
+        stringResource(R.string.editor_equiv_gregorian, text)
+    }
+}
+
+@Composable
+private fun CheckRow(title: String, checked: Boolean, description: String?, onChange: (Boolean) -> Unit) {
+    Row(
+        Modifier.fillMaxWidth().toggleable(value = checked, role = Role.Checkbox, onValueChange = onChange).padding(vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        Checkbox(checked = checked, onCheckedChange = null)
+        Column {
+            Text(title, style = MaterialTheme.typography.bodyLarge)
+            description?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun GregorianDatePickerDialog(initial: LocalDate, onDismiss: () -> Unit, onConfirm: (LocalDate) -> Unit) {
+    val picker = rememberDatePickerState(initialSelectedDateMillis = initial.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli())
+    DatePickerDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {
+            TextButton(
+                enabled = picker.selectedDateMillis != null,
+                onClick = { picker.selectedDateMillis?.let { onConfirm(Instant.ofEpochMilli(it).atZone(ZoneOffset.UTC).toLocalDate()) } },
+            ) { Text(stringResource(R.string.action_ok)) }
+        },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.action_cancel)) } },
+    ) { DatePicker(state = picker) }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun MoreOptions(state: EditorState, vm: EditorViewModel) {
+    var open by rememberSaveable { mutableStateOf(false) }
+    TextButton(onClick = { open = !open }) { Text(stringResource(if (open) R.string.editor_less_options else R.string.editor_more_options)) }
+    if (!open) return
+    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+        OutlinedTextField(
+            value = state.relation,
+            onValueChange = vm::setRelation,
+            label = { Text(stringResource(R.string.editor_relation)) },
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth(),
+        )
+        OutlinedTextField(
+            value = state.notes,
+            onValueChange = vm::setNotes,
+            label = { Text(stringResource(R.string.editor_notes)) },
+            minLines = 2,
+            modifier = Modifier.fillMaxWidth(),
+        )
+        Text(stringResource(R.string.editor_icon), style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.primary)
+        Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+            FilterChip(selected = state.chosenEmoji == null, onClick = { vm.setEmoji(null) }, label = { Text(stringResource(R.string.editor_icon_auto, state.emoji)) })
+            state.emojiOptions.forEach { e ->
+                Box(
+                    Modifier.size(44.dp).clip(CircleShape)
+                        .background(if (state.chosenEmoji == e) MaterialTheme.colorScheme.primaryContainer else Color.Transparent)
+                        .clickable { vm.setEmoji(e) },
+                    contentAlignment = Alignment.Center,
+                ) { Text(e, fontSize = 24.sp) }
+            }
+        }
+        Text(stringResource(R.string.editor_color), style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.primary)
+        Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            ColorSwatch(null, state.colorArgb == null) { vm.setColor(null) }
+            PALETTE.forEach { c -> ColorSwatch(c, state.colorArgb == c) { vm.setColor(c) } }
+        }
+        Text(stringResource(R.string.editor_tags), style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.primary)
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            state.tags.forEach { tag ->
+                InputChip(
+                    selected = true,
+                    onClick = { vm.removeTag(tag) },
+                    label = { Text(tag) },
+                    trailingIcon = { Icon(Icons.Outlined.Close, contentDescription = stringResource(R.string.editor_tag_remove, tag), modifier = Modifier.size(18.dp)) },
+                )
+            }
+        }
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            OutlinedTextField(
+                value = state.newTag,
+                onValueChange = vm::setNewTag,
+                label = { Text(stringResource(R.string.editor_tag_new)) },
+                singleLine = true,
+                modifier = Modifier.weight(1f),
+            )
+            IconButton(onClick = { vm.addTag() }) { Icon(Icons.Outlined.Add, contentDescription = stringResource(R.string.editor_tag_add)) }
+        }
+        val suggestions = state.knownTags.filter { k -> state.tags.none { it.equals(k.name, ignoreCase = true) } }
+        if (suggestions.isNotEmpty()) {
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                suggestions.forEach { SuggestionChip(onClick = { vm.addTag(it.name) }, label = { Text(it.name) }) }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ColorSwatch(color: Int?, selected: Boolean, onClick: () -> Unit) {
+    val description = stringResource(if (color == null) R.string.editor_color_none else R.string.editor_color_pick)
+    Box(
+        Modifier.size(40.dp).clip(CircleShape)
+            .background(color?.let { Color(it) } ?: MaterialTheme.colorScheme.surfaceVariant)
+            .border(BorderStroke(if (selected) 3.dp else 1.dp, if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline), CircleShape)
+            .clickable(onClick = onClick)
+            .semantics { contentDescription = description },
+        contentAlignment = Alignment.Center,
+    ) { if (color == null) Text("∅") }
+}

@@ -93,4 +93,13 @@ class EventTimelineTest {
         val items = EventTimeline.upcoming(listOf(noGender, noYear), today, inIsrael = true)
         assertTrue(items.none { it.kind == ItemKind.MITZVAH })
     }
+
+    @Test
+    fun forEventListsConsecutiveOccurrencesWithNumbers() {
+        val e = event("דוד", origin = greg(1976, 10, 20))
+        val list = EventTimeline.forEvent(e, today, 3)
+        assertEquals(listOf(50, 51, 52), list.map { it.number })
+        assertEquals(listOf(2026, 2027, 2028), list.map { it.date.year })
+        assertTrue(EventTimeline.forEvent(event("עבר", EventType.FAMILY, greg(2026, 1, 1)), today, 3).isEmpty())
+    }
 }

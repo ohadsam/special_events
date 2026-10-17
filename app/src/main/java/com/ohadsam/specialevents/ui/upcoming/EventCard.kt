@@ -114,7 +114,7 @@ fun countdownText(days: Long): String = when (days) {
 
 /** "גיל 50" / "25 שנות נישואין" / "בר מצווה · שבת נח" — the second line of a card. */
 @Composable
-private fun kindLabel(item: UpcomingItem): String {
+internal fun kindLabel(item: UpcomingItem): String {
     val event = item.event
     if (item.kind == ItemKind.MITZVAH) {
         val title = stringResource(if (event.gender == Gender.FEMALE) R.string.mitzvah_bat else R.string.mitzvah_bar)
@@ -134,7 +134,7 @@ private fun kindLabel(item: UpcomingItem): String {
 
 /** The highlight line for round birthdays, named anniversaries and yahrzeit milestones, or null. */
 @Composable
-private fun milestoneLabel(item: UpcomingItem): String? {
+internal fun milestoneLabel(item: UpcomingItem): String? {
     val m = item.milestone ?: return null
     m.gift?.let { return stringResource(R.string.milestone_anniversary_named, m.number, stringResource(it.labelRes())) }
     return when (item.event.type) {

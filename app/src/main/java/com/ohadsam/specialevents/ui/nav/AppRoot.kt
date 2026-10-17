@@ -14,7 +14,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
+import androidx.navigation.navArgument
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
@@ -24,6 +26,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.ohadsam.specialevents.ui.common.PlaceholderScreen
 import com.ohadsam.specialevents.ui.common.ViewModelFactory
 import com.ohadsam.specialevents.ui.upcoming.UpcomingScreen
+import com.ohadsam.specialevents.ui.detail.DetailScreen
+import com.ohadsam.specialevents.ui.detail.DetailViewModel
+import com.ohadsam.specialevents.ui.editor.EditorScreen
+import com.ohadsam.specialevents.ui.editor.EditorViewModel
 import com.ohadsam.specialevents.ui.settings.LogsScreen
 import com.ohadsam.specialevents.ui.settings.SettingsScreen
 
@@ -65,13 +71,27 @@ fun AppRoot(container: AppContainer) {
             modifier = Modifier.padding(padding).consumeWindowInsets(padding),
         ) {
             composable(TopLevel.UPCOMING.route) {
-                UpcomingScreen(viewModel(factory = factory), onAddEvent = {}, onOpenEvent = {})
+                UpcomingScreen(
+                    viewModel(factory = factory),
+                    onAddEvent = { nav.navigate(Routes.editor(0)) },
+                    onOpenEvent = { nav.navigate(Routes.detail(it)) },
+                )
             }
             composable(TopLevel.CALENDAR.route) {
                 PlaceholderScreen(R.string.tab_calendar, R.string.calendar_empty_title, R.string.calendar_empty_body)
             }
             composable(TopLevel.SETTINGS.route) {
                 SettingsScreen(viewModel(factory = factory), onOpenLogs = { nav.navigate(Routes.LOGS) })
+            }
+            composable(Routes.DETAIL, arguments = listOf(navArgument("id") { type = NavType.LongType })) { entry ->
+                val id = entry.arguments?.getLong("id") ?: 0L
+                val vm: DetailViewModel = viewModel(key = "detail-$id", factory = DetailViewModel.Factory(container, id))
+                DetailScreen(vm, onBack = { nav.popBackStack() }, onEdit = { nav.navigate(Routes.editor(id)) })
+            }
+            composable(Routes.EDITOR, arguments = listOf(navArgument("id") { type = NavType.LongType })) { entry ->
+                val id = entry.arguments?.getLong("id") ?: 0L
+                val vm: EditorViewModel = viewModel(key = "editor-$id", factory = EditorViewModel.Factory(container, id))
+                EditorScreen(vm, onClose = { nav.popBackStack() }, onSaved = { nav.popBackStack() })
             }
             composable(Routes.LOGS) {
                 LogsScreen(logger = container.logger, onBack = { nav.popBackStack() })

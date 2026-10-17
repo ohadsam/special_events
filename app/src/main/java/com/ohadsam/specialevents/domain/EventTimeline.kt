@@ -46,11 +46,19 @@ object EventTimeline {
             occurrencesOf(event, from, until, rules).forEach { (date, number) ->
                 items.add(item(event, ItemKind.OCCURRENCE, date, number, from, milestoneFor(event, number)))
             }
-            mitzvahOf(event, inIsrael, rules)?.takeIf { it.date >= from && it.date <= until }?.let { m ->
+            mitzvahInfo(event, inIsrael, rules)?.takeIf { it.date >= from && it.date <= until }?.let { m ->
                 items.add(item(event, ItemKind.MITZVAH, m.date, null, from, null, m))
             }
         }
         return items.sortedWith(compareBy<UpcomingItem> { it.date }.thenBy { it.kind }.thenBy { it.event.title })
+    }
+
+    /** The next [count] occurrences of one event (a one-time event has at most one), for its detail screen. */
+    fun forEvent(event: SpecialEvent, from: LocalDate, count: Int, rules: DateRules = DateRules()): List<UpcomingItem> = when (event.recurrence) {
+        Recurrence.ONCE -> originDate(event)?.takeIf { it >= from }?.let { listOf(item(event, ItemKind.OCCURRENCE, it, null, from, null)) } ?: emptyList()
+        Recurrence.YEARLY -> AnnualDates.upcoming(event.origin, from, count, rules).map { o ->
+            item(event, ItemKind.OCCURRENCE, o.date, o.number, from, milestoneFor(event, o.number))
+        }
     }
 
     private fun item(event: SpecialEvent, kind: ItemKind, date: LocalDate, number: Int?, from: LocalDate, milestone: Milestone?, mitzvah: MitzvahDay? = null) =
@@ -85,7 +93,7 @@ object EventTimeline {
     }
 
     /** Bar/bat mitzvah of a birthday with a known birth year and gender. */
-    private fun mitzvahOf(event: SpecialEvent, inIsrael: Boolean, rules: DateRules): MitzvahDay? {
+    fun mitzvahInfo(event: SpecialEvent, inIsrael: Boolean, rules: DateRules = DateRules()): MitzvahDay? {
         if (event.type != EventType.BIRTHDAY) return null
         val gender = event.gender ?: return null
         val year = event.origin.year ?: return null
