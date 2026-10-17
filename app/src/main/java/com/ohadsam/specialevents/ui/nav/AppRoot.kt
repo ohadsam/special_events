@@ -29,6 +29,7 @@ import com.ohadsam.specialevents.ui.detail.DetailScreen
 import com.ohadsam.specialevents.ui.detail.DetailViewModel
 import com.ohadsam.specialevents.ui.editor.EditorScreen
 import com.ohadsam.specialevents.ui.editor.EditorViewModel
+import com.ohadsam.specialevents.ui.search.SearchScreen
 import com.ohadsam.specialevents.ui.settings.LogsScreen
 import com.ohadsam.specialevents.ui.settings.SettingsScreen
 
@@ -74,6 +75,7 @@ fun AppRoot(container: AppContainer) {
                     viewModel(factory = factory),
                     onAddEvent = { nav.navigate(Routes.editor(0)) },
                     onOpenEvent = { nav.navigate(Routes.detail(it)) },
+                    onOpenSearch = { nav.navigate(Routes.SEARCH) },
                 )
             }
             composable(TopLevel.CALENDAR.route) {
@@ -106,6 +108,9 @@ fun AppRoot(container: AppContainer) {
                 val date = entry.arguments?.getString("date")?.let { runCatching { java.time.LocalDate.parse(it) }.getOrNull() }
                 val vm: EditorViewModel = viewModel(key = "editor-$id-$date", factory = EditorViewModel.Factory(container, id, date))
                 EditorScreen(vm, onClose = { nav.popBackStack() }, onSaved = { nav.popBackStack() })
+            }
+            composable(Routes.SEARCH) {
+                SearchScreen(viewModel(factory = factory), onBack = { nav.popBackStack() }, onOpenEvent = { nav.navigate(Routes.detail(it)) })
             }
             composable(Routes.LOGS) {
                 LogsScreen(logger = container.logger, onBack = { nav.popBackStack() })

@@ -90,7 +90,7 @@ private fun MilestoneBadge(text: String, major: Boolean) {
 
 @Composable
 private fun CountdownPill(days: Long) {
-    val today = days <= 0
+    val today = days == 0L
     Surface(
         shape = MaterialTheme.shapes.large,
         color = if (today) MaterialTheme.colorScheme.tertiaryContainer else MaterialTheme.colorScheme.surfaceVariant,
@@ -107,6 +107,8 @@ private fun CountdownPill(days: Long) {
 @Composable
 fun countdownText(days: Long): String = when (days) {
     0L -> stringResource(R.string.countdown_today)
+    -1L -> stringResource(R.string.countdown_yesterday)
+    in Long.MIN_VALUE..-2L -> stringResource(R.string.countdown_ago, -days)
     1L -> stringResource(R.string.countdown_tomorrow)
     2L -> stringResource(R.string.countdown_day_after)
     else -> stringResource(R.string.countdown_days, days)

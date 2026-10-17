@@ -7,6 +7,7 @@ import com.ohadsam.specialevents.log.LogLevel
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import com.ohadsam.specialevents.data.EventRepository
 import com.ohadsam.specialevents.data.db.AppDatabase
+import com.ohadsam.specialevents.data.prefs.SavedSearchRepository
 import com.ohadsam.specialevents.data.prefs.SettingsRepository
 import java.io.File
 import kotlinx.coroutines.CoroutineScope
@@ -36,6 +37,13 @@ class AppContainer(private val context: Context) {
         PreferenceDataStoreFactory.create(
             scope = CoroutineScope(Dispatchers.IO + SupervisorJob()),
             produceFile = { File(context.filesDir, "datastore/settings.preferences_pb") },
+        ),
+    )
+
+    val savedSearches: SavedSearchRepository = SavedSearchRepository(
+        PreferenceDataStoreFactory.create(
+            scope = CoroutineScope(Dispatchers.IO + SupervisorJob()),
+            produceFile = { File(context.filesDir, "datastore/searches.preferences_pb") },
         ),
     )
 }

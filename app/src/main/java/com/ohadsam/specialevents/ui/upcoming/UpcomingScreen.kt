@@ -60,56 +60,26 @@ import com.ohadsam.specialevents.ui.theme.SpecialEventsTheme
 import java.time.LocalDate
 
 @Composable
-fun UpcomingScreen(viewModel: UpcomingViewModel, onAddEvent: () -> Unit, onOpenEvent: (Long) -> Unit) {
+fun UpcomingScreen(viewModel: UpcomingViewModel, onAddEvent: () -> Unit, onOpenEvent: (Long) -> Unit, onOpenSearch: () -> Unit) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    UpcomingContent(state, viewModel::setQuery, viewModel::setFilter, onAddEvent, onOpenEvent)
+    UpcomingContent(state, viewModel::setFilter, onAddEvent, onOpenEvent, onOpenSearch)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UpcomingContent(
     state: UpcomingState,
-    onQuery: (String) -> Unit,
     onFilter: (TypeFilter) -> Unit,
     onAddEvent: () -> Unit,
     onOpenEvent: (Long) -> Unit,
+    onOpenSearch: () -> Unit,
 ) {
-    var searching by rememberSaveable { mutableStateOf(false) }
-    val focus = remember { FocusRequester() }
-    LaunchedEffect(searching) { if (searching) focus.requestFocus() }
-
     Scaffold(
         topBar = {
             TopAppBar(
-                title = {
-                    if (searching) {
-                        TextField(
-                            value = state.query,
-                            onValueChange = onQuery,
-                            placeholder = { Text(stringResource(R.string.search_hint)) },
-                            singleLine = true,
-                            colors = TextFieldDefaults.colors(
-                                focusedContainerColor = Color.Transparent,
-                                unfocusedContainerColor = Color.Transparent,
-                                focusedIndicatorColor = Color.Transparent,
-                                unfocusedIndicatorColor = Color.Transparent,
-                            ),
-                            modifier = Modifier.focusRequester(focus),
-                        )
-                    } else {
-                        Text(stringResource(R.string.tab_upcoming))
-                    }
-                },
+                title = { Text(stringResource(R.string.tab_upcoming)) },
                 actions = {
-                    IconButton(onClick = {
-                        if (searching) onQuery("")
-                        searching = !searching
-                    }) {
-                        Icon(
-                            if (searching) Icons.Outlined.Close else Icons.Outlined.Search,
-                            contentDescription = stringResource(if (searching) R.string.search_close else R.string.search_open),
-                        )
-                    }
+                    IconButton(onClick = onOpenSearch) { Icon(Icons.Outlined.Search, contentDescription = stringResource(R.string.search_open)) }
                 },
             )
         },

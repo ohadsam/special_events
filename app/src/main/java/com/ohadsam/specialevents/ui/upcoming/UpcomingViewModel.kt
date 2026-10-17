@@ -27,7 +27,6 @@ data class UpcomingState(
     val loading: Boolean = true,
     val today: LocalDate = LocalDate.now(),
     val groups: List<Pair<UpcomingGroup, List<UpcomingItem>>> = emptyList(),
-    val query: String = "",
     val filter: TypeFilter = TypeFilter.ALL,
     val settings: AppSettings = AppSettings(),
     /** True when there are no events at all (as opposed to none matching the filter). */
@@ -38,7 +37,6 @@ class UpcomingViewModel(
     private val container: AppContainer,
     private val clock: Clock = Clock.systemDefaultZone(),
 ) : ViewModel() {
-    private val query = MutableStateFlow("")
     private val filter = MutableStateFlow(TypeFilter.ALL)
 
     /** Emits today's date now and again just after every midnight so the list rolls over by itself. */
@@ -54,24 +52,18 @@ class UpcomingViewModel(
         container.events.allEvents,
         container.settings.settings,
         today,
-        query,
         filter,
-    ) { events, settings, day, q, f ->
+    ) { events, settings, day, f ->
         val all = EventTimeline.upcoming(events, day, settings.inIsrael, settings.dateRules)
         UpcomingState(
             loading = false,
             today = day,
-            groups = UpcomingFilter.group(UpcomingFilter.apply(all, q, f)),
-            query = q,
+            groups = UpcomingFilter.group(UpcomingFilter.apply(all, "", f)),
             filter = f,
             settings = settings,
             noEvents = events.none { !it.archived },
         )
     }.flowOn(Dispatchers.Default).stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), UpcomingState())
-
-    fun setQuery(value: String) {
-        query.value = value
-    }
 
     fun setFilter(value: TypeFilter) {
         filter.value = value
