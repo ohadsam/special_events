@@ -17,6 +17,8 @@ import androidx.compose.material.icons.outlined.Cake
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.SearchOff
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
@@ -31,6 +33,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -46,7 +49,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.remember
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.ui.platform.LocalContext
+import com.ohadsam.specialevents.permissions.PermissionHealth
 import com.ohadsam.specialevents.R
 import com.ohadsam.specialevents.calendar.CalendarBasis
 import com.ohadsam.specialevents.calendar.OriginDate
@@ -60,9 +68,23 @@ import com.ohadsam.specialevents.ui.theme.SpecialEventsTheme
 import java.time.LocalDate
 
 @Composable
-fun UpcomingScreen(viewModel: UpcomingViewModel, onAddEvent: () -> Unit, onOpenEvent: (Long) -> Unit, onOpenSearch: () -> Unit) {
+fun UpcomingScreen(
+    viewModel: UpcomingViewModel,
+    onAddEvent: () -> Unit,
+    onOpenEvent: (Long) -> Unit,
+    onOpenSearch: () -> Unit,
+    onOpenReminderHealth: () -> Unit,
+) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    UpcomingContent(state, viewModel::setFilter, onAddEvent, onOpenEvent, onOpenSearch)
+    val context = LocalContext.current
+    var health by remember { mutableStateOf(PermissionHealth.check(context)) }
+    val owner = LocalLifecycleOwner.current
+    DisposableEffect(owner) {
+        val observer = LifecycleEventObserver { _, event -> if (event == Lifecycle.Event.ON_RESUME) health = PermissionHealth.check(context) }
+        owner.lifecycle.addObserver(observer)
+        onDispose { owner.lifecycle.removeObserver(observer) }
+    }
+    UpcomingContent(state, viewModel::setFilter, onAddEvent, onOpenEvent, onOpenSearch, remindersBlocked = state.settings.remindersEnabled && !health.requiredOk, onOpenReminderHealth)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -73,6 +95,8 @@ fun UpcomingContent(
     onAddEvent: () -> Unit,
     onOpenEvent: (Long) -> Unit,
     onOpenSearch: () -> Unit,
+    remindersBlocked: Boolean = false,
+    onOpenReminderHealth: () -> Unit = {},
 ) {
     Scaffold(
         topBar = {
@@ -92,8 +116,23 @@ fun UpcomingContent(
         },
     ) { padding ->
         Column(Modifier.fillMaxSize().padding(padding)) {
+            if (remindersBlocked && !state.noEvents) PermissionBanner(onOpenReminderHealth)
             FilterRow(state.filter, onFilter)
             Body(state, onAddEvent, onOpenEvent)
+        }
+    }
+}
+
+@Composable
+private fun PermissionBanner(onClick: () -> Unit) {
+    Card(
+        onClick = onClick,
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer),
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
+    ) {
+        Column(Modifier.padding(12.dp)) {
+            Text(stringResource(R.string.banner_permissions_title), style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onErrorContainer)
+            Text(stringResource(R.string.banner_permissions_body), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onErrorContainer)
         }
     }
 }

@@ -29,6 +29,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -41,6 +42,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -51,6 +54,7 @@ import com.ohadsam.specialevents.R
 import com.ohadsam.specialevents.calendar.ParshaNames
 import com.ohadsam.specialevents.domain.Gender
 import com.ohadsam.specialevents.domain.UpcomingItem
+import com.ohadsam.specialevents.domain.reminders.ReminderLabels
 import com.ohadsam.specialevents.ui.common.dateLabel
 import com.ohadsam.specialevents.ui.common.defaultEmoji
 import com.ohadsam.specialevents.ui.common.gregorianLong
@@ -68,6 +72,7 @@ fun DetailScreen(viewModel: DetailViewModel, onBack: () -> Unit, onEdit: () -> U
     var confirmDelete by remember { mutableStateOf(false) }
     LaunchedEffect(state.deleted) { if (state.deleted) onBack() }
     val event = state.event
+    val toggleDescription = stringResource(R.string.detail_reminder_toggle)
 
     Scaffold(
         topBar = {
@@ -131,6 +136,20 @@ fun DetailScreen(viewModel: DetailViewModel, onBack: () -> Unit, onEdit: () -> U
                     Text("$title · ${dateLabel(m.date, m.hebrew, mode, long = true)}", style = MaterialTheme.typography.bodyLarge)
                     val shabbat = m.parsha?.let { stringResource(R.string.mitzvah_shabbat, ParshaNames.label(it)) } ?: stringResource(R.string.mitzvah_shabbat_holiday)
                     Text("$shabbat · ${gregorianLong(m.shabbat)}", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+            }
+            Section(stringResource(R.string.detail_section_reminders)) {
+                if (state.rules.isEmpty()) Text(stringResource(R.string.detail_reminders_none), color = MaterialTheme.colorScheme.onSurfaceVariant)
+                state.rules.forEach { rule ->
+                    val text = ReminderLabels.describe(rule)
+                    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+                        Text(text, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f))
+                        Switch(
+                            checked = rule.enabled,
+                            onCheckedChange = { viewModel.setRuleEnabled(rule, it) },
+                            modifier = Modifier.semantics { contentDescription = toggleDescription.format(text) },
+                        )
+                    }
                 }
             }
             event.notes?.let { Section(stringResource(R.string.detail_section_notes)) { Text(it, style = MaterialTheme.typography.bodyLarge) } }

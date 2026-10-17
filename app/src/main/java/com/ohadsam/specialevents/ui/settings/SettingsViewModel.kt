@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ohadsam.specialevents.AppContainer
 import com.ohadsam.specialevents.data.prefs.AppSettings
+import com.ohadsam.specialevents.location.Places
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
@@ -23,6 +24,11 @@ class SettingsViewModel(private val container: AppContainer) : ViewModel() {
     fun resetCalendar() = update { it.copy(calendarMode = DEFAULTS.calendarMode, inIsrael = DEFAULTS.inIsrael, weekStartsOnSunday = DEFAULTS.weekStartsOnSunday) }
 
     fun resetDateRules() = update { it.copy(dateRules = DEFAULTS.dateRules) }
+
+    /** Choosing a city also switches the Israel / diaspora calendar rules to match it. */
+    fun setPlace(id: String) = update { it.copy(placeId = id, inIsrael = Places.byId(id)?.inIsrael ?: it.inIsrael) }
+
+    fun resetReminders() = update { it.copy(remindersEnabled = DEFAULTS.remindersEnabled, placeId = DEFAULTS.placeId, tzeit = DEFAULTS.tzeit) }
 
     fun resetAll() {
         viewModelScope.launch { container.settings.reset() }

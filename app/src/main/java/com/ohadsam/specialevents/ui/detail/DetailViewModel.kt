@@ -12,6 +12,7 @@ import com.ohadsam.specialevents.data.prefs.AppSettings
 import com.ohadsam.specialevents.domain.EventTimeline
 import com.ohadsam.specialevents.domain.SpecialEvent
 import com.ohadsam.specialevents.domain.UpcomingItem
+import com.ohadsam.specialevents.domain.reminders.ReminderRule
 import java.time.LocalDate
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
@@ -29,11 +30,12 @@ data class DetailState(
     val original: DualDate? = null,
     val upcoming: List<UpcomingItem> = emptyList(),
     val mitzvah: MitzvahDay? = null,
+    val rules: List<ReminderRule> = emptyList(),
     val deleted: Boolean = false,
 )
 
 class DetailViewModel(private val container: AppContainer, private val eventId: Long) : ViewModel() {
-    val state: StateFlow<DetailState> = combine(container.events.allEvents, container.settings.settings) { events, settings ->
+    val state: StateFlow<DetailState> = combine(container.events.allEvents, container.settings.settings, container.reminders.allRules) { events, settings, allRules ->
         val event = events.firstOrNull { it.id == eventId }
         if (event == null) {
             // Gone from the database (deleted here or elsewhere): the screen closes itself.
@@ -47,6 +49,7 @@ class DetailViewModel(private val container: AppContainer, private val eventId: 
                 original = originalDate(event),
                 upcoming = EventTimeline.forEvent(event, today, UPCOMING_COUNT, settings.dateRules),
                 mitzvah = EventTimeline.mitzvahInfo(event, settings.inIsrael, settings.dateRules),
+                rules = allRules.filter { it.eventId == eventId },
             )
         }
     }.flowOn(Dispatchers.Default).stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), DetailState())
@@ -55,6 +58,10 @@ class DetailViewModel(private val container: AppContainer, private val eventId: 
         viewModelScope.launch {
             container.events.delete(eventId)
         }
+    }
+
+    fun setRuleEnabled(rule: ReminderRule, enabled: Boolean) {
+        viewModelScope.launch { container.reminders.save(rule.copy(enabled = enabled)) }
     }
 
     fun toggleArchived() {

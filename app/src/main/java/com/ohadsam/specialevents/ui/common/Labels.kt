@@ -6,6 +6,7 @@ import com.ohadsam.specialevents.calendar.AdarInLeapYear
 import com.ohadsam.specialevents.calendar.AnniversaryGift
 import com.ohadsam.specialevents.calendar.LeapDay
 import com.ohadsam.specialevents.calendar.ShortMonthThirtieth
+import com.ohadsam.specialevents.calendar.TzeitMethod
 import com.ohadsam.specialevents.calendar.SpecialAge
 import com.ohadsam.specialevents.data.prefs.CalendarMode
 import com.ohadsam.specialevents.data.prefs.ThemeMode
@@ -121,4 +122,12 @@ fun ShortMonthThirtieth.labelRes(): Int = when (this) {
 fun LeapDay.labelRes(): Int = when (this) {
     LeapDay.FEB_28 -> R.string.rule_leap_feb28
     LeapDay.MAR_1 -> R.string.rule_leap_mar1
+}
+
+@StringRes
+fun TzeitMethod.labelRes(): Int = when (this) {
+    TzeitMethod.DEGREES_8_5 -> R.string.tzeit_8_5
+    TzeitMethod.DEGREES_7_083 -> R.string.tzeit_7_083
+    TzeitMethod.MINUTES_42 -> R.string.tzeit_42
+    TzeitMethod.MINUTES_72 -> R.string.tzeit_72
 }

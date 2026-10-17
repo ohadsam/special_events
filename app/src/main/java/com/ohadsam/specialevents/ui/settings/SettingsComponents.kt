@@ -4,6 +4,9 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.toggleable
@@ -61,7 +64,7 @@ fun <T> ChoiceRow(title: String, options: List<Pair<T, String>>, selected: T, on
             onDismissRequest = { open = false },
             title = { Text(title) },
             text = {
-                Column {
+                Column(Modifier.heightIn(max = MAX_DIALOG_HEIGHT).verticalScroll(rememberScrollState())) {
                     description?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(bottom = 8.dp)) }
                     options.forEach { (value, label) ->
                         Row(
@@ -86,3 +89,5 @@ fun <T> ChoiceRow(title: String, options: List<Pair<T, String>>, selected: T, on
 fun ResetRow(onReset: () -> Unit) {
     TextButton(onClick = onReset, modifier = Modifier.padding(horizontal = 8.dp)) { Text(stringResource(R.string.settings_reset_group)) }
 }
+
+private val MAX_DIALOG_HEIGHT = 420.dp

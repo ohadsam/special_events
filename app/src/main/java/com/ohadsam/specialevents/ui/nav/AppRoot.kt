@@ -9,6 +9,7 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -30,13 +31,20 @@ import com.ohadsam.specialevents.ui.detail.DetailViewModel
 import com.ohadsam.specialevents.ui.editor.EditorScreen
 import com.ohadsam.specialevents.ui.editor.EditorViewModel
 import com.ohadsam.specialevents.ui.search.SearchScreen
+import com.ohadsam.specialevents.ui.settings.ReminderHealthScreen
 import com.ohadsam.specialevents.ui.settings.LogsScreen
 import com.ohadsam.specialevents.ui.settings.SettingsScreen
 
 @Composable
-fun AppRoot(container: AppContainer) {
+fun AppRoot(container: AppContainer, pendingRoute: String? = null, onRouteHandled: () -> Unit = {}) {
     val nav = rememberNavController()
     val factory = remember { ViewModelFactory(container) }
+    LaunchedEffect(pendingRoute) {
+        pendingRoute?.let {
+            nav.navigate(it) { launchSingleTop = true }
+            onRouteHandled()
+        }
+    }
     val backStack by nav.currentBackStackEntryAsState()
     val currentRoute = backStack?.destination?.route
     val showBar = TopLevel.entries.any { it.route == currentRoute }
@@ -76,6 +84,7 @@ fun AppRoot(container: AppContainer) {
                     onAddEvent = { nav.navigate(Routes.editor(0)) },
                     onOpenEvent = { nav.navigate(Routes.detail(it)) },
                     onOpenSearch = { nav.navigate(Routes.SEARCH) },
+                    onOpenReminderHealth = { nav.navigate(Routes.REMINDER_HEALTH) },
                 )
             }
             composable(TopLevel.CALENDAR.route) {
@@ -86,7 +95,11 @@ fun AppRoot(container: AppContainer) {
                 )
             }
             composable(TopLevel.SETTINGS.route) {
-                SettingsScreen(viewModel(factory = factory), onOpenLogs = { nav.navigate(Routes.LOGS) })
+                SettingsScreen(
+                    viewModel(factory = factory),
+                    onOpenLogs = { nav.navigate(Routes.LOGS) },
+                    onOpenReminderHealth = { nav.navigate(Routes.REMINDER_HEALTH) },
+                )
             }
             composable(Routes.DETAIL, arguments = listOf(navArgument("id") { type = NavType.LongType })) { entry ->
                 val id = entry.arguments?.getLong("id") ?: 0L
@@ -111,6 +124,9 @@ fun AppRoot(container: AppContainer) {
             }
             composable(Routes.SEARCH) {
                 SearchScreen(viewModel(factory = factory), onBack = { nav.popBackStack() }, onOpenEvent = { nav.navigate(Routes.detail(it)) })
+            }
+            composable(Routes.REMINDER_HEALTH) {
+                ReminderHealthScreen(container, onBack = { nav.popBackStack() })
             }
             composable(Routes.LOGS) {
                 LogsScreen(logger = container.logger, onBack = { nav.popBackStack() })

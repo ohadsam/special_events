@@ -150,6 +150,7 @@ class EditorViewModel(private val container: AppContainer, private val eventId: 
                 tags = s.tags.map { known[it.lowercase()] ?: Tag(name = it) },
             )
             val id = container.events.save(event)
+            if (base == null) container.reminders.addDefaults(id, s.type)
             _state.update { it.copy(saving = false, savedId = id) }
         }
     }

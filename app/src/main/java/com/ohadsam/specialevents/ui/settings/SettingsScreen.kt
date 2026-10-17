@@ -8,6 +8,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.BugReport
+import androidx.compose.material.icons.outlined.HealthAndSafety
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.NewReleases
 import androidx.compose.material.icons.outlined.RestartAlt
@@ -32,13 +33,15 @@ import com.ohadsam.specialevents.R
 import com.ohadsam.specialevents.calendar.AdarInLeapYear
 import com.ohadsam.specialevents.calendar.LeapDay
 import com.ohadsam.specialevents.calendar.ShortMonthThirtieth
+import com.ohadsam.specialevents.calendar.TzeitMethod
+import com.ohadsam.specialevents.location.Places
 import com.ohadsam.specialevents.data.prefs.CalendarMode
 import com.ohadsam.specialevents.data.prefs.ThemeMode
 import com.ohadsam.specialevents.ui.common.labelRes
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsScreen(viewModel: SettingsViewModel, onOpenLogs: () -> Unit) {
+fun SettingsScreen(viewModel: SettingsViewModel, onOpenLogs: () -> Unit, onOpenReminderHealth: () -> Unit) {
     val settings by viewModel.settings.collectAsStateWithLifecycle()
     var showWhatsNew by remember { mutableStateOf(false) }
     var confirmResetAll by remember { mutableStateOf(false) }
@@ -104,6 +107,29 @@ fun SettingsScreen(viewModel: SettingsViewModel, onOpenLogs: () -> Unit) {
                 onSelect = { v -> viewModel.update { it.copy(dateRules = it.dateRules.copy(leapDay = v)) } },
             )
             ResetRow(viewModel::resetDateRules)
+
+            SectionHeader(stringResource(R.string.settings_section_reminders))
+            SwitchRow(
+                title = stringResource(R.string.settings_reminders_enabled),
+                description = stringResource(R.string.settings_reminders_enabled_desc),
+                checked = settings.remindersEnabled,
+                onChange = { v -> viewModel.update { it.copy(remindersEnabled = v) } },
+            )
+            ChoiceRow(
+                title = stringResource(R.string.settings_place),
+                description = stringResource(R.string.settings_place_desc),
+                options = Places.ALL.map { it.id to it.nameHe },
+                selected = settings.placeId,
+                onSelect = viewModel::setPlace,
+            )
+            ChoiceRow(
+                title = stringResource(R.string.settings_tzeit),
+                options = TzeitMethod.entries.map { it to stringResource(it.labelRes()) },
+                selected = settings.tzeit,
+                onSelect = { v -> viewModel.update { it.copy(tzeit = v) } },
+            )
+            AboutRow(Icons.Outlined.HealthAndSafety, R.string.settings_reminder_health, R.string.settings_reminder_health_desc, onOpenReminderHealth)
+            ResetRow(viewModel::resetReminders)
 
             SectionHeader(stringResource(R.string.settings_section_general))
             AboutRow(Icons.Outlined.NewReleases, R.string.settings_whats_new, null) { showWhatsNew = true }

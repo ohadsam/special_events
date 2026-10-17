@@ -4,8 +4,12 @@ import android.content.Context
 import android.util.Log
 import com.ohadsam.specialevents.log.AppLogger
 import com.ohadsam.specialevents.log.LogLevel
+import com.ohadsam.specialevents.reminders.NotificationHelper
+import com.ohadsam.specialevents.reminders.ReminderScheduler
+import com.ohadsam.specialevents.reminders.ReminderState
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import com.ohadsam.specialevents.data.EventRepository
+import com.ohadsam.specialevents.data.ReminderRepository
 import com.ohadsam.specialevents.data.db.AppDatabase
 import com.ohadsam.specialevents.data.prefs.SavedSearchRepository
 import com.ohadsam.specialevents.data.prefs.SettingsRepository
@@ -33,6 +37,8 @@ class AppContainer(private val context: Context) {
 
     val events: EventRepository by lazy { EventRepository(database) }
 
+    val reminders: ReminderRepository by lazy { ReminderRepository(database) }
+
     val settings: SettingsRepository = SettingsRepository(
         PreferenceDataStoreFactory.create(
             scope = CoroutineScope(Dispatchers.IO + SupervisorJob()),
@@ -46,4 +52,10 @@ class AppContainer(private val context: Context) {
             produceFile = { File(context.filesDir, "datastore/searches.preferences_pb") },
         ),
     )
+
+    val notifications: NotificationHelper = NotificationHelper(context.applicationContext)
+
+    val reminderScheduler: ReminderScheduler by lazy {
+        ReminderScheduler(context.applicationContext, events, reminders, settings, notifications, ReminderState(context.applicationContext), logger)
+    }
 }
