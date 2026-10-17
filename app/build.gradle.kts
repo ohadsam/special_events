@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.ksp)
     alias(libs.plugins.ktlint)
     alias(libs.plugins.detekt)
 }
@@ -68,6 +69,9 @@ android {
     testOptions { unitTests.isReturnDefaultValues = true }
 }
 
+// Room writes its schema JSON here; commit it, it is the base for migration tests.
+ksp { arg("room.schemaLocation", "$projectDir/schemas") }
+
 // Lint is advisory until the code base settles (see docs/PLAN.md); flip to false to enforce.
 ktlint { ignoreFailures.set(true) }
 detekt {
@@ -84,6 +88,10 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.coroutines.android)
+    implementation(libs.room.runtime)
+    implementation(libs.room.ktx)
+    ksp(libs.room.compiler)
+    implementation(libs.datastore.preferences)
     implementation(libs.compose.ui)
     implementation(libs.compose.ui.tooling.preview)
     implementation(libs.compose.material3)
@@ -95,4 +103,6 @@ dependencies {
     androidTestImplementation(libs.compose.ui.test.junit4)
     debugImplementation(libs.compose.ui.test.manifest)
     testImplementation(libs.junit)
+    testImplementation(libs.coroutines.test)
+    androidTestImplementation(libs.coroutines.test)
 }

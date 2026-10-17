@@ -4,10 +4,17 @@ import android.content.Context
 import android.util.Log
 import com.ohadsam.specialevents.log.AppLogger
 import com.ohadsam.specialevents.log.LogLevel
+import androidx.datastore.preferences.core.PreferenceDataStoreFactory
+import com.ohadsam.specialevents.data.EventRepository
+import com.ohadsam.specialevents.data.db.AppDatabase
+import com.ohadsam.specialevents.data.prefs.SettingsRepository
 import java.io.File
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 
 /** Manual DI root: one place that builds the app's singletons (no Hilt). Grows by batch. */
-class AppContainer(context: Context) {
+class AppContainer(private val context: Context) {
     val logger = AppLogger(
         file = File(context.filesDir, "logs/app.log"),
         echo = { e ->
@@ -19,5 +26,16 @@ class AppContainer(context: Context) {
             }
             Log.println(priority, e.tag, e.message)
         },
+    )
+
+    val database: AppDatabase by lazy { AppDatabase.create(context.applicationContext) }
+
+    val events: EventRepository by lazy { EventRepository(database) }
+
+    val settings: SettingsRepository = SettingsRepository(
+        PreferenceDataStoreFactory.create(
+            scope = CoroutineScope(Dispatchers.IO + SupervisorJob()),
+            produceFile = { File(context.filesDir, "datastore/settings.preferences_pb") },
+        ),
     )
 }
