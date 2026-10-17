@@ -1,0 +1,17 @@
+package com.ohadsam.specialevents.ui.common
+
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import com.ohadsam.specialevents.AppContainer
+import com.ohadsam.specialevents.ui.settings.SettingsViewModel
+import com.ohadsam.specialevents.ui.upcoming.UpcomingViewModel
+
+/** Manual DI for ViewModels: each one is built from the [AppContainer]. */
+class ViewModelFactory(private val container: AppContainer) : ViewModelProvider.Factory {
+    @Suppress("UNCHECKED_CAST")
+    override fun <T : ViewModel> create(modelClass: Class<T>): T = when {
+        modelClass.isAssignableFrom(UpcomingViewModel::class.java) -> UpcomingViewModel(container)
+        modelClass.isAssignableFrom(SettingsViewModel::class.java) -> SettingsViewModel(container)
+        else -> throw IllegalArgumentException("Unknown ViewModel ${modelClass.name}")
+    } as T
+}

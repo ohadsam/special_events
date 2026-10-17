@@ -10,6 +10,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -19,13 +20,17 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.ohadsam.specialevents.AppContainer
 import com.ohadsam.specialevents.R
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.ohadsam.specialevents.ui.common.PlaceholderScreen
+import com.ohadsam.specialevents.ui.common.ViewModelFactory
+import com.ohadsam.specialevents.ui.upcoming.UpcomingScreen
 import com.ohadsam.specialevents.ui.settings.LogsScreen
 import com.ohadsam.specialevents.ui.settings.SettingsScreen
 
 @Composable
 fun AppRoot(container: AppContainer) {
     val nav = rememberNavController()
+    val factory = remember { ViewModelFactory(container) }
     val backStack by nav.currentBackStackEntryAsState()
     val currentRoute = backStack?.destination?.route
     val showBar = TopLevel.entries.any { it.route == currentRoute }
@@ -60,13 +65,13 @@ fun AppRoot(container: AppContainer) {
             modifier = Modifier.padding(padding).consumeWindowInsets(padding),
         ) {
             composable(TopLevel.UPCOMING.route) {
-                PlaceholderScreen(R.string.tab_upcoming, R.string.upcoming_empty_title, R.string.upcoming_empty_body)
+                UpcomingScreen(viewModel(factory = factory), onAddEvent = {}, onOpenEvent = {})
             }
             composable(TopLevel.CALENDAR.route) {
                 PlaceholderScreen(R.string.tab_calendar, R.string.calendar_empty_title, R.string.calendar_empty_body)
             }
             composable(TopLevel.SETTINGS.route) {
-                SettingsScreen(onOpenLogs = { nav.navigate(Routes.LOGS) })
+                SettingsScreen(viewModel(factory = factory), onOpenLogs = { nav.navigate(Routes.LOGS) })
             }
             composable(Routes.LOGS) {
                 LogsScreen(logger = container.logger, onBack = { nav.popBackStack() })
