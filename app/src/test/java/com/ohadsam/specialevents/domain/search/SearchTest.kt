@@ -88,7 +88,8 @@ class SearchTest {
     @Test
     fun enginePicksByTypeAndSortsByDate() {
         assertEquals(listOf("דנה", "יוסי"), run(SearchStep.Types(setOf(EventType.BIRTHDAY))))
-        assertEquals(listOf("דנה", "יוסי", "סבא", "אבי ושרה"), run())
+        // 20 Cheshvan 5787 is 2026-10-31, so the yahrzeit comes before the November birthday.
+        assertEquals(listOf("דנה", "סבא", "יוסי", "אבי ושרה"), run())
     }
 
     @Test
@@ -103,10 +104,10 @@ class SearchTest {
 
     @Test
     fun rangeStepsIntersectAndHebrewMonthFilters() {
-        val nov = SearchStep.Range(LocalDate.of(2026, 11, 1), LocalDate.of(2026, 11, 30))
-        assertEquals(listOf("יוסי", "סבא"), run(nov).let { it.filter { t -> t == "יוסי" || t == "סבא" } })
+        val wide = SearchStep.Range(LocalDate.of(2026, 10, 25), LocalDate.of(2026, 11, 10))
+        assertEquals(listOf("סבא", "יוסי"), run(wide))
         val earlyNov = SearchStep.Range(LocalDate.of(2026, 11, 1), LocalDate.of(2026, 11, 10))
-        assertEquals(listOf("יוסי"), run(nov, earlyNov))
+        assertEquals(listOf("יוסי"), run(wide, earlyNov))
         assertEquals(emptyList<String>(), run(SearchStep.Range(LocalDate.of(2026, 12, 1), LocalDate.of(2026, 12, 2)), earlyNov))
         assertEquals(listOf("סבא"), run(SearchStep.HebrewMonths(setOf(8), "בחשוון"), SearchStep.Types(setOf(EventType.YAHRZEIT))))
     }
