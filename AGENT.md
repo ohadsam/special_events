@@ -1,5 +1,5 @@
 # Special Events – Agent Memory
-**Last updated:** v0.2.0 (batches 0–1 done; batch 2 next)
+**Last updated:** v0.3.0 (batches 0–2 done; batch 3 next)
 Read order: CLAUDE.md → docs/PLAN.md → STRUCTURE.md → the batch's section in docs/SPEC.md.
 
 ## Recently done
@@ -9,6 +9,9 @@ Read order: CLAUDE.md → docs/PLAN.md → STRUCTURE.md → the batch's section 
 - Search (SPEC S17, batch 4b) added after the owner's request: text + date ranges + filters + refine-in-results + Hebrew natural-language queries.
 
 - v0.2.0 (batch 1): calendar core. Parsha/festival/Hebrew-date logic is verified against pyluach goldens (2000–2100). Modern Israeli days (Yom HaShoah/Zikaron/Atzmaut/Yerushalayim), Omer, special Shabbatot (Shekalim/Zachor/…), Purim Meshulash, zmanim goldens are NOT done.
+
+- v0.3.0 (batch 2): Room v1 (events, tags, event_tags) + DataStore settings + `EventTimeline`. Other tables (reminders, recipients, templates, checklist, sent-log) are added with their batch + a migration. Occurrence cache table deferred: timeline is computed in memory; add the table only if profiling on thousands of events needs it. DAO behaviour is covered by androidTest `EventRepositoryTest` (runs in ui-tests.yml, compile-checked in CI).
+- CI commits `app/schemas` automatically when Room's schema changes (bot commit with [skip ci]) — `git pull --rebase` before the next push.
 
 ## Known issues / open items (need the owner)
 - Feature spec for "אירועים מיוחדים" not yet provided → fill `docs/SPEC.md`, then define batches in `docs/PLAN.md`.

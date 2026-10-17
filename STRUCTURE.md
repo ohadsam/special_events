@@ -3,6 +3,7 @@
 - `SpecialEventsApp`, `AppContainer` — application + manual DI (logger now; repos/prefs/scheduler as batches land).
 - `MainActivity` — edge-to-edge, forced RTL, theme, `AppRoot`.
 - `calendar/` — pure JVM (no Android): `HebrewCalendar`/`HebrewDate`, `HebrewNumerals`, `HebrewDay` (rollover), `SunCalc`, `HolyTimes` (candle lighting/havdalah), `Holidays` (Yom Tov days), `JewishCalendar` (festivals, fasts, Rosh Chodesh), `Parsha` (+`ParshaNames`, year-type pair table), `AnnualDates` (`OriginDate`, `DateRules`, `Occurrence`, `DualDate`), `Milestones`, `BarBatMitzvah`. `location/Places` — built-in places for zmanim.
+- `domain/` — `EventModels` (`SpecialEvent`, `EventType`, `Tag`, ...), `EventTimeline` (pure: upcoming items, milestones, mitzvah). `data/` — `EventRepository`, `EventMapper`, `db/` (Room v1: events, tags, event_tags; schema JSON in `app/schemas`, committed by CI), `prefs/` (`AppSettings`, `SettingsRepository` over DataStore).
 - `log/` — `AppLogger` (ring buffer + file), `LogBuffer`, `LogModel` (ported from Tehilim_Daily).
 - `ui/theme/Theme.kt` — brand light/dark schemes (dynamic color optional). `ui/nav/` — `TopLevel` tabs, `Routes`, `AppRoot` (NavHost + bottom bar).
 - `ui/common/PlaceholderScreen` — empty state for features landing later. `ui/settings/` — `SettingsScreen`, `LogsScreen`, `WhatsNewDialog`.

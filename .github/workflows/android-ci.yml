@@ -10,6 +10,8 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
         with: { fetch-depth: 0 }
@@ -24,12 +26,16 @@ jobs:
         run: |
           chmod +x gradlew
           ./gradlew ktlintCheck detekt lintDebug testDebugUnitTest compileDebugAndroidTestKotlin assembleDebug assembleRelease --stacktrace
-      - name: Print Room schemas (commit them under app/schemas when they change)
-        if: steps.has.outputs.ok == 'true'
+      - name: Commit regenerated Room schemas (only when they changed; [skip ci] prevents a loop)
+        if: steps.has.outputs.ok == 'true' && github.event_name == 'push'
         run: |
-          echo "ROOM_SCHEMA_BEGIN"
-          find app/schemas -name '*.json' 2>/dev/null | sort | while read -r f; do echo "== $f"; cat "$f"; done
-          echo "ROOM_SCHEMA_END"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add app/schemas
+          if ! git diff --cached --quiet; then
+            git commit -m "chore: update Room schema [skip ci]"
+            git push origin "HEAD:${{ github.ref_name }}"
+          fi
       - name: Name the APK (version + commit) so the right build is always identifiable
         if: steps.has.outputs.ok == 'true'
         run: |
