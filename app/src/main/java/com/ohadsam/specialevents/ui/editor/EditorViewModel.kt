@@ -38,6 +38,8 @@ data class EditorState(
     val titleError: Boolean = false,
     val saving: Boolean = false,
     val savedId: Long? = null,
+    /** Set once the user touches the date or its calendar, so changing the type no longer re-picks the calendar. */
+    val basisUserSet: Boolean = false,
     val knownTags: List<Tag> = emptyList(),
 ) {
     val emoji: String get() = chosenEmoji ?: IconSuggester.suggest(type, title, type.defaultEmoji())
@@ -51,6 +53,7 @@ class EditorViewModel(private val container: AppContainer, private val eventId: 
     private val _state = MutableStateFlow(EditorState())
     val state: StateFlow<EditorState> = _state.asStateFlow()
     private var original: SpecialEvent? = null
+    private var baseline: EditorState = EditorState()
 
     init {
         viewModelScope.launch {
@@ -76,11 +79,17 @@ class EditorViewModel(private val container: AppContainer, private val eventId: 
                     knownTags = tags,
                 )
             }
+            baseline = normalized(_state.value)
         }
     }
 
+    /** True when the user changed something that would be lost by leaving the editor. */
+    fun isDirty(): Boolean = !_state.value.loading && _state.value.savedId == null && normalized(_state.value) != baseline
+
+    private fun normalized(s: EditorState) = s.copy(newTag = "", titleError = false, saving = false, savedId = null, knownTags = emptyList(), basisUserSet = false)
+
     fun setType(type: EventType) = _state.update { s ->
-        val basisChanged = s.isNew && s.date.basis != type.defaultBasis
+        val basisChanged = s.isNew && !s.basisUserSet && s.date.basis != type.defaultBasis
         s.copy(
             type = type,
             // A new event follows the type's usual calendar (e.g. yahrzeit = Hebrew) until the user decides otherwise.
@@ -92,7 +101,7 @@ class EditorViewModel(private val container: AppContainer, private val eventId: 
 
     fun setGender(value: Gender?) = _state.update { it.copy(gender = value) }
 
-    fun setDate(date: EditorDate) = _state.update { it.copy(date = date) }
+    fun setDate(date: EditorDate) = _state.update { it.copy(date = date, basisUserSet = true) }
 
     fun setRelation(value: String) = _state.update { it.copy(relation = value) }
 

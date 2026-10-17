@@ -1,6 +1,7 @@
 package com.ohadsam.specialevents.ui.editor
 
 import androidx.annotation.StringRes
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -26,6 +27,7 @@ import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.SwapHoriz
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
@@ -81,13 +83,16 @@ private val PALETTE = listOf(0xFFE57373, 0xFFFFB74D, 0xFFFFD54F, 0xFF81C784, 0xF
 fun EditorScreen(viewModel: EditorViewModel, onClose: () -> Unit, onSaved: (Long) -> Unit) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     LaunchedEffect(state.savedId) { state.savedId?.let(onSaved) }
+    var confirmDiscard by rememberSaveable { mutableStateOf(false) }
+    val requestClose = { if (viewModel.isDirty()) confirmDiscard = true else onClose() }
+    BackHandler(onBack = requestClose)
 
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text(stringResource(if (state.isNew) R.string.editor_title_new else R.string.editor_title_edit)) },
                 navigationIcon = {
-                    IconButton(onClick = onClose) { Icon(Icons.Outlined.Close, contentDescription = stringResource(R.string.action_close)) }
+                    IconButton(onClick = requestClose) { Icon(Icons.Outlined.Close, contentDescription = stringResource(R.string.action_close)) }
                 },
                 actions = {
                     TextButton(onClick = viewModel::save, enabled = !state.saving && !state.loading) { Text(stringResource(R.string.action_save)) }
@@ -120,6 +125,20 @@ fun EditorScreen(viewModel: EditorViewModel, onClose: () -> Unit, onSaved: (Long
             DateSection(state.date, state.yearOptional, viewModel::setDate)
             MoreOptions(state, viewModel)
         }
+    }
+    if (confirmDiscard) {
+        AlertDialog(
+            onDismissRequest = { confirmDiscard = false },
+            title = { Text(stringResource(R.string.editor_discard_title)) },
+            text = { Text(stringResource(R.string.editor_discard_body)) },
+            confirmButton = {
+                TextButton(onClick = {
+                    confirmDiscard = false
+                    onClose()
+                }) { Text(stringResource(R.string.editor_discard_action)) }
+            },
+            dismissButton = { TextButton(onClick = { confirmDiscard = false }) { Text(stringResource(R.string.editor_discard_keep)) } },
+        )
     }
 }
 

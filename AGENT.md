@@ -1,5 +1,5 @@
 # Special Events – Agent Memory
-**Last updated:** v0.3.0 (batches 0–2 done; batch 3 next)
+**Last updated:** v0.4.0 (batches 0–3 done; batch 4 next)
 Read order: CLAUDE.md → docs/PLAN.md → STRUCTURE.md → the batch's section in docs/SPEC.md.
 
 ## Recently done
@@ -13,6 +13,8 @@ Read order: CLAUDE.md → docs/PLAN.md → STRUCTURE.md → the batch's section 
 - v0.3.0 (batch 2): Room v1 (events, tags, event_tags) + DataStore settings + `EventTimeline`. Other tables (reminders, recipients, templates, checklist, sent-log) are added with their batch + a migration. Occurrence cache table deferred: timeline is computed in memory; add the table only if profiling on thousands of events needs it. DAO behaviour is covered by androidTest `EventRepositoryTest` (runs in ui-tests.yml, compile-checked in CI).
 - CI commits `app/schemas` automatically when Room's schema changes (bot commit with [skip ci]) — `git pull --rebase` before the next push.
 
+- v0.4.0 (batch 3): core UI. The FAB opens the full editor (no separate quick-add sheet yet — the editor only needs type, name, date). Not verifiable here (needs a device): layout/RTL look of cards and editor, Material DatePicker in Hebrew locale, keyboard/IME behaviour. ViewModels have no unit tests yet (logic lives in tested pure helpers); add Turbine/fake-container tests when the first ViewModel bug appears.
+
 ## Known issues / open items (need the owner)
 - Feature spec for "אירועים מיוחדים" not yet provided → fill `docs/SPEC.md`, then define batches in `docs/PLAN.md`.
 - **Signing key:** `app/sideload.jks` (password in app/build.gradle.kts) is committed on purpose so every CI build updates in place; NOT a store key. Never change it after users installed the app.
@@ -24,6 +26,11 @@ Notification timing, permission flows, visuals, TalkBack.
 
 ## Owner decisions needed (defaults are active until confirmed — SPEC Appendix A.1)
 - Adar in a leap year (born/yahrzeit in plain Adar): default Adar II. 30 Cheshvan/Kislev in a short month: default 29th (day before). 29 Feb in a common year: default 28 Feb.
+
+## Ideas (from batch 3)
+- Quick-add bottom sheet (name + type + date only) from the FAB; swipe actions on cards (archive / delete with Undo snackbar).
+- Duplicate event; share event as text; photo/contact link (batch 7); unsaved-change draft restore after process death.
+- Time zone aware "today" for travellers; list header showing today's Hebrew date and parasha.
 
 ## Ideas (from batch 1)
 - Show "Shabbat Mevarchim", special Shabbatot and Omer day in the calendar overlay; modern Israeli holidays with their postponement rules (needs owner confirmation).

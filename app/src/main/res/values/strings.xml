@@ -191,4 +191,8 @@
     <string name="detail_delete_body">״%1$s״ יימחק לצמיתות. אפשר להעביר אותו לארכיון במקום.</string>
     <string name="detail_delete_action">מחק</string>
     <string name="detail_archive_action">העבר לארכיון</string>
+    <string name="editor_discard_title">לצאת בלי לשמור?</string>
+    <string name="editor_discard_body">השינויים שעשיתם באירוע לא יישמרו.</string>
+    <string name="editor_discard_action">צא בלי לשמור</string>
+    <string name="editor_discard_keep">המשך לערוך</string>
 </resources>
