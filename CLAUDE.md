@@ -27,4 +27,6 @@ Other repos (e.g. `Tehilim_Daily`, `ExtendedFileManager`) are read-only referenc
 - `release-checklist` — run after every batch (4 persona reviews; security/appearance/performance/usability gates; version, What's New, docs, CI green, merge).
 
 ## Release process
-Branch → push → CI green → `release-checklist` → PR/merge. Bump `versionName` and What's New each user-visible batch.
+**Autonomy (owner, 2026-10-17):** after a batch is done, CI is green and `release-checklist` ran, merge to `main` and continue to the next batch automatically.
+Merge = fast-forward `git push origin <dev-branch>:main` (owner-authorized; no PR needed). Merging to `main` publishes the release `latest` APK.
+Branch → push → CI green → `release-checklist` → merge. Bump `versionName` and What's New each user-visible batch.
