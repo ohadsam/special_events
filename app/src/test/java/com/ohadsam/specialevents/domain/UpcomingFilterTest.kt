@@ -12,6 +12,7 @@ class UpcomingFilterTest {
 
     private fun ev(title: String, type: EventType, month: Int, day: Int, tags: List<String> = emptyList(), notes: String? = null) = SpecialEvent(
         type = type,
+        recurrence = Recurrence.YEARLY,
         title = title,
         notes = notes,
         origin = OriginDate(CalendarBasis.GREGORIAN, 1980, month, day),

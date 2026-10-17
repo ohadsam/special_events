@@ -33,6 +33,8 @@ jobs:
           echo "=== FAILURE SUMMARY BEGIN ==="
           grep -E "^e: |Test .*FAILED|AssertionError|FAILURE: Build failed" build.log | cut -c1-300 | head -40 || true
           awk '/What went wrong/{f=1} f{print; n++} n>10{exit}' build.log | cut -c1-300 || true
+          # Also as annotations: readable cheaply with  gh api repos/OWNER/REPO/check-runs/JOB_ID/annotations -q '.[].message'
+          grep -E "^e: |Test .*FAILED|AssertionError|What went wrong|Execution failed" build.log | cut -c1-250 | head -12 | while read -r l; do echo "::error::${l}"; done || true
           echo "=== FAILURE SUMMARY END ==="
       - name: Commit regenerated Room schemas (only when they changed; [skip ci] prevents a loop)
         if: steps.has.outputs.ok == 'true' && github.event_name == 'push'

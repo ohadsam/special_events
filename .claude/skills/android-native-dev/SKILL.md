@@ -28,6 +28,7 @@ Model tier: routine work (UI tweaks, strings, wiring a known pattern, tests for 
 
 ## 2. CI feedback loop
 - Push, then `gh run list --limit 3` / `gh run watch <id> --exit-status` (blocking, cheap). `gh` can't download logs (403) → use `mcp__github__get_job_logs` with a large `tail_lines`; if saved to a file, `grep` it for `e: file`, `FAILED`, `What went wrong`. Never read a whole log.
+- Cheapest diagnosis: the CI failure-summary step also emits `::error::` annotations → `gh api repos/OWNER/REPO/check-runs/<job_id>/annotations -q '.[].message'` (job id from `gh run view <run> --json jobs -q '.jobs[0].databaseId'`). Raw `get_job_logs` costs 5–10k tokens of Gradle stack trace; use `tail_lines` ≤ 70 and only as a fallback.
 - Compile errors surface in one pass: fix all, push once. KSP sometimes flakes (`Expected start of the object '{', but had 'EOF'`) → re-run, don't "fix".
 - Manual workflows via `mcp__github__actions_run_trigger`: `release.yml` (R8 release APK/AAB), `ui-tests.yml` (emulator smoke tests; half-size JPEG screenshots printed in the log between `SHOTS_BEGIN/SHOTS_END` — decode the base64 chunks and view with Read), plus any live-API `*-probe.yml`.
 - External APIs must be verified by a probe workflow, never assumed from docs/memory (sandbox can't reach them).
