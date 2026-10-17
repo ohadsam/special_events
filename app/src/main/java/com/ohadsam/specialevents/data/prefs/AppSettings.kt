@@ -1,6 +1,7 @@
 package com.ohadsam.specialevents.data.prefs
 
 import com.ohadsam.specialevents.calendar.DateRules
+import com.ohadsam.specialevents.calendar.TzeitMethod
 
 enum class CalendarMode { HEBREW, GREGORIAN, DUAL }
 
@@ -14,4 +15,9 @@ data class AppSettings(
     val themeMode: ThemeMode = ThemeMode.SYSTEM,
     val dynamicColor: Boolean = false,
     val weekStartsOnSunday: Boolean = true,
+    /** Master switch for all reminders. */
+    val remindersEnabled: Boolean = true,
+    /** City whose sunset/nightfall is used for Shabbat and Yom Tov timing (`Places`). */
+    val placeId: String = "jerusalem",
+    val tzeit: TzeitMethod = TzeitMethod.DEGREES_8_5,
 )

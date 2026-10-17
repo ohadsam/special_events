@@ -34,6 +34,9 @@ class SettingsRepository(private val store: DataStore<Preferences>) {
             themeMode = p[THEME_MODE].toEnum(d.themeMode),
             dynamicColor = p[DYNAMIC_COLOR] ?: d.dynamicColor,
             weekStartsOnSunday = p[WEEK_STARTS_SUNDAY] ?: d.weekStartsOnSunday,
+            remindersEnabled = p[REMINDERS_ENABLED] ?: d.remindersEnabled,
+            placeId = p[PLACE_ID] ?: d.placeId,
+            tzeit = p[TZEIT].toEnum(d.tzeit),
         )
     }
 
@@ -46,6 +49,9 @@ class SettingsRepository(private val store: DataStore<Preferences>) {
         p[THEME_MODE] = s.themeMode.name
         p[DYNAMIC_COLOR] = s.dynamicColor
         p[WEEK_STARTS_SUNDAY] = s.weekStartsOnSunday
+        p[REMINDERS_ENABLED] = s.remindersEnabled
+        p[PLACE_ID] = s.placeId
+        p[TZEIT] = s.tzeit.name
     }
 
     private inline fun <reified E : Enum<E>> String?.toEnum(default: E): E = enumValues<E>().firstOrNull { it.name == this } ?: default
@@ -59,5 +65,8 @@ class SettingsRepository(private val store: DataStore<Preferences>) {
         val THEME_MODE = stringPreferencesKey("theme_mode")
         val DYNAMIC_COLOR = booleanPreferencesKey("dynamic_color")
         val WEEK_STARTS_SUNDAY = booleanPreferencesKey("week_starts_sunday")
+        val REMINDERS_ENABLED = booleanPreferencesKey("reminders_enabled")
+        val PLACE_ID = stringPreferencesKey("place_id")
+        val TZEIT = stringPreferencesKey("tzeit")
     }
 }

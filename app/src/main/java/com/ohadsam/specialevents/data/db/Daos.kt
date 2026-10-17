@@ -51,3 +51,27 @@ interface TagDao {
     @Query("DELETE FROM tags WHERE id = :id")
     suspend fun delete(id: Long)
 }
+
+@Dao
+interface ReminderDao {
+    @Query("SELECT * FROM reminder_rules ORDER BY id")
+    fun observeAll(): Flow<List<ReminderRuleEntity>>
+
+    @Query("SELECT * FROM reminder_rules WHERE eventId = :eventId ORDER BY id")
+    suspend fun forEvent(eventId: Long): List<ReminderRuleEntity>
+
+    @Insert
+    suspend fun insert(rule: ReminderRuleEntity): Long
+
+    @Insert
+    suspend fun insertAll(rules: List<ReminderRuleEntity>)
+
+    @Update
+    suspend fun update(rule: ReminderRuleEntity)
+
+    @Query("DELETE FROM reminder_rules WHERE id = :id")
+    suspend fun delete(id: Long)
+
+    @Query("DELETE FROM reminder_rules WHERE eventId = :eventId")
+    suspend fun deleteForEvent(eventId: Long)
+}

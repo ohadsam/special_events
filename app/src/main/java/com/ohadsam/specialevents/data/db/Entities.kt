@@ -61,3 +61,23 @@ data class EventWithTags(
     )
     val tags: List<TagEntity>,
 )
+
+/** One reminder rule of an event; see `ReminderRule` in the domain for the meaning of the fields. */
+@Entity(
+    tableName = "reminder_rules",
+    foreignKeys = [ForeignKey(entity = EventEntity::class, parentColumns = ["id"], childColumns = ["eventId"], onDelete = ForeignKey.CASCADE)],
+    indices = [Index("eventId")],
+)
+data class ReminderRuleEntity(
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val eventId: Long,
+    val offsetValue: Int,
+    val offsetUnit: String,
+    val timeMinutes: Int,
+    val channel: String,
+    val shabbatPolicy: String,
+    val profileKey: String,
+    val minTier: String,
+    val enabled: Boolean,
+    val origin: String,
+)
