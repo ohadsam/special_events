@@ -1,5 +1,5 @@
 # Special Events – Agent Memory
-**Last updated:** v0.5.0 (batches 0–4 done; batch 4b next)
+**Last updated:** v0.5.5 (batches 0–4b done; batch 5 next)
 Read order: CLAUDE.md → docs/PLAN.md → STRUCTURE.md → the batch's section in docs/SPEC.md.
 
 ## Recently done
@@ -17,6 +17,8 @@ Read order: CLAUDE.md → docs/PLAN.md → STRUCTURE.md → the batch's section 
 
 - v0.5.0 (batch 4): calendar views. Not verifiable here (device): pinch-zoom feel/conflicts with scrolling, cell density at 200% font scale, RTL arrow direction, month-cell text clipping. Modern Israeli days and Omer are not in the overlay yet.
 
+- v0.5.5 (batch 4b): advanced search. Natural-language parser covers the phrases in `SearchSuggestions` and the cases in `SearchTest`; unknown words fall back to a text step. The engine only searches occurrences (default window: next 365 days; a date-range chip changes it). Not verifiable here: keyboard/IME search action behaviour, chip layout in RTL.
+
 ## Known issues / open items (need the owner)
 - Feature spec for "אירועים מיוחדים" not yet provided → fill `docs/SPEC.md`, then define batches in `docs/PLAN.md`.
 - **Signing key:** `app/sideload.jks` (password in app/build.gradle.kts) is committed on purpose so every CI build updates in place; NOT a store key. Never change it after users installed the app.
@@ -28,6 +30,9 @@ Notification timing, permission flows, visuals, TalkBack.
 
 ## Owner decisions needed (defaults are active until confirmed — SPEC Appendix A.1)
 - Adar in a leap year (born/yahrzeit in plain Adar): default Adar II. 30 Cheshvan/Kislev in a short month: default 29th (day before). 29 Feb in a common year: default 28 Feb.
+
+## Ideas (from batch 4b)
+- Voice search (system speech-to-text intent) into the same phrase box; search inside notes with highlights; "events with no reminder / no greeting sent this year" once those exist (batches 5, 8); export search results as CSV/print (batches 11, 13); pin a saved search as a home widget.
 
 ## Ideas (from batch 4)
 - Day cells should expose a spoken summary (date + number of events) for TalkBack; week-number column; swipe left/right to change period; "dots instead of emoji" density setting; show Shabbat times in the week/day view; drag an event to another day.

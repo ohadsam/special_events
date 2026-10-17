@@ -10,7 +10,7 @@ Order is by dependency: pure logic first (cheap to test), then data, UI, engines
 | 2 | Data model: Room (events, tags, rules, recipients, templates, checklist, sent-log, occurrence cache), DataStore settings, repositories, migrations/schema export, tests | S2 | 0.3.0 | [x] |
 | 3 | Core UI: Upcoming home, quick-add + full editor (dual date auto-fill), event screen, tags/colors/emoji suggestions, search/filter, settings shell | S3,S15 | 0.4.0 | [x] |
 | 4 | Calendar views: agenda/day/week/month/year, pinch-zoom, Hebrew/Gregorian/dual, overlays (holidays, parasha, bar-mitzvah Shabbat) | S4 | 0.5.0 | [x] |
-| 4b | חיפוש מתקדם: טקסט + תאריכים/טווחים עבריים ולועזיים + פילטרים משולבים + חיפוש בתוך חיפוש (refine) + חיפוש טבעי בעברית + הצעות/חיפושים שמורים | S17 | 0.5.5 | [ ] |
+| 4b | חיפוש מתקדם: טקסט + תאריכים/טווחים עבריים ולועזיים + פילטרים משולבים + חיפוש בתוך חיפוש (refine) + חיפוש טבעי בעברית + הצעות/חיפושים שמורים | S17 | 0.5.5 | [x] |
 | 5 | Reminder engine: planner (pure) + Shabbat/Yom-Tov shifting, AlarmManager, receivers, boot/TZ repair, channels per sound/vibration profile, notification actions, permission health | S5 | 0.6.0 | [ ] |
 | 6 | Reminders UI + smart milestone suggestions + per-type defaults/reset | S6 | 0.7.0 | [ ] |
 | 7 | Contacts & photos: link contact, import birthdays, photo picker, avatar | S7 | 0.8.0 | [ ] |
