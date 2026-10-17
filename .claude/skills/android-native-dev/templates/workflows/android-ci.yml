@@ -24,8 +24,16 @@ jobs:
       - name: Lint, unit tests, debug APK
         if: steps.has.outputs.ok == 'true'
         run: |
+          set -o pipefail
           chmod +x gradlew
-          ./gradlew ktlintCheck detekt lintDebug testDebugUnitTest compileDebugAndroidTestKotlin assembleDebug assembleRelease --stacktrace
+          ./gradlew ktlintCheck detekt lintDebug testDebugUnitTest compileDebugAndroidTestKotlin assembleDebug assembleRelease --stacktrace 2>&1 | tee build.log
+      - name: Failure summary (compile errors, failed tests; keeps CI logs cheap to read)
+        if: failure()
+        run: |
+          echo "=== FAILURE SUMMARY BEGIN ==="
+          grep -E "^e: |Test .*FAILED|AssertionError|FAILURE: Build failed" build.log | cut -c1-300 | head -40 || true
+          awk '/What went wrong/{f=1} f{print; n++} n>10{exit}' build.log | cut -c1-300 || true
+          echo "=== FAILURE SUMMARY END ==="
       - name: Commit regenerated Room schemas (only when they changed; [skip ci] prevents a loop)
         if: steps.has.outputs.ok == 'true' && github.event_name == 'push'
         run: |
