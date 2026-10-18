@@ -25,6 +25,9 @@ object Routes {
 
     /** [day] is the occurrence day (epoch day) to greet for; -1 = the next one. */
     fun greeting(id: Long, day: Long = -1L) = "greeting/$id?day=$day"
+    const val CHECKLIST = "checklist/{id}"
+
+    fun checklist(id: Long) = "checklist/$id"
     const val EVENT_REMINDERS = "reminders/{id}"
 
     fun eventReminders(id: Long) = "reminders/$id"

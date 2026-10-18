@@ -24,6 +24,8 @@ import androidx.navigation.compose.rememberNavController
 import com.ohadsam.specialevents.AppContainer
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.ohadsam.specialevents.ui.calendar.CalendarScreen
+import com.ohadsam.specialevents.ui.checklist.ChecklistScreen
+import com.ohadsam.specialevents.ui.checklist.ChecklistViewModel
 import com.ohadsam.specialevents.ui.common.ViewModelFactory
 import com.ohadsam.specialevents.ui.upcoming.UpcomingScreen
 import com.ohadsam.specialevents.ui.contacts.ImportContactsScreen
@@ -114,7 +116,7 @@ fun AppRoot(container: AppContainer, pendingRoute: String? = null, onRouteHandle
             composable(Routes.DETAIL, arguments = listOf(navArgument("id") { type = NavType.LongType })) { entry ->
                 val id = entry.arguments?.getLong("id") ?: 0L
                 val vm: DetailViewModel = viewModel(key = "detail-$id", factory = DetailViewModel.Factory(container, id))
-                DetailScreen(vm, onBack = { nav.popBackStack() }, onEdit = { nav.navigate(Routes.editor(id)) }, onEditReminders = { nav.navigate(Routes.eventReminders(id)) }, onGreet = { nav.navigate(Routes.greeting(id)) })
+                DetailScreen(vm, onBack = { nav.popBackStack() }, onEdit = { nav.navigate(Routes.editor(id)) }, onEditReminders = { nav.navigate(Routes.eventReminders(id)) }, onGreet = { nav.navigate(Routes.greeting(id)) }, onOpenChecklist = { nav.navigate(Routes.checklist(id)) })
             }
             composable(
                 Routes.EDITOR,
@@ -154,6 +156,11 @@ fun AppRoot(container: AppContainer, pendingRoute: String? = null, onRouteHandle
                 val day = entry.arguments?.getLong("day")?.takeIf { it >= 0 }
                 val vm: GreetingViewModel = viewModel(key = "greeting-$id-$day", factory = GreetingViewModel.Factory(container, id, day))
                 GreetingScreen(vm, onBack = { nav.popBackStack() })
+            }
+            composable(Routes.CHECKLIST, arguments = listOf(navArgument("id") { type = NavType.LongType })) { entry ->
+                val id = entry.arguments?.getLong("id") ?: 0L
+                val vm: ChecklistViewModel = viewModel(key = "checklist-$id", factory = ChecklistViewModel.Factory(container, id))
+                ChecklistScreen(vm, onBack = { nav.popBackStack() })
             }
             composable(Routes.TEMPLATES) {
                 TemplatesScreen(viewModel(factory = factory), onBack = { nav.popBackStack() })

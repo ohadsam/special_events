@@ -115,3 +115,21 @@ data class GreetingSentEntity(
     val sentAt: Long,
     val preview: String,
 )
+
+/** A checklist step or gift of an event; see `ChecklistItem` in the domain. */
+@Entity(
+    tableName = "checklist_items",
+    foreignKeys = [ForeignKey(entity = EventEntity::class, parentColumns = ["id"], childColumns = ["eventId"], onDelete = ForeignKey.CASCADE)],
+    indices = [Index("eventId")],
+)
+data class ChecklistItemEntity(
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val eventId: Long,
+    val kind: String,
+    val title: String,
+    val note: String?,
+    val amount: Int?,
+    val daysBefore: Int?,
+    val done: Boolean,
+    val sortOrder: Int,
+)

@@ -102,3 +102,27 @@ interface GreetingDao {
     @Query("DELETE FROM greetings_sent WHERE id = :id")
     suspend fun deleteSent(id: Long)
 }
+
+@Dao
+interface ChecklistDao {
+    @Query("SELECT * FROM checklist_items ORDER BY eventId, sortOrder, id")
+    fun observeAll(): Flow<List<ChecklistItemEntity>>
+
+    @Query("SELECT * FROM checklist_items WHERE eventId = :eventId ORDER BY sortOrder, id")
+    suspend fun forEvent(eventId: Long): List<ChecklistItemEntity>
+
+    @Insert
+    suspend fun insert(item: ChecklistItemEntity): Long
+
+    @Insert
+    suspend fun insertAll(items: List<ChecklistItemEntity>)
+
+    @Update
+    suspend fun update(item: ChecklistItemEntity)
+
+    @Query("DELETE FROM checklist_items WHERE id = :id")
+    suspend fun delete(id: Long)
+
+    @Query("UPDATE checklist_items SET done = 0 WHERE eventId = :eventId")
+    suspend fun clearDone(eventId: Long)
+}

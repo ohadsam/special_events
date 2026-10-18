@@ -13,6 +13,8 @@ import com.ohadsam.specialevents.data.prefs.AppSettings
 import com.ohadsam.specialevents.domain.EventTimeline
 import com.ohadsam.specialevents.domain.SpecialEvent
 import com.ohadsam.specialevents.domain.UpcomingItem
+import com.ohadsam.specialevents.domain.checklist.Checklist
+import com.ohadsam.specialevents.domain.checklist.ChecklistProgress
 import com.ohadsam.specialevents.domain.reminders.ReminderRule
 import java.time.LocalDate
 import kotlinx.coroutines.Dispatchers
@@ -32,11 +34,12 @@ data class DetailState(
     val upcoming: List<UpcomingItem> = emptyList(),
     val mitzvah: MitzvahDay? = null,
     val rules: List<ReminderRule> = emptyList(),
+    val checklist: ChecklistProgress = ChecklistProgress(0, 0),
     val deleted: Boolean = false,
 )
 
 class DetailViewModel(private val container: AppContainer, private val eventId: Long) : ViewModel() {
-    val state: StateFlow<DetailState> = combine(container.events.allEvents, container.settings.settings, container.reminders.allRules) { events, settings, allRules ->
+    val state: StateFlow<DetailState> = combine(container.events.allEvents, container.settings.settings, container.reminders.allRules, container.checklists.forEvent(eventId)) { events, settings, allRules, checklist ->
         val event = events.firstOrNull { it.id == eventId }
         if (event == null) {
             // Gone from the database (deleted here or elsewhere): the screen closes itself.
@@ -51,6 +54,7 @@ class DetailViewModel(private val container: AppContainer, private val eventId: 
                 upcoming = EventTimeline.forEvent(event, today, UPCOMING_COUNT, settings.dateRules),
                 mitzvah = EventTimeline.mitzvahInfo(event, settings.inIsrael, settings.dateRules),
                 rules = allRules.filter { it.eventId == eventId },
+                checklist = Checklist.progress(checklist),
             )
         }
     }.flowOn(Dispatchers.Default).stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), DetailState())

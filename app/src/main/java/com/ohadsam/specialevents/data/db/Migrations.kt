@@ -70,5 +70,19 @@ object Migrations {
         }
     }
 
-    val ALL: Array<Migration> = arrayOf(V1_TO_V2, V2_TO_V3, V3_TO_V4, V4_TO_V5, V5_TO_V6)
+    const val CREATE_CHECKLIST_ITEMS =
+        "CREATE TABLE IF NOT EXISTS `checklist_items` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `eventId` INTEGER NOT NULL, " +
+            "`kind` TEXT NOT NULL, `title` TEXT NOT NULL, `note` TEXT, `amount` INTEGER, `daysBefore` INTEGER, `done` INTEGER NOT NULL, " +
+            "`sortOrder` INTEGER NOT NULL, FOREIGN KEY(`eventId`) REFERENCES `events`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )"
+
+    const val CREATE_CHECKLIST_ITEMS_INDEX = "CREATE INDEX IF NOT EXISTS `index_checklist_items_eventId` ON `checklist_items` (`eventId`)"
+
+    val V6_TO_V7 = object : Migration(6, 7) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL(CREATE_CHECKLIST_ITEMS)
+            db.execSQL(CREATE_CHECKLIST_ITEMS_INDEX)
+        }
+    }
+
+    val ALL: Array<Migration> = arrayOf(V1_TO_V2, V2_TO_V3, V3_TO_V4, V4_TO_V5, V5_TO_V6, V6_TO_V7)
 }

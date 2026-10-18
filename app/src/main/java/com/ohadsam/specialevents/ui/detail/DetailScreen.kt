@@ -71,7 +71,7 @@ import com.ohadsam.specialevents.ui.upcoming.milestoneLabel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DetailScreen(viewModel: DetailViewModel, onBack: () -> Unit, onEdit: () -> Unit, onEditReminders: () -> Unit, onGreet: () -> Unit) {
+fun DetailScreen(viewModel: DetailViewModel, onBack: () -> Unit, onEdit: () -> Unit, onEditReminders: () -> Unit, onGreet: () -> Unit, onOpenChecklist: () -> Unit) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     var menuOpen by remember { mutableStateOf(false) }
     var confirmDelete by remember { mutableStateOf(false) }
@@ -173,6 +173,13 @@ fun DetailScreen(viewModel: DetailViewModel, onBack: () -> Unit, onEdit: () -> U
                     }
                 }
                 OutlinedButton(onClick = onEditReminders, modifier = Modifier.fillMaxWidth()) { Text(stringResource(R.string.detail_edit_reminders)) }
+            }
+            Section(stringResource(R.string.detail_checklist)) {
+                OutlinedButton(onClick = onOpenChecklist, modifier = Modifier.fillMaxWidth()) {
+                    Text(
+                        if (state.checklist.total == 0) stringResource(R.string.detail_checklist) else stringResource(R.string.detail_checklist_progress, state.checklist.done, state.checklist.total),
+                    )
+                }
             }
             event.notes?.let { Section(stringResource(R.string.detail_section_notes)) { Text(it, style = MaterialTheme.typography.bodyLarge) } }
             Tags(event.tags.map { it.name })
