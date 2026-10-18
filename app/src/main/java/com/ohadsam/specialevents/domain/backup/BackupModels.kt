@@ -25,7 +25,7 @@ enum class BackupError { NOT_JSON, WRONG_FORMAT, TOO_NEW, TOO_BIG }
 
 sealed interface DecodeResult {
     /** [skipped] counts entries that could not be read and were left out. */
-    data class Ok(val data: BackupData, val exportedAt: String?, val skipped: Int) : DecodeResult
+    data class Ok(val data: BackupData, val exportedAt: String?, val skipped: Int, val kind: String = BackupCodec.KIND_BACKUP) : DecodeResult
 
     data class Failure(val error: BackupError) : DecodeResult
 }

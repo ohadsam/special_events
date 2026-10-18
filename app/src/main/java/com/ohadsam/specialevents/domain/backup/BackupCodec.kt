@@ -42,6 +42,10 @@ import kotlinx.serialization.json.put
 object BackupCodec {
     const val FORMAT = "special-events-backup"
     const val VERSION = 1
+    const val KIND_BACKUP = "backup"
+
+    /** A file made to hand a few events to someone else (see `SharePlanner`). */
+    const val KIND_SHARE = "share"
     const val MAX_CHARS = 5_000_000
     private const val MAX_ENTRIES = 50_000
     private const val MAX_TITLE = 200
@@ -52,12 +56,13 @@ object BackupCodec {
 
     private val json = Json { prettyPrint = true }
 
-    fun encode(data: BackupData, exportedAt: String, appVersion: String): String = json.encodeToString(
+    fun encode(data: BackupData, exportedAt: String, appVersion: String, kind: String = KIND_BACKUP): String = json.encodeToString(
         JsonElement.serializer(),
         buildJsonObject {
             put("format", FORMAT)
             put("version", VERSION)
             put("exportedAt", exportedAt)
+            put("kind", kind)
             put("app", appVersion)
             put("events", JsonArray(data.events.map(::eventJson)))
             put("rules", JsonArray(data.rules.map(::ruleJson)))
@@ -86,7 +91,7 @@ object BackupCodec {
             read<GreetingTemplate>("templates") { parseTemplate(it) },
             read<EventGroup>("groups") { parseGroup(it) },
         ).copy(members = read<Pair<Long, Long>>("members") { m -> (m.long("eventId") ?: return@read null) to (m.long("groupId") ?: return@read null) })
-        return DecodeResult.Ok(data, root.str("exportedAt"), skipped)
+        return DecodeResult.Ok(data, root.str("exportedAt"), skipped, root.str("kind") ?: KIND_BACKUP)
     }
 
     private fun eventJson(e: SpecialEvent) = buildJsonObject {
