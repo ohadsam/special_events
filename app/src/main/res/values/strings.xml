@@ -422,4 +422,16 @@
     <string name="channel_email">ברכה במייל</string>
     <string name="channel_sms">ברכה בהודעה</string>
     <string name="card_greeted">✓ בירכת</string>
+    <string name="templates_title">תבניות ברכה</string>
+    <string name="templates_new">תבנית חדשה</string>
+    <string name="templates_edit">עריכת תבנית</string>
+    <string name="templates_mine">התבניות שלי</string>
+    <string name="templates_none">עוד אין תבניות משלכם. אפשר ליצור חדשה או ללחוץ על תבנית מובנית כדי להעתיק ולערוך אותה.</string>
+    <string name="templates_builtin">תבניות מובנות</string>
+    <string name="templates_insert">הוספת פרטים אוטומטיים</string>
+    <string name="templates_optional">חלק אופציונלי [[ ]]</string>
+    <string name="templates_for_type">מתאימה ל</string>
+    <string name="templates_preview">תצוגה מקדימה (דוגמה)</string>
+    <string name="settings_templates">תבניות ברכה</string>
+    <string name="settings_templates_desc">ברכות מוכנות ותבניות משלכם עם שם, גיל, תאריך ופרשה</string>
 </resources>
