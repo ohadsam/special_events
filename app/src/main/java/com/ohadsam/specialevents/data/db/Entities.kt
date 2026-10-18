@@ -133,3 +133,30 @@ data class ChecklistItemEntity(
     val done: Boolean,
     val sortOrder: Int,
 )
+
+/** A group of events/people; see `EventGroup` in the domain. List-like fields are stored as newline-separated text, the reminder template as JSON. */
+@Entity(tableName = "event_groups", indices = [Index(value = ["builtInKey"], unique = true)])
+data class EventGroupEntity(
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val name: String,
+    val emoji: String?,
+    val colorArgb: Int?,
+    val builtInKey: String?,
+    val sortOrder: Int,
+    val tags: String,
+    val defaultChannel: String?,
+    val defaultTemplateId: Long?,
+    val reminderRules: String,
+    val extraRecipients: String,
+)
+
+@Entity(
+    tableName = "event_group_members",
+    primaryKeys = ["eventId", "groupId"],
+    foreignKeys = [
+        ForeignKey(entity = EventEntity::class, parentColumns = ["id"], childColumns = ["eventId"], onDelete = ForeignKey.CASCADE),
+        ForeignKey(entity = EventGroupEntity::class, parentColumns = ["id"], childColumns = ["groupId"], onDelete = ForeignKey.CASCADE),
+    ],
+    indices = [Index("groupId")],
+)
+data class EventGroupMember(val eventId: Long, val groupId: Long)

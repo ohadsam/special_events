@@ -126,3 +126,39 @@ interface ChecklistDao {
     @Query("UPDATE checklist_items SET done = 0 WHERE eventId = :eventId")
     suspend fun clearDone(eventId: Long)
 }
+
+@Dao
+interface GroupDao {
+    @Query("SELECT * FROM event_groups ORDER BY sortOrder, id")
+    fun observeGroups(): Flow<List<EventGroupEntity>>
+
+    @Query("SELECT * FROM event_group_members")
+    fun observeMembers(): Flow<List<EventGroupMember>>
+
+    @Query("SELECT * FROM event_groups ORDER BY sortOrder, id")
+    suspend fun groups(): List<EventGroupEntity>
+
+    @Query("SELECT g.* FROM event_groups g JOIN event_group_members m ON m.groupId = g.id WHERE m.eventId = :eventId ORDER BY g.sortOrder, g.id")
+    suspend fun groupsOf(eventId: Long): List<EventGroupEntity>
+
+    @Query("SELECT eventId FROM event_group_members WHERE groupId = :groupId")
+    suspend fun memberIds(groupId: Long): List<Long>
+
+    @Insert
+    suspend fun insert(group: EventGroupEntity): Long
+
+    @Update
+    suspend fun update(group: EventGroupEntity)
+
+    @Query("DELETE FROM event_groups WHERE id = :id")
+    suspend fun delete(id: Long)
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertMembers(rows: List<EventGroupMember>)
+
+    @Query("DELETE FROM event_group_members WHERE groupId = :groupId")
+    suspend fun clearGroup(groupId: Long)
+
+    @Query("DELETE FROM event_group_members WHERE eventId = :eventId")
+    suspend fun clearEvent(eventId: Long)
+}

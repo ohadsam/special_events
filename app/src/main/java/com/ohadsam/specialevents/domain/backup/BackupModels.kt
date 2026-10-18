@@ -3,6 +3,7 @@ package com.ohadsam.specialevents.domain.backup
 import com.ohadsam.specialevents.domain.SpecialEvent
 import com.ohadsam.specialevents.domain.checklist.ChecklistItem
 import com.ohadsam.specialevents.domain.greetings.GreetingTemplate
+import com.ohadsam.specialevents.domain.groups.EventGroup
 import com.ohadsam.specialevents.domain.reminders.ReminderRule
 
 /**
@@ -15,6 +16,9 @@ data class BackupData(
     val rules: List<ReminderRule>,
     val checklist: List<ChecklistItem>,
     val templates: List<GreetingTemplate>,
+    val groups: List<EventGroup> = emptyList(),
+    /** (event id, group id) pairs, both as numbered inside the file. */
+    val members: List<Pair<Long, Long>> = emptyList(),
 )
 
 enum class BackupError { NOT_JSON, WRONG_FORMAT, TOO_NEW, TOO_BIG }

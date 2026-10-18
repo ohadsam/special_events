@@ -17,6 +17,7 @@ import com.ohadsam.specialevents.domain.greetings.GreetingRenderer
 import com.ohadsam.specialevents.domain.greetings.GreetingTemplate
 import com.ohadsam.specialevents.domain.greetings.SongIdea
 import com.ohadsam.specialevents.domain.greetings.SongSuggestions
+import com.ohadsam.specialevents.domain.groups.GroupLogic
 import com.ohadsam.specialevents.greetings.VoiceRecorder
 import java.io.File
 import java.time.LocalDate
@@ -94,7 +95,8 @@ class GreetingViewModel(private val container: AppContainer, private val eventId
             val today = LocalDate.now()
             val item = pickItem(event, today, settings)
             val templates = GreetingCatalog.forEvent(event.type, event.gender, item?.milestone, container.greetings.customTemplates.first())
-            val first = templates.firstOrNull()
+            val groupTemplate = GroupLogic.greetingTemplateId(null, container.groups.groupsOf(event.id))
+            val first = templates.firstOrNull { it.id == groupTemplate } ?: templates.firstOrNull()
             local.value = GreetingState(
                 loading = false,
                 event = event,

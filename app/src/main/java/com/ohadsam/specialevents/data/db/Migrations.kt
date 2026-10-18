@@ -84,5 +84,28 @@ object Migrations {
         }
     }
 
-    val ALL: Array<Migration> = arrayOf(V1_TO_V2, V2_TO_V3, V3_TO_V4, V4_TO_V5, V5_TO_V6, V6_TO_V7)
+    const val CREATE_EVENT_GROUPS =
+        "CREATE TABLE IF NOT EXISTS `event_groups` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `emoji` TEXT, " +
+            "`colorArgb` INTEGER, `builtInKey` TEXT, `sortOrder` INTEGER NOT NULL, `tags` TEXT NOT NULL, `defaultChannel` TEXT, " +
+            "`defaultTemplateId` INTEGER, `reminderRules` TEXT NOT NULL, `extraRecipients` TEXT NOT NULL)"
+
+    const val CREATE_EVENT_GROUPS_INDEX = "CREATE UNIQUE INDEX IF NOT EXISTS `index_event_groups_builtInKey` ON `event_groups` (`builtInKey`)"
+
+    const val CREATE_EVENT_GROUP_MEMBERS =
+        "CREATE TABLE IF NOT EXISTS `event_group_members` (`eventId` INTEGER NOT NULL, `groupId` INTEGER NOT NULL, PRIMARY KEY(`eventId`, `groupId`), " +
+            "FOREIGN KEY(`eventId`) REFERENCES `events`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , " +
+            "FOREIGN KEY(`groupId`) REFERENCES `event_groups`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )"
+
+    const val CREATE_EVENT_GROUP_MEMBERS_INDEX = "CREATE INDEX IF NOT EXISTS `index_event_group_members_groupId` ON `event_group_members` (`groupId`)"
+
+    val V7_TO_V8 = object : Migration(7, 8) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL(CREATE_EVENT_GROUPS)
+            db.execSQL(CREATE_EVENT_GROUPS_INDEX)
+            db.execSQL(CREATE_EVENT_GROUP_MEMBERS)
+            db.execSQL(CREATE_EVENT_GROUP_MEMBERS_INDEX)
+        }
+    }
+
+    val ALL: Array<Migration> = arrayOf(V1_TO_V2, V2_TO_V3, V3_TO_V4, V4_TO_V5, V5_TO_V6, V6_TO_V7, V7_TO_V8)
 }

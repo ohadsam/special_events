@@ -8,12 +8,14 @@ import android.telephony.SmsManager
 import androidx.core.content.ContextCompat
 import com.ohadsam.specialevents.R
 import com.ohadsam.specialevents.data.GreetingRepository
+import com.ohadsam.specialevents.data.GroupRepository
 import com.ohadsam.specialevents.data.SendChannel
 import com.ohadsam.specialevents.domain.greetings.AutoSend
 import com.ohadsam.specialevents.domain.greetings.AutoSendDecision
 import com.ohadsam.specialevents.domain.greetings.GreetingCatalog
 import com.ohadsam.specialevents.domain.greetings.GreetingRenderer
 import com.ohadsam.specialevents.domain.greetings.PhoneNumbers
+import com.ohadsam.specialevents.domain.groups.GroupLogic
 import com.ohadsam.specialevents.domain.reminders.Channel
 import com.ohadsam.specialevents.domain.reminders.PlannedReminder
 import com.ohadsam.specialevents.log.AppLogger
@@ -28,6 +30,7 @@ import kotlinx.coroutines.flow.first
 class AutoGreetingSender(
     private val context: Context,
     private val greetings: GreetingRepository,
+    private val groups: GroupRepository,
     private val notifications: NotificationHelper,
     private val logger: AppLogger,
 ) {
@@ -41,7 +44,7 @@ class AutoGreetingSender(
         val decision = AutoSend.decide(plan.rule.autoSend, plan.rule.channel == Channel.SMS, hasPermission(), event.contactPhone, greeted)
         if (decision != AutoSendDecision.SEND) return decision == AutoSendDecision.ALREADY_GREETED
         val template = AutoSend.chooseTemplate(
-            plan.rule.templateId,
+            GroupLogic.greetingTemplateId(plan.rule.templateId, groups.groupsOf(event.id)),
             GreetingCatalog.forEvent(event.type, event.gender, plan.item.milestone, greetings.customTemplates.first()),
         ) ?: return false
         val text = GreetingRenderer.render(template.body, GreetingContexts.of(event, plan.item))

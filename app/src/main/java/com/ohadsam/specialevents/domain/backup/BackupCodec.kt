@@ -11,6 +11,7 @@ import com.ohadsam.specialevents.domain.Tag
 import com.ohadsam.specialevents.domain.checklist.ChecklistItem
 import com.ohadsam.specialevents.domain.checklist.ChecklistKind
 import com.ohadsam.specialevents.domain.greetings.GreetingTemplate
+import com.ohadsam.specialevents.domain.groups.EventGroup
 import com.ohadsam.specialevents.domain.reminders.Channel
 import com.ohadsam.specialevents.domain.reminders.OffsetUnit
 import com.ohadsam.specialevents.domain.reminders.ReminderRule
@@ -62,6 +63,8 @@ object BackupCodec {
             put("rules", JsonArray(data.rules.map(::ruleJson)))
             put("checklist", JsonArray(data.checklist.map(::itemJson)))
             put("templates", JsonArray(data.templates.map(::templateJson)))
+            put("groups", JsonArray(data.groups.map(::groupJson)))
+            put("members", JsonArray(data.members.map { (e, g) -> buildJsonObject { put("eventId", e); put("groupId", g) } }))
         },
     )
 
@@ -81,7 +84,8 @@ object BackupCodec {
             read<ReminderRule>("rules") { parseRule(it) },
             read<ChecklistItem>("checklist") { parseItem(it) },
             read<GreetingTemplate>("templates") { parseTemplate(it) },
-        )
+            read<EventGroup>("groups") { parseGroup(it) },
+        ).copy(members = read<Pair<Long, Long>>("members") { m -> (m.long("eventId") ?: return@read null) to (m.long("groupId") ?: return@read null) })
         return DecodeResult.Ok(data, root.str("exportedAt"), skipped)
     }
 
@@ -137,6 +141,14 @@ object BackupCodec {
                 obj?.str("name")?.trim()?.take(MAX_TITLE)?.takeIf { it.isNotEmpty() }?.let { Tag(name = it, colorArgb = obj.int("color")) }
             },
         )
+    }
+
+    /** A list of rules as JSON text, for places that store a reminder template (groups). */
+    fun encodeRules(rules: List<ReminderRule>): String = JsonArray(rules.map(::ruleJson)).toString()
+
+    fun decodeRules(text: String): List<ReminderRule> {
+        val array = runCatching { Json.parseToJsonElement(text) as? JsonArray }.getOrNull() ?: return emptyList()
+        return array.take(MAX_ENTRIES).mapNotNull { el -> runCatching { parseRule(el.jsonObject) }.getOrNull() }
     }
 
     private fun ruleJson(r: ReminderRule) = buildJsonObject {
@@ -197,6 +209,36 @@ object BackupCodec {
         )
     }
 
+    private fun groupJson(g: EventGroup) = buildJsonObject {
+        put("id", g.id)
+        put("name", g.name)
+        put("emoji", g.emoji)
+        put("color", g.colorArgb)
+        put("builtInKey", g.builtInKey)
+        put("sortOrder", g.sortOrder)
+        put("tags", JsonArray(g.tags.map { JsonPrimitive(it) }))
+        put("channel", g.defaultChannel?.name)
+        put("rules", JsonArray(g.reminderRules.map(::ruleJson)))
+        put("extra", JsonArray(g.extraRecipients.map { JsonPrimitive(it) }))
+    }
+
+    private fun parseGroup(o: JsonObject): EventGroup? {
+        val name = o.str("name")?.trim()?.take(MAX_TITLE)?.takeIf { it.isNotEmpty() } ?: return null
+        fun strings(key: String) = (o[key] as? JsonArray).orEmpty().mapNotNull { (it as? JsonPrimitive)?.takeIf { p -> p.isString }?.contentOrNull?.trim()?.take(MAX_TITLE)?.takeIf { s -> s.isNotEmpty() } }.take(MAX_ENTRIES)
+        return EventGroup(
+            id = o.long("id") ?: 0,
+            name = name,
+            emoji = o.str("emoji")?.take(MAX_EMOJI),
+            colorArgb = o.int("color"),
+            builtInKey = o.str("builtInKey")?.take(MAX_TITLE),
+            sortOrder = o.int("sortOrder") ?: 0,
+            tags = strings("tags"),
+            defaultChannel = enumOf<Channel>(o.str("channel")),
+            reminderRules = (o["rules"] as? JsonArray).orEmpty().mapNotNull { r -> runCatching { parseRule(r.jsonObject) }.getOrNull() },
+            extraRecipients = strings("extra"),
+        )
+    }
+
     private fun templateJson(t: GreetingTemplate) = buildJsonObject {
         put("name", t.name)
         put("body", t.body)
@@ -210,6 +252,7 @@ object BackupCodec {
     }
 
     private const val MAX_OFFSET = 365
+    private const val MAX_EMOJI = 16
 
     private inline fun <reified E : Enum<E>> enumOf(name: String?): E? = name?.let { n -> enumValues<E>().firstOrNull { it.name == n } }
 

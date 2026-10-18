@@ -25,6 +25,7 @@ class SpecialEventsApp : Application() {
         log.i("App", "start v${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})")
         container.notifications.createChannels()
         watchRemindersInputs()
+        appScope.launch { runCatching { container.groups.ensureBuiltIns() }.onFailure { log.e("App", "built-in groups failed", it) } }
         WidgetUpdater.scheduleMidnight(this)
         val previous = Thread.getDefaultUncaughtExceptionHandler()
         Thread.setDefaultUncaughtExceptionHandler { t, e ->

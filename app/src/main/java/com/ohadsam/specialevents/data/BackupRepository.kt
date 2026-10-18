@@ -3,6 +3,7 @@ package com.ohadsam.specialevents.data
 import androidx.room.withTransaction
 import com.ohadsam.specialevents.contacts.PhotoStore
 import com.ohadsam.specialevents.data.db.AppDatabase
+import com.ohadsam.specialevents.domain.TextSearch
 import com.ohadsam.specialevents.domain.backup.BackupData
 import com.ohadsam.specialevents.domain.backup.BackupPlanner
 import com.ohadsam.specialevents.domain.backup.ImportMode
@@ -17,12 +18,15 @@ class BackupRepository(
     private val reminders: ReminderRepository,
     private val checklists: ChecklistRepository,
     private val greetings: GreetingRepository,
+    private val groups: GroupRepository,
 ) {
     suspend fun snapshot(): BackupData = BackupData(
         events = events.allEvents.first(),
         rules = reminders.snapshot(),
         checklist = checklists.snapshot(),
         templates = greetings.customTemplates.first(),
+        groups = groups.snapshot().first,
+        members = groups.snapshot().second.map { it.eventId to it.groupId },
     )
 
     suspend fun preview(incoming: BackupData, mode: ImportMode): ImportPreview =
@@ -49,6 +53,20 @@ class BackupRepository(
         incoming.checklist.forEach { i -> idMap[i.eventId]?.let { checklists.save(i.copy(id = 0, eventId = it)) } }
         val knownTemplates = greetings.customTemplates.first().map(BackupPlanner::templateKey).toHashSet()
         incoming.templates.forEach { t: GreetingTemplate -> if (knownTemplates.add(BackupPlanner.templateKey(t))) greetings.saveTemplate(t.copy(id = 0)) }
+        importGroups(incoming, idMap)
         added
+    }
+
+    /** Groups are matched to existing ones by their built-in key or name; members are linked only for events that were added. */
+    private suspend fun importGroups(incoming: BackupData, eventIds: Map<Long, Long>) {
+        if (incoming.groups.isEmpty()) return
+        val existing = groups.groups.first()
+        val byKey = existing.mapNotNull { g -> g.builtInKey?.let { it to g.id } }.toMap()
+        val byName = existing.associate { TextSearch.normalize(it.name) to it.id }
+        val groupIds = HashMap<Long, Long>()
+        for (g in incoming.groups) {
+            groupIds[g.id] = g.builtInKey?.let(byKey::get) ?: byName[TextSearch.normalize(g.name)] ?: groups.save(g.copy(id = 0, defaultTemplateId = null))
+        }
+        groups.addMembers(incoming.members.mapNotNull { (e, g) -> eventIds[e]?.let { ne -> groupIds[g]?.let { ng -> ne to ng } } })
     }
 }
