@@ -75,6 +75,7 @@ fun UpcomingScreen(
     onOpenEvent: (Long) -> Unit,
     onOpenSearch: () -> Unit,
     onOpenReminderHealth: () -> Unit,
+    onImportContacts: () -> Unit,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
@@ -85,7 +86,7 @@ fun UpcomingScreen(
         owner.lifecycle.addObserver(observer)
         onDispose { owner.lifecycle.removeObserver(observer) }
     }
-    UpcomingContent(state, viewModel::setFilter, onAddEvent, onOpenEvent, onOpenSearch, remindersBlocked = state.settings.remindersEnabled && !health.requiredOk, onOpenReminderHealth)
+    UpcomingContent(state, viewModel::setFilter, onAddEvent, onOpenEvent, onOpenSearch, remindersBlocked = state.settings.remindersEnabled && !health.requiredOk, onOpenReminderHealth, onImportContacts)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -98,6 +99,7 @@ fun UpcomingContent(
     onOpenSearch: () -> Unit,
     remindersBlocked: Boolean = false,
     onOpenReminderHealth: () -> Unit = {},
+    onImportContacts: () -> Unit = {},
 ) {
     Scaffold(
         topBar = {
@@ -119,7 +121,7 @@ fun UpcomingContent(
         Column(Modifier.fillMaxSize().padding(padding)) {
             if (remindersBlocked && !state.noEvents) PermissionBanner(onOpenReminderHealth)
             FilterRow(state.filter, onFilter)
-            Body(state, onAddEvent, onOpenEvent)
+            Body(state, onAddEvent, onOpenEvent, onImportContacts)
         }
     }
 }
@@ -148,11 +150,11 @@ private fun FilterRow(selected: TypeFilter, onSelect: (TypeFilter) -> Unit) {
 }
 
 @Composable
-private fun Body(state: UpcomingState, onAddEvent: () -> Unit, onOpenEvent: (Long) -> Unit) {
+private fun Body(state: UpcomingState, onAddEvent: () -> Unit, onOpenEvent: (Long) -> Unit, onImportContacts: () -> Unit) {
     when {
         state.loading -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
-        state.noEvents -> EmptyState(Icons.Outlined.Cake, R.string.upcoming_empty_title, R.string.upcoming_empty_body, R.string.action_add_first_event, onAddEvent)
-        state.groups.isEmpty() -> EmptyState(Icons.Outlined.SearchOff, R.string.search_no_results_title, R.string.search_no_results_body, null, {})
+        state.noEvents -> EmptyState(Icons.Outlined.Cake, R.string.upcoming_empty_title, R.string.upcoming_empty_body, R.string.action_add_first_event, onAddEvent, R.string.import_from_contacts, onImportContacts)
+        state.groups.isEmpty() -> EmptyState(Icons.Outlined.SearchOff, R.string.search_no_results_title, R.string.search_no_results_body, null, {}, null, {})
         else -> LazyColumn(
             contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 96.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp),
@@ -181,6 +183,8 @@ private fun EmptyState(
     body: Int,
     action: Int?,
     onAction: () -> Unit,
+    secondaryAction: Int?,
+    onSecondaryAction: () -> Unit,
 ) {
     Column(Modifier.fillMaxSize().padding(32.dp), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
         Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.padding(bottom = 16.dp))
@@ -193,6 +197,7 @@ private fun EmptyState(
             modifier = Modifier.padding(top = 8.dp),
         )
         if (action != null) TextButton(onClick = onAction, modifier = Modifier.padding(top = 8.dp)) { Text(stringResource(action)) }
+        if (secondaryAction != null) TextButton(onClick = onSecondaryAction) { Text(stringResource(secondaryAction)) }
     }
 }
 

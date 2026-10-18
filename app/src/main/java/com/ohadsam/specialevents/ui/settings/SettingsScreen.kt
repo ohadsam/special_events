@@ -8,6 +8,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.BugReport
+import androidx.compose.material.icons.outlined.Contacts
 import androidx.compose.material.icons.outlined.HealthAndSafety
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.NewReleases
@@ -41,7 +42,7 @@ import com.ohadsam.specialevents.ui.common.labelRes
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsScreen(viewModel: SettingsViewModel, onOpenLogs: () -> Unit, onOpenReminderHealth: () -> Unit) {
+fun SettingsScreen(viewModel: SettingsViewModel, onOpenLogs: () -> Unit, onOpenReminderHealth: () -> Unit, onImportContacts: () -> Unit) {
     val settings by viewModel.settings.collectAsStateWithLifecycle()
     var showWhatsNew by remember { mutableStateOf(false) }
     var confirmResetAll by remember { mutableStateOf(false) }
@@ -132,6 +133,7 @@ fun SettingsScreen(viewModel: SettingsViewModel, onOpenLogs: () -> Unit, onOpenR
             ResetRow(viewModel::resetReminders)
 
             SectionHeader(stringResource(R.string.settings_section_general))
+            AboutRow(Icons.Outlined.Contacts, R.string.settings_import_contacts, R.string.settings_import_contacts_desc, onImportContacts)
             AboutRow(Icons.Outlined.NewReleases, R.string.settings_whats_new, null) { showWhatsNew = true }
             AboutRow(Icons.Outlined.BugReport, R.string.settings_logs, R.string.settings_logs_desc, onOpenLogs)
             AboutRow(Icons.Outlined.RestartAlt, R.string.settings_reset_all, R.string.settings_reset_all_desc) { confirmResetAll = true }

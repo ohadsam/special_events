@@ -352,4 +352,25 @@
     <string name="reminders_reset_body">כל התזכורות של האירוע יוחלפו בתזכורות הרגילות של סוג האירוע. שינויים שעשיתם יימחקו.</string>
     <string name="reminders_reset_action">החלף</string>
     <string name="detail_edit_reminders">עריכת תזכורות והצעות</string>
+    <string name="editor_photo_add">הוסף תמונה</string>
+    <string name="editor_photo_change">החלף תמונה</string>
+    <string name="editor_photo_remove">הסר</string>
+    <string name="editor_contact_link">קשר לאיש קשר</string>
+    <string name="editor_contact_linked">מקושר: %1$s</string>
+    <string name="editor_contact_unlink">נתק את איש הקשר</string>
+    <string name="detail_call">התקשר</string>
+    <string name="detail_open_contact">פתח איש קשר</string>
+    <string name="settings_import_contacts">ייבוא מאנשי קשר</string>
+    <string name="settings_import_contacts_desc">ימי הולדת ותאריכים מיוחדים מספר הטלפון</string>
+    <string name="import_from_contacts">ייבוא מאנשי קשר</string>
+    <string name="import_contacts_title">ייבוא מאנשי קשר</string>
+    <string name="import_explain_title">ימי הולדת מאנשי הקשר</string>
+    <string name="import_explain_body">האפליקציה תקרא מספר הטלפון רק את שמות האנשים ותאריכי ההולדת / הנישואין שלהם, תציג לכם רשימה לבחירה, ותשמור אותם במכשיר בלבד. שום דבר לא נשלח החוצה.</string>
+    <string name="import_allow">אפשר גישה לאנשי קשר</string>
+    <string name="import_select_all">בחר הכול</string>
+    <string name="import_select_none">נקה בחירה</string>
+    <string name="import_action">ייבא %1$d</string>
+    <string name="import_exists">כבר קיים</string>
+    <string name="import_none">לא נמצאו ימי הולדת או תאריכים מיוחדים באנשי הקשר.</string>
+    <string name="import_done">יובאו %1$d אירועים</string>
 </resources>

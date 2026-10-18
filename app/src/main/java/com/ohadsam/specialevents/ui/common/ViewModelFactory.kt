@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.ohadsam.specialevents.AppContainer
 import com.ohadsam.specialevents.ui.calendar.CalendarViewModel
+import com.ohadsam.specialevents.ui.contacts.ImportContactsViewModel
 import com.ohadsam.specialevents.ui.search.SearchViewModel
 import com.ohadsam.specialevents.ui.settings.SettingsViewModel
 import com.ohadsam.specialevents.ui.upcoming.UpcomingViewModel
@@ -16,6 +17,7 @@ class ViewModelFactory(private val container: AppContainer) : ViewModelProvider.
         modelClass.isAssignableFrom(SettingsViewModel::class.java) -> SettingsViewModel(container)
         modelClass.isAssignableFrom(CalendarViewModel::class.java) -> CalendarViewModel(container)
         modelClass.isAssignableFrom(SearchViewModel::class.java) -> SearchViewModel(container)
+        modelClass.isAssignableFrom(ImportContactsViewModel::class.java) -> ImportContactsViewModel(container)
         else -> throw IllegalArgumentException("Unknown ViewModel ${modelClass.name}")
     } as T
 }
