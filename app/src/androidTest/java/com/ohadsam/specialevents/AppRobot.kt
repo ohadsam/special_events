@@ -12,15 +12,20 @@ typealias AppRule = AndroidComposeTestRule<ActivityScenarioRule<MainActivity>, M
 
 /** Small helpers shared by the emulator tests: the first-run welcome must not hide the screen under test. */
 object AppRobot {
+    private const val WELCOME_WAIT_MS = 4_000L
+
     fun text(rule: AppRule, res: Int): String = rule.activity.getString(res)
 
+    /** The welcome appears only once settings have loaded from disk, so wait for it briefly; later runs never see it. */
     fun dismissWelcome(rule: AppRule) {
-        rule.waitForIdle()
         val start = text(rule, R.string.onboarding_start)
-        if (rule.onAllNodesWithText(start).fetchSemanticsNodes().isNotEmpty()) {
-            rule.onAllNodesWithText(start).onFirst().performClick()
-            rule.waitForIdle()
+        try {
+            rule.waitUntil(WELCOME_WAIT_MS) { rule.onAllNodesWithText(start).fetchSemanticsNodes().isNotEmpty() }
+        } catch (e: Throwable) {
+            return
         }
+        rule.onAllNodesWithText(start).onFirst().performClick()
+        rule.waitForIdle()
     }
 
     fun click(rule: ComposeTestRule, label: String, scroll: Boolean = false) {
