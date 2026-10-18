@@ -66,6 +66,24 @@ object GreetingSender {
         return false
     }
 
+    /** A picture from the gallery with the greeting as its caption, straight to the person's WhatsApp chat when the number is known. */
+    fun sendImage(context: Context, image: Uri, caption: String, phone: String?, countryCode: String): Boolean {
+        fun picture() = Intent(Intent.ACTION_SEND).setType("image/*").putExtra(Intent.EXTRA_STREAM, image).putExtra(Intent.EXTRA_TEXT, caption)
+            .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        val digits = PhoneNumbers.forWhatsApp(phone, countryCode)
+        val intents = WHATSAPP_PACKAGES.map { pkg -> picture().setPackage(pkg).also { if (digits != null) it.putExtra("jid", "$digits@s.whatsapp.net") } } +
+            Intent.createChooser(picture(), null).addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        for (intent in intents) {
+            try {
+                context.startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+                return true
+            } catch (e: ActivityNotFoundException) {
+                // try the next way
+            }
+        }
+        return false
+    }
+
     private fun plain(text: String) = Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_TEXT, text)
 
     /** A wa.me link opens the chat with the person when the number is known; otherwise the WhatsApp contact picker, otherwise any app. */

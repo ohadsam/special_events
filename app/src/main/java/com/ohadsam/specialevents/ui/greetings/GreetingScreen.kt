@@ -50,7 +50,9 @@ import com.ohadsam.specialevents.R
 import com.ohadsam.specialevents.data.GreetingSent
 import com.ohadsam.specialevents.data.SendChannel
 import com.ohadsam.specialevents.greetings.GreetingSender
+import com.ohadsam.specialevents.domain.IconSuggester
 import com.ohadsam.specialevents.ui.common.dateLabel
+import com.ohadsam.specialevents.ui.common.defaultEmoji
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
@@ -120,6 +122,19 @@ fun GreetingScreen(viewModel: GreetingViewModel, onBack: () -> Unit) {
                 modifier = Modifier.fillMaxWidth(),
             )
             TextButton(onClick = { saving = true }) { Text(stringResource(R.string.greeting_save_template)) }
+
+            val body = if (state.target == Target.LIST) state.list.body else state.text
+            EmojiPhotoSection(
+                emojis = IconSuggester.options(event.type, event.title, event.type.defaultEmoji()),
+                onEmoji = { viewModel.setText(body + it) },
+                onSendPhoto = { uri ->
+                    if (GreetingSender.sendImage(context, uri, state.text, state.phone, state.settings.countryCode)) {
+                        viewModel.launched(SendChannel.WHATSAPP)
+                    } else {
+                        android.widget.Toast.makeText(context, notFound, android.widget.Toast.LENGTH_LONG).show()
+                    }
+                },
+            )
 
             Text(stringResource(R.string.greeting_to), style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.primary)
             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {

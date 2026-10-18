@@ -527,6 +527,12 @@
     <string name="datetext_e_day">לא מצאתי את היום בחודש.</string>
     <string name="datetext_e_invalid">התאריך הזה לא קיים בלוח.</string>
     <string name="print_accent_pick">צבע הדגשה</string>
+    <string name="greeting_emoji">אימוג'י לברכה</string>
+    <string name="greeting_emoji_add">הוסף להודעה</string>
+    <string name="greeting_photo_pick">צרף תמונה מהגלריה</string>
+    <string name="greeting_photo_replace">החלף תמונה</string>
+    <string name="greeting_photo_send">שלח תמונה עם הברכה</string>
+    <string name="greeting_photo_remove">הסר תמונה</string>
     <string name="onboarding_title">ברוכים הבאים</string>
     <string name="onboarding_start">בואו נתחיל</string>
     <string name="onboarding_guide">למדריך המלא</string>

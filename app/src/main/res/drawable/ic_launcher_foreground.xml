@@ -4,20 +4,24 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
+    <!-- Soft shadow -->
+    <path
+        android:fillColor="#26000000"
+        android:pathData="M33,38h42a7,7 0 0 1 7,7v33a7,7 0 0 1 -7,7h-42a7,7 0 0 1 -7,-7v-33a7,7 0 0 1 7,-7z" />
     <!-- Calendar page -->
     <path
         android:fillColor="#FFFFFF"
-        android:pathData="M36,34h36a6,6 0 0 1 6,6v32a6,6 0 0 1 -6,6h-36a6,6 0 0 1 -6,-6v-32a6,6 0 0 1 6,-6z" />
+        android:pathData="M33,34h42a7,7 0 0 1 7,7v33a7,7 0 0 1 -7,7h-42a7,7 0 0 1 -7,-7v-33a7,7 0 0 1 7,-7z" />
     <!-- Header band -->
     <path
-        android:fillColor="#FFBA3E"
-        android:pathData="M30,46h48v-6a6,6 0 0 0 -6,-6h-36a6,6 0 0 0 -6,6z" />
+        android:fillColor="#FFB300"
+        android:pathData="M26,48h56v-7a7,7 0 0 0 -7,-7h-42a7,7 0 0 0 -7,7z" />
     <!-- Binder rings -->
     <path
         android:fillColor="#FFFFFF"
-        android:pathData="M41,29h4v8h-4zM63,29h4v8h-4z" />
-    <!-- Star -->
+        android:pathData="M39,28a2.5,2.5 0 0 1 5,0v10a2.5,2.5 0 0 1 -5,0zM64,28a2.5,2.5 0 0 1 5,0v10a2.5,2.5 0 0 1 -5,0z" />
+    <!-- Heart -->
     <path
-        android:fillColor="#FFBA3E"
-        android:pathData="M54,52L56.47,58.6L63.51,58.91L57.99,63.3L59.88,70.09L54,66.2L48.12,70.09L50.01,63.3L44.49,58.91L51.53,58.6Z" />
+        android:fillColor="#E91E63"
+        android:pathData="M54,75C46,69 41,64.5 41,59.5C41,56 43.7,53.5 47,53.5C49.9,53.5 52.8,55 54,57.6C55.2,55 58.1,53.5 61,53.5C64.3,53.5 67,56 67,59.5C67,64.5 62,69 54,75z" />
 </vector>

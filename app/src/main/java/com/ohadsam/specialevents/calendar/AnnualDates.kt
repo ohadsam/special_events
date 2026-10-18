@@ -20,8 +20,8 @@ enum class LeapDay { FEB_28, MAR_1 }
 
 data class DateRules(
     val adar: AdarInLeapYear = AdarInLeapYear.ADAR_II,
-    val thirtiethOfShortMonth: ShortMonthThirtieth = ShortMonthThirtieth.DAY_BEFORE,
-    val leapDay: LeapDay = LeapDay.FEB_28,
+    val thirtiethOfShortMonth: ShortMonthThirtieth = ShortMonthThirtieth.NEXT_DAY,
+    val leapDay: LeapDay = LeapDay.MAR_1,
 )
 
 /** One yearly recurrence: the civil [date] it falls on and [number] = years since the origin (age / anniversary), null if the origin year is unknown. */

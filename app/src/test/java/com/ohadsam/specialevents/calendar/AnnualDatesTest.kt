@@ -10,19 +10,19 @@ class AnnualDatesTest {
     private fun heb(basisYear: Int?, month: Int, day: Int) = OriginDate(CalendarBasis.HEBREW, basisYear, month, day)
 
     @Test
-    fun leapDayFallsBackToFebruary28ThenReturnsInLeapYears() {
+    fun leapDayFallsBackToMarchFirstThenReturnsInLeapYears() {
         val born = OriginDate(CalendarBasis.GREGORIAN, 2000, 2, 29)
         val o = AnnualDates.next(born, LocalDate.of(2025, 1, 1))
-        assertEquals(LocalDate.of(2025, 2, 28), o.date)
+        assertEquals(LocalDate.of(2025, 3, 1), o.date)
         assertEquals(25, o.number)
         assertEquals(LocalDate.of(2028, 2, 29), AnnualDates.next(born, LocalDate.of(2028, 1, 1)).date)
     }
 
     @Test
-    fun leapDayCanBeConfiguredToMarchFirst() {
+    fun leapDayCanBeConfiguredToFebruary28() {
         val born = OriginDate(CalendarBasis.GREGORIAN, 2000, 2, 29)
-        val date = AnnualDates.next(born, LocalDate.of(2025, 1, 1), DateRules(leapDay = LeapDay.MAR_1)).date
-        assertEquals(LocalDate.of(2025, 3, 1), date)
+        val date = AnnualDates.next(born, LocalDate.of(2025, 1, 1), DateRules(leapDay = LeapDay.FEB_28)).date
+        assertEquals(LocalDate.of(2025, 2, 28), date)
     }
 
     @Test
@@ -57,8 +57,8 @@ class AnnualDatesTest {
     fun thirtiethOfCheshvanInShortYear() {
         val y = (5780..5900).first { HebrewCalendar.daysInMonth(it, 8) == 29 }
         val origin = heb(5700, 8, 30)
-        assertEquals(HebrewDate(y, 8, 29).toLocalDate(), AnnualDates.occurrenceIn(origin, y))
-        assertEquals(HebrewDate(y, 9, 1).toLocalDate(), AnnualDates.occurrenceIn(origin, y, DateRules(thirtiethOfShortMonth = ShortMonthThirtieth.NEXT_DAY)))
+        assertEquals(HebrewDate(y, 9, 1).toLocalDate(), AnnualDates.occurrenceIn(origin, y))
+        assertEquals(HebrewDate(y, 8, 29).toLocalDate(), AnnualDates.occurrenceIn(origin, y, DateRules(thirtiethOfShortMonth = ShortMonthThirtieth.DAY_BEFORE)))
         val long = (5780..5900).first { HebrewCalendar.daysInMonth(it, 8) == 30 }
         assertEquals(HebrewDate(long, 8, 30).toLocalDate(), AnnualDates.occurrenceIn(origin, long))
     }
@@ -67,8 +67,8 @@ class AnnualDatesTest {
     fun thirtiethOfKislevInShortYear() {
         val y = (5780..5900).first { HebrewCalendar.daysInMonth(it, 9) == 29 }
         val origin = heb(5700, 9, 30)
-        assertEquals(HebrewDate(y, 9, 29).toLocalDate(), AnnualDates.occurrenceIn(origin, y))
-        assertEquals(HebrewDate(y, 10, 1).toLocalDate(), AnnualDates.occurrenceIn(origin, y, DateRules(thirtiethOfShortMonth = ShortMonthThirtieth.NEXT_DAY)))
+        assertEquals(HebrewDate(y, 10, 1).toLocalDate(), AnnualDates.occurrenceIn(origin, y))
+        assertEquals(HebrewDate(y, 9, 29).toLocalDate(), AnnualDates.occurrenceIn(origin, y, DateRules(thirtiethOfShortMonth = ShortMonthThirtieth.DAY_BEFORE)))
     }
 
     private fun resolved(origin: OriginDate, year: Int, rules: DateRules = DateRules()): HebrewDate =

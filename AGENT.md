@@ -61,6 +61,8 @@ Read order: CLAUDE.md → docs/PLAN.md → STRUCTURE.md → the batch's section 
 
 - DECISION (owner, 2026-10-18): free WhatsApp/e-mail only → keep one-tap send per recipient + automatic SMS; do NOT build WhatsApp Business API / SMTP.
 
+- v0.26.0: DECISIONS (owner, 2026-10-18): Adar II → plain Adar in common years (already so); 30 Cheshvan/Kislev → 1st of next month; Feb 29 → Mar 1 (new defaults, saved settings kept). New launcher icon. Greeting screen: event emoji palette + gallery photo sent with caption. Unverified on device: photo picker hand-off to WhatsApp.
+
 ## Known issues / open items (need the owner)
 - Feature spec for "אירועים מיוחדים" not yet provided → fill `docs/SPEC.md`, then define batches in `docs/PLAN.md`.
 - **Signing key:** `app/sideload.jks` (password in app/build.gradle.kts) is committed on purpose so every CI build updates in place; NOT a store key. Never change it after users installed the app.
