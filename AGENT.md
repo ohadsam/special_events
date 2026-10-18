@@ -1,5 +1,5 @@
 # Special Events – Agent Memory
-**Last updated:** v0.16.0 (batches 0–12, V1, G1 done; E1 (free-text dates) next)
+**Last updated:** v0.17.0 (batches 0–12, V1, G1, E1 done; H1 (help) next)
 Read order: CLAUDE.md → docs/PLAN.md → STRUCTURE.md → the batch's section in docs/SPEC.md.
 
 ## Recently done
@@ -40,6 +40,8 @@ Read order: CLAUDE.md → docs/PLAN.md → STRUCTURE.md → the batch's section 
 - v0.15.0: batch V1: views. Not done: saved views (named), group by owner group (after G1), unified single view-switcher screen (Upcoming and Calendar remain two tabs), Hebrew-month picker. Unverified on device: swipe vs scroll conflicts, long-press menu, bottom sheet at 200% font.
 
 - v0.16.0: batch G1: groups. Not done: group photo and font/card styling (needs the card design of S1/P1), sharing a single group/template as its own file (backup covers it), reordering groups, recipients queue UI (T2). Unverified on device: editor layout at 200% font, emoji entry.
+
+- v0.17.0: batch E1: free-text dates. Not done: English input, relative phrases ("לפני שבועיים"), parsing names/relations out of the same sentence (e.g. "אמא של דנה נולדה ב..."), speech input. Unverified on device: field layout, RTL punctuation (maqaf/geresh typed from phone keyboards).
 
 ## Known issues / open items (need the owner)
 - Feature spec for "אירועים מיוחדים" not yet provided → fill `docs/SPEC.md`, then define batches in `docs/PLAN.md`.
@@ -82,6 +84,9 @@ Notification timing, permission flows, visuals, TalkBack.
 
 ## Ideas (v0.16.0)
 - Reorder groups by drag; group photo; per-group card font and background (with P1); import a group template shared by someone else (S1); group birthdays widget; default group by event type; auto-suggest a group from relation text.
+
+## Ideas (v0.17.0)
+- Voice dictation of the date; fill title/gender from the same sentence ("דנה, בת 46"); English month names; relative dates; show a mini month calendar with the parsed day highlighted; learn the user's habitual format.
 
 ## Ideas (from batch 5)
 - Yahrzeit candle reminder anchored to sunset (rule time = "N minutes before sunset") instead of a fixed 16:00; per-rule custom sound picker (profile `sound:<uri>` is already supported); quiet hours; "mark as greeted" action (batch 8); a daily digest notification option; reminders inheriting from tags.

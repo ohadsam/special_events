@@ -18,6 +18,7 @@
 - `calsync/DeviceCalendars` (CalendarContract read + own local calendar write). `domain/calsync/CalendarImportPlanner` (type guess, dedupe, filters). `ui/calsync/` — `CalendarSyncScreen`/`ViewModel` (Settings → Calendar sync). `ExportDays` shared with the ICS export.
 - `domain/views/` — `ViewSpec` (filter/group/sort + GroupKey), `ViewEngine`, `EventJump` (go-to-event, show-in-calendar target). `ui/upcoming/` also `ViewOptionsSheet`, `GroupLabels`, `ViewActions`; `ui/calendar/JumpDialogs`. `AppContainer.calendarRequests` carries Show in calendar. View prefs live in AppSettings.
 - `domain/groups/` — `EventGroup`, `GroupDefaults` (6 built-ins), `GroupLogic` (template apply rules, greeting precedence, recipients). `data/GroupRepository`. `ui/groups/` — `GroupsScreen`, `GroupEditorScreen`/`ViewModel` (Settings -> Groups). Groups are part of the backup format. DB v8.
+- `domain/datetext/` — `DateTextParser` (free-text Hebrew/Gregorian date -> `ParsedDate` with warnings and candidate years), `ParsedDate.toEditorDate`. Used by the editor's free-text field.
 - `log/` — `AppLogger` (ring buffer + file), `LogBuffer`, `LogModel` (ported from Tehilim_Daily).
 - `ui/theme/Theme.kt` — brand light/dark schemes (dynamic color optional). `ui/nav/` — `TopLevel` tabs, `Routes`, `AppRoot` (NavHost + bottom bar).
 - `ui/common/PlaceholderScreen` — empty state for features landing later. `ui/settings/` — `SettingsScreen`, `LogsScreen`, `WhatsNewDialog`.
