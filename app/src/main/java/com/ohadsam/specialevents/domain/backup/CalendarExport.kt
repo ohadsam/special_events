@@ -1,12 +1,19 @@
 package com.ohadsam.specialevents.domain.backup
 
 import com.ohadsam.specialevents.calendar.HebrewCalendar
+import com.ohadsam.specialevents.domain.EventTimeline
 import com.ohadsam.specialevents.domain.SpecialEvent
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 /** One concrete day of an event, as exported to a calendar file. */
 data class ExportedDay(val event: SpecialEvent, val date: LocalDate, val number: Int?)
+
+/** The concrete days of every active event for the next [years] years - what calendar exports contain. */
+object ExportDays {
+    fun of(events: List<SpecialEvent>, from: LocalDate, years: Int, rules: com.ohadsam.specialevents.calendar.DateRules): List<ExportedDay> =
+        events.filter { !it.archived }.flatMap { e -> EventTimeline.forEvent(e, from, years, rules).map { ExportedDay(e, it.date, it.number) } }
+}
 
 /** iCalendar (.ics) so the events appear in any calendar app; every day is an all-day entry carrying the Hebrew date. */
 object IcsExport {
@@ -26,7 +33,7 @@ object IcsExport {
             lines += "DTSTART;VALUE=DATE:${DAY.format(d.date)}"
             lines += "DTEND;VALUE=DATE:${DAY.format(d.date.plusDays(1))}"
             lines += "SUMMARY:${escape(summary(d))}"
-            lines += "DESCRIPTION:${escape(description(d))}"
+            lines += "DESCRIPTION:${escape(describe(d))}"
             lines += "TRANSP:TRANSPARENT"
             lines += "END:VEVENT"
         }
@@ -36,7 +43,7 @@ object IcsExport {
 
     private fun summary(d: ExportedDay) = d.number?.let { "${d.event.title} ($it)" } ?: d.event.title
 
-    private fun description(d: ExportedDay): String = listOfNotNull(HebrewCalendar.fromLocalDate(d.date).format(), d.event.notes).joinToString("\n")
+    fun describe(d: ExportedDay): String = listOfNotNull(HebrewCalendar.fromLocalDate(d.date).format(), d.event.notes).joinToString("\n")
 
     /** RFC 5545 text escaping: backslash, semicolon, comma and line breaks. */
     fun escape(text: String): String = text.replace("\\", "\\\\").replace(";", "\\;").replace(",", "\\,").replace("\r\n", "\n").replace("\n", "\\n")

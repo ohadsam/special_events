@@ -15,6 +15,7 @@ import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Message
 import androidx.compose.material.icons.outlined.NewReleases
 import androidx.compose.material.icons.outlined.RestartAlt
+import androidx.compose.material.icons.outlined.Sync
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -44,7 +45,7 @@ import com.ohadsam.specialevents.ui.common.labelRes
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsScreen(viewModel: SettingsViewModel, onOpenLogs: () -> Unit, onOpenReminderHealth: () -> Unit, onImportContacts: () -> Unit, onOpenTemplates: () -> Unit, onOpenBackup: () -> Unit) {
+fun SettingsScreen(viewModel: SettingsViewModel, onOpenLogs: () -> Unit, onOpenReminderHealth: () -> Unit, onImportContacts: () -> Unit, onOpenTemplates: () -> Unit, onOpenBackup: () -> Unit, onOpenCalendarSync: () -> Unit) {
     val settings by viewModel.settings.collectAsStateWithLifecycle()
     var showWhatsNew by remember { mutableStateOf(false) }
     var confirmResetAll by remember { mutableStateOf(false) }
@@ -160,6 +161,7 @@ fun SettingsScreen(viewModel: SettingsViewModel, onOpenLogs: () -> Unit, onOpenR
 
             SectionHeader(stringResource(R.string.settings_section_backup))
             AboutRow(Icons.Outlined.Backup, R.string.settings_backup, R.string.settings_backup_desc, onOpenBackup)
+            AboutRow(Icons.Outlined.Sync, R.string.settings_calsync, R.string.settings_calsync_desc, onOpenCalendarSync)
 
             SectionHeader(stringResource(R.string.settings_section_general))
             AboutRow(Icons.Outlined.Contacts, R.string.settings_import_contacts, R.string.settings_import_contacts_desc, onImportContacts)

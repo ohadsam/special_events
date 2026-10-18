@@ -26,6 +26,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.ohadsam.specialevents.ui.backup.BackupScreen
 import com.ohadsam.specialevents.ui.backup.BackupViewModel
 import com.ohadsam.specialevents.ui.calendar.CalendarScreen
+import com.ohadsam.specialevents.ui.calsync.CalendarSyncScreen
+import com.ohadsam.specialevents.ui.calsync.CalendarSyncViewModel
 import com.ohadsam.specialevents.ui.checklist.ChecklistScreen
 import com.ohadsam.specialevents.ui.checklist.ChecklistViewModel
 import com.ohadsam.specialevents.ui.common.ViewModelFactory
@@ -114,6 +116,7 @@ fun AppRoot(container: AppContainer, pendingRoute: String? = null, onRouteHandle
                     onImportContacts = { nav.navigate(Routes.IMPORT_CONTACTS) },
                     onOpenTemplates = { nav.navigate(Routes.TEMPLATES) },
                     onOpenBackup = { nav.navigate(Routes.backup()) },
+                    onOpenCalendarSync = { nav.navigate(Routes.CALENDAR_SYNC) },
                 )
             }
             composable(Routes.DETAIL, arguments = listOf(navArgument("id") { type = NavType.LongType })) { entry ->
@@ -177,6 +180,10 @@ fun AppRoot(container: AppContainer, pendingRoute: String? = null, onRouteHandle
             ) { entry ->
                 val vm: BackupViewModel = viewModel(factory = BackupViewModel.Factory(container))
                 BackupScreen(vm, onBack = { nav.popBackStack() }, openUri = entry.arguments?.getString("uri"))
+            }
+            composable(Routes.CALENDAR_SYNC) {
+                val vm: CalendarSyncViewModel = viewModel(factory = CalendarSyncViewModel.Factory(container))
+                CalendarSyncScreen(vm, onBack = { nav.popBackStack() })
             }
             composable(Routes.TEMPLATES) {
                 TemplatesScreen(viewModel(factory = factory), onBack = { nav.popBackStack() })

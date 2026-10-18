@@ -21,6 +21,7 @@ object Routes {
     const val REMINDER_HEALTH = "reminder_health"
     const val IMPORT_CONTACTS = "import_contacts"
     const val TEMPLATES = "templates"
+    const val CALENDAR_SYNC = "calendar_sync"
     const val BACKUP = "backup?uri={uri}"
 
     /** [uri] = a backup file to preview straight away (opened from outside the app). */

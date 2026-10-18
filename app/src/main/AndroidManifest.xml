@@ -16,6 +16,10 @@
     <uses-feature android:name="android.hardware.telephony" android:required="false" />
     <uses-feature android:name="android.hardware.microphone" android:required="false" />
 
+    <!-- Calendar sync (batch 12): asked for only on the calendar-sync screen. Reading brings events in; writing keeps our own local calendar up to date. -->
+    <uses-permission android:name="android.permission.READ_CALENDAR" />
+    <uses-permission android:name="android.permission.WRITE_CALENDAR" />
+
     <!-- Lets the app see whether WhatsApp is installed (Android 11+ package visibility) when handing it a greeting. -->
     <queries>
         <package android:name="com.whatsapp" />

@@ -10,12 +10,11 @@ import com.ohadsam.specialevents.AppContainer
 import com.ohadsam.specialevents.BuildConfig
 import com.ohadsam.specialevents.R
 import com.ohadsam.specialevents.backup.BackupFiles
-import com.ohadsam.specialevents.domain.EventTimeline
 import com.ohadsam.specialevents.domain.backup.BackupCodec
 import com.ohadsam.specialevents.domain.backup.BackupCrypto
 import com.ohadsam.specialevents.domain.backup.CsvExport
 import com.ohadsam.specialevents.domain.backup.DecryptResult
-import com.ohadsam.specialevents.domain.backup.ExportedDay
+import com.ohadsam.specialevents.domain.backup.ExportDays
 import com.ohadsam.specialevents.domain.backup.IcsExport
 import com.ohadsam.specialevents.domain.backup.BackupData
 import com.ohadsam.specialevents.domain.backup.BackupError
@@ -86,10 +85,7 @@ class BackupViewModel(private val container: AppContainer) : ViewModel() {
             ExportKind.ENCRYPTED -> BackupCrypto.encrypt(encodeNow(), requireNotNull(password) { "password" })
             ExportKind.CSV -> CsvExport.build(container.events.allEvents.first())
             ExportKind.ICS -> {
-                val rules = container.settings.settings.first().dateRules
-                val days = container.events.allEvents.first().filter { !it.archived }.flatMap { e ->
-                    EventTimeline.forEvent(e, today, ICS_YEARS, rules).map { ExportedDay(e, it.date, it.number) }
-                }
+                val days = ExportDays.of(container.events.allEvents.first(), today, ICS_YEARS, container.settings.settings.first().dateRules)
                 IcsExport.build(days, ICS_STAMP.format(java.time.ZonedDateTime.now(java.time.ZoneOffset.UTC)), BuildConfig.VERSION_NAME)
             }
         }
