@@ -20,7 +20,7 @@ Order is by dependency: pure logic first (cheap to test), then data, UI, engines
 | 10 | Widgets (Glance): upcoming, single event + interactive checklist, countdown, Hebrew date, mini-month; config screens | S10 | 0.12.0 | [x] |
 | 11 | Backup/export/import/share: JSON (versioned), scheduled folder backup, encrypted backup, CSV/ICS, `.sevents` open-with, share-APK | S11 | 0.13.0 | [x] |
 | 11c | Scheduled folder backup (SAF + WorkManager), keep N copies, backup-age reminder; CSV import with column mapping | S11 | 0.13.5 | [ ] |
-| 12 | Calendar sync: CalendarContract import/export (Google + others), dedupe, dedicated calendar | S12 | 0.14.0 | [ ] |
+| 12 | Calendar sync: CalendarContract import/export (Google + others), dedupe, dedicated calendar | S12 | 0.14.0 | [x] |
 | 13 | Print & rich visuals: WebView/JS print layouts, PDF, greeting-card image, emoji/sticker pack | S13 | 0.15.0 | [ ] |
 | 14 | Security & privacy hardening: app lock, FLAG_SECURE, Keystore secrets, threat model, permission audit, dependency scan | S14 | 0.16.0 | [ ] |
 | 15 | Polish: a11y pass, onboarding, help/ⓘ, Baseline Profile, emulator UI tests + screenshots, signing, README | S15,S16 | 0.17.0 → 1.0.0 | [ ] |
