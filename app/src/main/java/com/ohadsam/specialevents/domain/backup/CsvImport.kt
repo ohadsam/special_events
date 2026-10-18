@@ -25,7 +25,7 @@ object CsvParser {
 
     /** RFC 4180 style: quoted cells may hold separators, quotes ("") and line breaks. The separator is guessed from the first line. */
     fun parse(input: String): List<List<String>> {
-        val text = input.removePrefix("﻿")
+        val text = input.removePrefix("\uFEFF")
         val sep = detectSeparator(text)
         val rows = ArrayList<List<String>>()
         var row = ArrayList<String>()
