@@ -23,6 +23,7 @@
 - `domain/greetings/RichText.kt` — `Span`/`SpanStyle`, `RichText` (plain/WhatsApp/HTML), `PlaceholderStyles` (spread, bold, italic, underline, strike, colour; token builder). Templates carry folder/tags/groupIds (DB v9).
 - `domain/groups/` also `Recipient`, `RecipientResolver` (rule -> deduped recipients, max 30). `ui/greetings/RecipientQueue` (per-recipient send + SMS-to-all). `AutoGreetingSender` now fans out per recipient and records `greetings_sent.recipient`. Rules gained toPerson/toSelf/toGroupIds/toExtra.
 - `domain/share/` — `SharePlanner` (which fields leave), `PersonCard` (styled card text for any target). `ui/share/` — `ShareScreen`/`ViewModel` (entry: event menu, group editor, backup screen). Import dialog lets the receiver choose events (`BackupPlanner.restrict/defaultSelection`).
+- `domain/print/` — `PrintModels`, `PrintHtml` (card/month/list pages, escaped), `MonthSheetBuilder`. `print/PrintOutput` (locked-down WebView, PrintManager, PNG, photo data URI). `ui/print/` — `PrintScreen`/`ViewModel` (Settings -> Print, event menu -> Print greeting card).
 - `log/` — `AppLogger` (ring buffer + file), `LogBuffer`, `LogModel` (ported from Tehilim_Daily).
 - `ui/theme/Theme.kt` — brand light/dark schemes (dynamic color optional). `ui/nav/` — `TopLevel` tabs, `Routes`, `AppRoot` (NavHost + bottom bar).
 - `ui/common/PlaceholderScreen` — empty state for features landing later. `ui/settings/` — `SettingsScreen`, `LogsScreen`, `WhatsNewDialog`.
