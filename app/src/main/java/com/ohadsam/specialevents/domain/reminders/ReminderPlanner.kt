@@ -19,15 +19,16 @@ object ReminderPlanner {
     /** Never fire closer than this to candle lighting / havdalah. */
     val HOLY_BUFFER: Duration = Duration.ofMinutes(30)
 
-    fun plan(items: List<UpcomingItem>, rules: List<ReminderRule>, zone: ZoneId, holy: HolyTimes?): List<PlannedReminder> {
-        val byEvent = rules.filter { it.enabled && it.channel == Channel.NOTIFICATION }.groupBy { it.eventId }
+    /** [nightfall] gives tzeit of a civil date's evening; without it nightfall rules fall back to their clock time. */
+    fun plan(items: List<UpcomingItem>, rules: List<ReminderRule>, zone: ZoneId, holy: HolyTimes?, nightfall: ((LocalDate) -> Instant?)? = null): List<PlannedReminder> {
+        val byEvent = rules.filter { it.enabled }.groupBy { it.eventId }
         val out = ArrayList<PlannedReminder>()
         for (item in items) {
             if (item.event.archived) continue
             val tier = tierOf(item)
             for (rule in byEvent[item.event.id].orEmpty()) {
                 if (tier < rule.minTier) continue
-                for ((at, shift) in withHolyRule(baseInstant(item.date, rule, zone), rule.shabbatPolicy, holy)) {
+                for ((at, shift) in withHolyRule(baseInstant(item.date, rule, zone, nightfall), rule.shabbatPolicy, holy)) {
                     out.add(PlannedReminder(rule, item, at, shift))
                 }
             }
@@ -44,8 +45,17 @@ object ReminderPlanner {
         OffsetUnit.MONTHS -> occurrence.minusMonths(rule.offsetValue.toLong())
     }
 
-    fun baseInstant(occurrence: LocalDate, rule: ReminderRule, zone: ZoneId): Instant =
-        baseDate(occurrence, rule).atTime(rule.timeMinutes / MINUTES_IN_HOUR, rule.timeMinutes % MINUTES_IN_HOUR).atZone(zone).toInstant()
+    fun baseInstant(occurrence: LocalDate, rule: ReminderRule, zone: ZoneId, nightfall: ((LocalDate) -> Instant?)? = null): Instant {
+        val day = baseDate(occurrence, rule)
+        return when (rule.timeMode) {
+            TimeMode.NIGHTFALL -> nightfall?.invoke(day.minusDays(1)) ?: fixed(day, rule, zone)
+            TimeMode.MIDNIGHT -> day.atTime(0, MIDNIGHT_SLACK_MINUTES).atZone(zone).toInstant()
+            TimeMode.FIXED -> fixed(day, rule, zone)
+        }
+    }
+
+    private fun fixed(day: LocalDate, rule: ReminderRule, zone: ZoneId): Instant =
+        day.atTime(rule.timeMinutes / MINUTES_IN_HOUR, rule.timeMinutes % MINUTES_IN_HOUR).atZone(zone).toInstant()
 
     /** The moment(s) to actually fire for a reminder that wanted [at]. */
     fun withHolyRule(at: Instant, policy: ShabbatPolicy, holy: HolyTimes?): List<Pair<Instant, Shift>> {
@@ -61,4 +71,5 @@ object ReminderPlanner {
     }
 
     private const val MINUTES_IN_HOUR = 60
+    private const val MIDNIGHT_SLACK_MINUTES = 5
 }

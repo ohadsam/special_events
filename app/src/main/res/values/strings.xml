@@ -409,4 +409,17 @@
     <string name="settings_not_set">לא הוגדר</string>
     <string name="settings_country_code">קידומת מדינה</string>
     <string name="settings_country_code_desc">משלימה מספרים מקומיים (למשל 050…) לוואטסאפ. ישראל: 972</string>
+    <string name="notif_greet_title">%1$s הגיע הזמן לברך את %2$s</string>
+    <string name="notif_greet_hint">לחצו לבחירת ברכה ולשליחה</string>
+    <string name="rule_channel">מה לעשות</string>
+    <string name="rule_channel_desc">התזכורת תופיע כהתראה עם הקשה אחת לפתיחת מסך הברכה, מוכן לשליחה בערוץ הזה. השליחה עצמה נעשית על ידך.</string>
+    <string name="time_fixed">שעה קבועה</string>
+    <string name="time_nightfall">בצאת הכוכבים</string>
+    <string name="time_midnight">אחרי חצות</string>
+    <string name="rule_time_mode_desc">בצאת הכוכבים מתחיל היום העברי; אחרי חצות מתחיל היום הלועזי. אם זה נופל בשבת — אחרי ההבדלה.</string>
+    <string name="channel_notification">התראה בלבד</string>
+    <string name="channel_whatsapp">ברכה בוואטסאפ</string>
+    <string name="channel_email">ברכה במייל</string>
+    <string name="channel_sms">ברכה בהודעה</string>
+    <string name="card_greeted">✓ בירכת</string>
 </resources>

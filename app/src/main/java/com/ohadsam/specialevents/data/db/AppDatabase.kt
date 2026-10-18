@@ -6,10 +6,10 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 
 /**
- * Version 4 (v2 added reminder rules, v3 the contact phone/email of an event, v4 greeting templates and the greeting history). Any schema change = bump `version` + a `Migration` in the SAME commit (release builds never wipe data), and
+ * Version 5 (v2 added reminder rules, v3 the contact phone/email of an event, v4 greeting templates and the greeting history, v5 the time mode of a reminder rule). Any schema change = bump `version` + a `Migration` in the SAME commit (release builds never wipe data), and
  * commit the regenerated JSON files in `app/schemas`. Tables are added by the batch that needs them (reminders, greetings, ...).
  */
-@Database(entities = [EventEntity::class, TagEntity::class, EventTagCrossRef::class, ReminderRuleEntity::class, GreetingTemplateEntity::class, GreetingSentEntity::class], version = 4, exportSchema = true)
+@Database(entities = [EventEntity::class, TagEntity::class, EventTagCrossRef::class, ReminderRuleEntity::class, GreetingTemplateEntity::class, GreetingSentEntity::class], version = 5, exportSchema = true)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun eventDao(): EventDao
 

@@ -36,9 +36,10 @@ class ReminderActionReceiver : BroadcastReceiver() {
         private const val TITLE = "title"
         private const val BODY = "body"
         private const val PROFILE = "profile"
+        private const val ROUTE = "route"
 
         fun put(intent: Intent, c: NotificationContent) {
-            intent.putExtra(ID, c.notificationId).putExtra(EVENT, c.eventId).putExtra(TITLE, c.title).putExtra(BODY, c.body).putExtra(PROFILE, c.profileKey)
+            intent.putExtra(ID, c.notificationId).putExtra(EVENT, c.eventId).putExtra(TITLE, c.title).putExtra(BODY, c.body).putExtra(PROFILE, c.profileKey).putExtra(ROUTE, c.route)
         }
 
         fun read(intent: Intent): NotificationContent? {
@@ -49,6 +50,7 @@ class ReminderActionReceiver : BroadcastReceiver() {
                 intent.getStringExtra(TITLE).orEmpty(),
                 intent.getStringExtra(BODY).orEmpty(),
                 intent.getStringExtra(PROFILE) ?: com.ohadsam.specialevents.domain.reminders.SoundProfile.DEFAULT_KEY,
+                intent.getStringExtra(ROUTE),
             )
         }
     }

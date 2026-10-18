@@ -31,6 +31,8 @@ data class UpcomingState(
     val settings: AppSettings = AppSettings(),
     /** True when there are no events at all (as opposed to none matching the filter). */
     val noEvents: Boolean = false,
+    /** (event id, occurrence day) pairs the user already greeted. */
+    val greeted: Set<Pair<Long, Long>> = emptySet(),
 )
 
 class UpcomingViewModel(
@@ -53,7 +55,8 @@ class UpcomingViewModel(
         container.settings.settings,
         today,
         filter,
-    ) { events, settings, day, f ->
+        container.greetings.greetedKeys,
+    ) { events, settings, day, f, greeted ->
         val all = EventTimeline.upcoming(events, day, settings.inIsrael, settings.dateRules)
         UpcomingState(
             loading = false,
@@ -62,6 +65,7 @@ class UpcomingViewModel(
             filter = f,
             settings = settings,
             noEvents = events.none { !it.archived },
+            greeted = greeted,
         )
     }.flowOn(Dispatchers.Default).stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), UpcomingState())
 

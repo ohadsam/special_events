@@ -15,6 +15,7 @@ import com.ohadsam.specialevents.R
 import com.ohadsam.specialevents.domain.EventType
 import com.ohadsam.specialevents.domain.Gender
 import com.ohadsam.specialevents.domain.ItemKind
+import com.ohadsam.specialevents.domain.reminders.Channel
 import com.ohadsam.specialevents.domain.reminders.PlannedReminder
 import com.ohadsam.specialevents.domain.reminders.SoundProfile
 import com.ohadsam.specialevents.ui.common.dateLabel
@@ -26,7 +27,15 @@ import java.time.ZoneId
 import java.time.temporal.ChronoUnit
 
 /** What a notification says; built from a planned reminder and kept in the snooze alarm so the repeat needs no database. */
-data class NotificationContent(val notificationId: Int, val eventId: Long, val title: String, val body: String, val profileKey: String)
+data class NotificationContent(
+    val notificationId: Int,
+    val eventId: Long,
+    val title: String,
+    val body: String,
+    val profileKey: String,
+    /** Screen to open on tap; null = the event's detail (or the app itself for a test notification). */
+    val route: String? = null,
+)
 
 /** Notification channels (one per sound × vibration profile, as Android fixes those per channel) and the notifications themselves. */
 class NotificationHelper(private val context: Context) {
@@ -68,8 +77,16 @@ class NotificationHelper(private val context: Context) {
             else -> context.getString(R.string.notif_in_days, days, what)
         }
         val milestone = item.milestone?.gift?.let { " · " + context.getString(it.labelRes()) }.orEmpty()
-        val body = lead + milestone + "\n" + dateLabel(item.date, item.hebrew, mode)
-        val title = "${event.iconKey ?: event.type.defaultEmoji()} ${event.title}"
+        val dates = dateLabel(item.date, item.hebrew, mode)
+        val emoji = event.iconKey ?: event.type.defaultEmoji()
+        if (plan.rule.channel != Channel.NOTIFICATION) {
+            // A "time to greet" prompt: tapping it opens the greeting screen for that day.
+            val title = context.getString(R.string.notif_greet_title, emoji, event.personName ?: event.title)
+            val body = lead + milestone + "\n" + context.getString(R.string.notif_greet_hint)
+            return NotificationContent(notificationId(plan.rule.id, item.date), event.id, title, body, plan.rule.profileKey, "greeting/${event.id}?day=${item.date.toEpochDay()}")
+        }
+        val body = lead + milestone + "\n" + dates
+        val title = "$emoji ${event.title}"
         return NotificationContent(notificationId(plan.rule.id, item.date), event.id, title, body, plan.rule.profileKey)
     }
 
@@ -96,7 +113,7 @@ class NotificationHelper(private val context: Context) {
             context,
             content.notificationId,
             Intent(context, MainActivity::class.java)
-                .also { if (content.eventId != 0L) it.putExtra(MainActivity.EXTRA_ROUTE, "event/${content.eventId}") }
+                .also { intent -> (content.route ?: content.eventId.takeIf { it != 0L }?.let { "event/$it" })?.let { intent.putExtra(MainActivity.EXTRA_ROUTE, it) } }
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP),
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
         )

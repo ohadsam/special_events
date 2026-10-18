@@ -34,7 +34,7 @@ object ReminderEngine {
         val items = EventTimeline.between(events, today.minusDays(2), today.plusDays(horizonDays + MARGIN_DAYS), today, place.inIsrael, settings.dateRules)
         val holy = ZmanimHolyTimes(place, settings.tzeit)
         val from = now.minus(CATCH_UP)
-        return ReminderPlanner.plan(items, rules, zone, holy).filter { it.fireAt >= from }
+        return ReminderPlanner.plan(items, rules, zone, holy, nightfall = { holy.havdalah(it) }).filter { it.fireAt >= from }
     }
 
     /** When [rule] will next ring for [event] (after [now]), or null if it never will - used for the preview in the rule editor. */

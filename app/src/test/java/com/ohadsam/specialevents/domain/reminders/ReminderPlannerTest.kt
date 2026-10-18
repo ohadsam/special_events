@@ -143,3 +143,56 @@ class ReminderPlannerTest {
         assertEquals("3 חודשים לפני", ReminderLabels.offsetText(3, OffsetUnit.MONTHS))
     }
 }
+
+class ReminderTimeModeTest {
+    private val zone = ZoneId.of("Asia/Jerusalem")
+    private val holy = ZmanimHolyTimes(Places.JERUSALEM)
+
+    private fun item(date: LocalDate) = EventTimeline.between(
+        listOf(SpecialEvent(id = 1, type = EventType.BIRTHDAY, title = "x", origin = OriginDate(CalendarBasis.GREGORIAN, 1980, date.monthValue, date.dayOfMonth))),
+        date, date, date, inIsrael = true,
+    )
+
+    @Test
+    fun nightfallRuleFiresAtTzeitOfTheEveningBefore() {
+        val tuesday = LocalDate.of(2026, 10, 20)
+        val rule = ReminderRule(id = 1, eventId = 1, timeMode = TimeMode.NIGHTFALL, shabbatPolicy = ShabbatPolicy.AFTER)
+        val plan = ReminderPlanner.plan(item(tuesday), listOf(rule), zone, holy, nightfall = { holy.havdalah(it) }).single()
+        assertEquals(holy.havdalah(tuesday.minusDays(1)), plan.fireAt)
+        assertEquals(Shift.NONE, plan.shift)
+    }
+
+    @Test
+    fun nightfallAfterShabbatWaitsForHavdalahPlusBuffer() {
+        val sunday = LocalDate.of(2026, 10, 18)
+        val rule = ReminderRule(id = 1, eventId = 1, timeMode = TimeMode.NIGHTFALL, shabbatPolicy = ShabbatPolicy.AFTER)
+        val plan = ReminderPlanner.plan(item(sunday), listOf(rule), zone, holy, nightfall = { holy.havdalah(it) }).single()
+        assertEquals(Shift.LATER, plan.shift)
+        assertEquals(holy.havdalah(LocalDate.of(2026, 10, 17))!!.plus(ReminderPlanner.HOLY_BUFFER), plan.fireAt)
+    }
+
+    @Test
+    fun midnightRuleFiresJustAfterMidnight() {
+        val tuesday = LocalDate.of(2026, 10, 20)
+        val rule = ReminderRule(id = 1, eventId = 1, timeMode = TimeMode.MIDNIGHT)
+        val plan = ReminderPlanner.plan(item(tuesday), listOf(rule), zone, holy).single()
+        assertEquals(tuesday.atTime(0, 5).atZone(zone).toInstant(), plan.fireAt)
+    }
+
+    @Test
+    fun withoutZmanimNightfallFallsBackToTheClockTime() {
+        val tuesday = LocalDate.of(2026, 10, 20)
+        val rule = ReminderRule(id = 1, eventId = 1, timeMode = TimeMode.NIGHTFALL, timeMinutes = 9 * 60)
+        val plan = ReminderPlanner.plan(item(tuesday), listOf(rule), zone, holy = null).single()
+        assertEquals(tuesday.atTime(9, 0).atZone(zone).toInstant(), plan.fireAt)
+    }
+
+    @Test
+    fun greetingChannelsArePlannedAndLabelled() {
+        val tuesday = LocalDate.of(2026, 10, 20)
+        val rule = ReminderRule(id = 1, eventId = 1, channel = Channel.WHATSAPP, timeMode = TimeMode.NIGHTFALL)
+        assertEquals(1, ReminderPlanner.plan(item(tuesday), listOf(rule), zone, holy, nightfall = { holy.havdalah(it) }).size)
+        assertEquals("ביום האירוע בצאת הכוכבים · ברכה בוואטסאפ", ReminderLabels.describe(rule))
+        assertEquals("יום לפני אחרי חצות", ReminderLabels.describe(ReminderRule(offsetValue = 1, timeMode = TimeMode.MIDNIGHT)))
+    }
+}

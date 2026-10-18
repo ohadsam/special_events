@@ -1,5 +1,6 @@
 package com.ohadsam.specialevents.domain.reminders
 
+import com.ohadsam.specialevents.calendar.CalendarBasis
 import com.ohadsam.specialevents.calendar.Holidays
 import com.ohadsam.specialevents.calendar.Tier
 import com.ohadsam.specialevents.data.prefs.AppSettings
@@ -49,6 +50,24 @@ object ReminderSuggestions {
         }
         if (next?.milestone?.tier == Tier.MAJOR && active.none { daysBefore(it) >= MILESTONE_MIN_DAYS && it.minTier <= Tier.MAJOR }) {
             suggest("milestone-month", "יום עגול מתקרב — כדאי להיערך חודש מראש", 1, OffsetUnit.MONTHS, MID_MORNING, Tier.MAJOR)
+        }
+        if ((event.type == EventType.BIRTHDAY || event.type == EventType.ANNIVERSARY) && rules.none { it.channel != Channel.NOTIFICATION }) {
+            val channel = if (event.contactPhone != null) Channel.WHATSAPP else if (event.contactEmail != null) Channel.EMAIL else null
+            if (channel != null) {
+                out.add(
+                    Suggestion(
+                        "greet-at-start",
+                        "תזכורת לברך ${if (channel == Channel.WHATSAPP) "בוואטסאפ" else "במייל"} ברגע שהיום מתחיל (בצאת הכוכבים, או אחרי חצות לאירוע לועזי)",
+                        ReminderRule(
+                            eventId = event.id,
+                            channel = channel,
+                            timeMode = if (event.origin.basis == CalendarBasis.HEBREW) TimeMode.NIGHTFALL else TimeMode.MIDNIGHT,
+                            shabbatPolicy = ShabbatPolicy.AFTER,
+                            origin = RuleOrigin.SUGGESTED,
+                        ),
+                    ),
+                )
+            }
         }
         EventTimeline.mitzvahInfo(event, settings.inIsrael, settings.dateRules)?.let { m ->
             val daysToMitzvah = java.time.temporal.ChronoUnit.DAYS.between(today, m.date)

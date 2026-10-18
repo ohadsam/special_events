@@ -48,7 +48,18 @@ object ReminderLabels {
             Tier.NOTABLE -> " · רק באבני דרך"
             Tier.MAJOR -> " · רק באבני דרך גדולות"
         }
-        return "${offsetText(rule.offsetValue, rule.offsetUnit)} ב-$time$tier"
+        val moment = when (rule.timeMode) {
+            TimeMode.FIXED -> "ב-$time"
+            TimeMode.NIGHTFALL -> "בצאת הכוכבים"
+            TimeMode.MIDNIGHT -> "אחרי חצות"
+        }
+        val channel = when (rule.channel) {
+            Channel.NOTIFICATION -> ""
+            Channel.WHATSAPP -> " · ברכה בוואטסאפ"
+            Channel.EMAIL -> " · ברכה במייל"
+            Channel.SMS -> " · ברכה בהודעה"
+        }
+        return "${offsetText(rule.offsetValue, rule.offsetUnit)} $moment$tier$channel"
     }
 
     fun offsetText(value: Int, unit: OffsetUnit): String = when {

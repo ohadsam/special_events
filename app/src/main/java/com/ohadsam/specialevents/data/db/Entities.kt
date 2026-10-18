@@ -1,5 +1,6 @@
 package com.ohadsam.specialevents.data.db
 
+import androidx.room.ColumnInfo
 import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.ForeignKey
@@ -83,6 +84,8 @@ data class ReminderRuleEntity(
     val minTier: String,
     val enabled: Boolean,
     val origin: String,
+    // Added in schema v5; last, with a default, so an upgraded database and a fresh one are identical.
+    @ColumnInfo(defaultValue = "FIXED") val timeMode: String = "FIXED",
 )
 
 /** A greeting text the user wrote (the built-in ones live in code, see `GreetingCatalog`). */

@@ -4,13 +4,19 @@ import com.ohadsam.specialevents.calendar.Tier
 
 enum class OffsetUnit { DAYS, WEEKS, MONTHS }
 
-/** How a reminder reaches the user. Only [NOTIFICATION] is delivered by the reminder engine; the others are handled by greetings (batch 8). */
+/** What the reminder does: [NOTIFICATION] just informs; the others are "time to greet" prompts that open the greeting screen on that channel. */
 enum class Channel { NOTIFICATION, WHATSAPP, EMAIL, SMS }
 
 /** What to do with a reminder that would fire during Shabbat / Yom Tov: move it before candle lighting, after havdalah, both, or drop it. */
 enum class ShabbatPolicy { BEFORE, AFTER, BOTH, SKIP }
 
 enum class RuleOrigin { DEFAULT, SUGGESTED, USER }
+
+/**
+ * When in the day: a fixed clock time, at nightfall (the Hebrew day begins with tzeit of the evening before - the right moment to
+ * greet someone on their Hebrew birthday), or just after midnight (the Gregorian day).
+ */
+enum class TimeMode { FIXED, NIGHTFALL, MIDNIGHT }
 
 /**
  * "[offsetValue] [offsetUnit] before the occurrence, at [timeMinutes] of the day" (offset 0 = on the day itself).
@@ -29,6 +35,7 @@ data class ReminderRule(
     val minTier: Tier = Tier.NONE,
     val enabled: Boolean = true,
     val origin: RuleOrigin = RuleOrigin.DEFAULT,
+    val timeMode: TimeMode = TimeMode.FIXED,
 ) {
     companion object {
         const val DEFAULT_TIME_MINUTES = 8 * 60

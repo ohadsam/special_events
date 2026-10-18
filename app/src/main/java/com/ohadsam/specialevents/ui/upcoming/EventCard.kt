@@ -40,7 +40,7 @@ import com.ohadsam.specialevents.ui.common.defaultEmoji
 import com.ohadsam.specialevents.ui.common.labelRes
 
 @Composable
-fun EventCard(item: UpcomingItem, mode: CalendarMode, onClick: () -> Unit, modifier: Modifier = Modifier) {
+fun EventCard(item: UpcomingItem, mode: CalendarMode, onClick: () -> Unit, modifier: Modifier = Modifier, greeted: Boolean = false) {
     val event = item.event
     val accent = event.colorArgb?.let { Color(it) } ?: MaterialTheme.colorScheme.primaryContainer
     OutlinedCard(onClick = onClick, modifier = modifier.fillMaxWidth().semantics(mergeDescendants = true) {}) {
@@ -61,6 +61,7 @@ fun EventCard(item: UpcomingItem, mode: CalendarMode, onClick: () -> Unit, modif
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 milestoneLabel(item)?.let { MilestoneBadge(it, item.milestone?.tier == Tier.MAJOR) }
+                if (greeted) Text(stringResource(R.string.card_greeted), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary, modifier = Modifier.padding(top = 4.dp))
             }
             CountdownPill(item.daysUntil)
         }

@@ -10,6 +10,7 @@ import com.ohadsam.specialevents.domain.reminders.ReminderDefaults
 import com.ohadsam.specialevents.domain.reminders.ReminderRule
 import com.ohadsam.specialevents.domain.reminders.RuleOrigin
 import com.ohadsam.specialevents.domain.reminders.ShabbatPolicy
+import com.ohadsam.specialevents.domain.reminders.TimeMode
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -53,6 +54,7 @@ object ReminderMapper {
         minTier = enumOrDefault(e.minTier, Tier.NONE),
         enabled = e.enabled,
         origin = enumOrDefault(e.origin, RuleOrigin.USER),
+        timeMode = enumOrDefault(e.timeMode, TimeMode.FIXED),
     )
 
     fun toEntity(r: ReminderRule) = ReminderRuleEntity(
@@ -67,6 +69,7 @@ object ReminderMapper {
         minTier = r.minTier.name,
         enabled = r.enabled,
         origin = r.origin.name,
+        timeMode = r.timeMode.name,
     )
 
     private inline fun <reified E : Enum<E>> enumOrDefault(name: String, default: E): E = enumValues<E>().firstOrNull { it.name == name } ?: default

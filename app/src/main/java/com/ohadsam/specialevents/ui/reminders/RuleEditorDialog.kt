@@ -48,11 +48,13 @@ import com.ohadsam.specialevents.R
 import com.ohadsam.specialevents.calendar.Tier
 import com.ohadsam.specialevents.data.prefs.AppSettings
 import com.ohadsam.specialevents.domain.SpecialEvent
+import com.ohadsam.specialevents.domain.reminders.Channel
 import com.ohadsam.specialevents.domain.reminders.OffsetUnit
 import com.ohadsam.specialevents.domain.reminders.ReminderLabels
 import com.ohadsam.specialevents.domain.reminders.ReminderRule
 import com.ohadsam.specialevents.domain.reminders.ShabbatPolicy
 import com.ohadsam.specialevents.domain.reminders.SoundProfile
+import com.ohadsam.specialevents.domain.reminders.TimeMode
 
 private const val MAX_OFFSET = 99
 private val DIALOG_MAX_HEIGHT = 460.dp
@@ -105,7 +107,22 @@ fun RuleEditorDialog(
                 }
 
                 Label(R.string.rule_time)
-                OutlinedButton(onClick = { pickTime = true }) { Text("%02d:%02d".format(rule.timeMinutes / MINUTES_IN_HOUR, rule.timeMinutes % MINUTES_IN_HOUR)) }
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    TimeMode.entries.forEach { m -> FilterChip(selected = rule.timeMode == m, onClick = { rule = rule.copy(timeMode = m) }, label = { Text(stringResource(timeModeLabel(m))) }) }
+                }
+                if (rule.timeMode == TimeMode.FIXED) {
+                    OutlinedButton(onClick = { pickTime = true }) { Text("%02d:%02d".format(rule.timeMinutes / MINUTES_IN_HOUR, rule.timeMinutes % MINUTES_IN_HOUR)) }
+                } else {
+                    Text(stringResource(R.string.rule_time_mode_desc), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+
+                Label(R.string.rule_channel)
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Channel.entries.forEach { c -> FilterChip(selected = rule.channel == c, onClick = { rule = rule.copy(channel = c) }, label = { Text(stringResource(channelLabel(c))) }) }
+                }
+                if (rule.channel != Channel.NOTIFICATION) {
+                    Text(stringResource(R.string.rule_channel_desc), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
 
                 Label(R.string.rule_shabbat)
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -189,6 +206,19 @@ private fun profileLabel(key: String) = when (key) {
     SoundProfile.VIBRATE_KEY -> R.string.profile_vibrate
     SoundProfile.SILENT_KEY -> R.string.profile_silent
     else -> R.string.profile_default
+}
+
+private fun timeModeLabel(m: TimeMode) = when (m) {
+    TimeMode.FIXED -> R.string.time_fixed
+    TimeMode.NIGHTFALL -> R.string.time_nightfall
+    TimeMode.MIDNIGHT -> R.string.time_midnight
+}
+
+private fun channelLabel(c: Channel) = when (c) {
+    Channel.NOTIFICATION -> R.string.channel_notification
+    Channel.WHATSAPP -> R.string.channel_whatsapp
+    Channel.EMAIL -> R.string.channel_email
+    Channel.SMS -> R.string.channel_sms
 }
 
 private fun tierLabel(t: Tier) = when (t) {

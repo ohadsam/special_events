@@ -169,7 +169,7 @@ private fun Body(state: UpcomingState, onAddEvent: () -> Unit, onOpenEvent: (Lon
                     )
                 }
                 items(groupItems, key = { "${it.event.id}-${it.kind}-${it.date}" }) { item ->
-                    EventCard(item, state.settings.calendarMode, onClick = { onOpenEvent(item.event.id) })
+                    EventCard(item, state.settings.calendarMode, onClick = { onOpenEvent(item.event.id) }, greeted = (item.event.id to item.date.toEpochDay()) in state.greeted)
                 }
             }
         }

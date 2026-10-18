@@ -52,5 +52,13 @@ object Migrations {
         }
     }
 
-    val ALL: Array<Migration> = arrayOf(V1_TO_V2, V2_TO_V3, V3_TO_V4)
+    const val ADD_RULE_TIME_MODE = "ALTER TABLE `reminder_rules` ADD COLUMN `timeMode` TEXT NOT NULL DEFAULT 'FIXED'"
+
+    val V4_TO_V5 = object : Migration(4, 5) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL(ADD_RULE_TIME_MODE)
+        }
+    }
+
+    val ALL: Array<Migration> = arrayOf(V1_TO_V2, V2_TO_V3, V3_TO_V4, V4_TO_V5)
 }
