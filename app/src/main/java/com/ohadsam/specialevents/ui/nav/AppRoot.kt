@@ -180,11 +180,16 @@ private fun AppScaffold(container: AppContainer, nav: NavHostController, pending
                         type = NavType.LongType
                         defaultValue = -1L
                     },
+                    navArgument("rule") {
+                        type = NavType.LongType
+                        defaultValue = -1L
+                    },
                 ),
             ) { entry ->
                 val id = entry.arguments?.getLong("id") ?: 0L
                 val day = entry.arguments?.getLong("day")?.takeIf { it >= 0 }
-                val vm: GreetingViewModel = viewModel(key = "greeting-$id-$day", factory = GreetingViewModel.Factory(container, id, day))
+                val rule = entry.arguments?.getLong("rule")?.takeIf { it >= 0 }
+                val vm: GreetingViewModel = viewModel(key = "greeting-$id-$day-$rule", factory = GreetingViewModel.Factory(container, id, day, rule))
                 GreetingScreen(vm, onBack = { nav.popBackStack() })
             }
             composable(Routes.CHECKLIST, arguments = listOf(navArgument("id") { type = NavType.LongType })) { entry ->

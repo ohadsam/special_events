@@ -29,6 +29,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -49,6 +50,7 @@ import com.ohadsam.specialevents.R
 import com.ohadsam.specialevents.calendar.Tier
 import com.ohadsam.specialevents.data.prefs.AppSettings
 import com.ohadsam.specialevents.domain.SpecialEvent
+import com.ohadsam.specialevents.domain.groups.EventGroup
 import com.ohadsam.specialevents.domain.reminders.Channel
 import com.ohadsam.specialevents.domain.reminders.OffsetUnit
 import com.ohadsam.specialevents.domain.reminders.ReminderLabels
@@ -70,12 +72,14 @@ fun RuleEditorDialog(
     onDismiss: () -> Unit,
     onSave: (ReminderRule) -> Unit,
     onDelete: (() -> Unit)?,
+    groups: List<EventGroup> = emptyList(),
     /** The "next ring" line needs a real event; a group's template has none. */
     showPreview: Boolean = true,
 ) {
     val context = LocalContext.current
     var rule by remember { mutableStateOf(initial) }
     var pickTime by remember { mutableStateOf(false) }
+    var extraText by remember { mutableStateOf(initial.toExtra.joinToString("\n")) }
     val tonePicker = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         val uri = result.data?.let { IntentCompat.getParcelableExtra(it, RingtoneManager.EXTRA_RINGTONE_PICKED_URI, Uri::class.java) }
         if (result.resultCode == Activity.RESULT_OK && uri != null) rule = rule.copy(profileKey = SoundProfile.custom(uri.toString()).key)
@@ -142,6 +146,31 @@ fun RuleEditorDialog(
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
+                }
+
+                if (rule.channel != Channel.NOTIFICATION) {
+                    Label(R.string.rule_recipients)
+                    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        FilterChip(selected = rule.toPerson, onClick = { rule = rule.copy(toPerson = !rule.toPerson) }, label = { Text(stringResource(R.string.greeting_list_person)) })
+                        FilterChip(selected = rule.toSelf, onClick = { rule = rule.copy(toSelf = !rule.toSelf) }, label = { Text(stringResource(R.string.greeting_to_self)) })
+                        groups.forEach { g ->
+                            FilterChip(
+                                selected = g.id in rule.toGroupIds,
+                                onClick = { rule = rule.copy(toGroupIds = if (g.id in rule.toGroupIds) rule.toGroupIds - g.id else rule.toGroupIds + g.id) },
+                                label = { Text(listOfNotNull(g.emoji, g.name).joinToString(" ")) },
+                            )
+                        }
+                    }
+                    OutlinedTextField(
+                        value = extraText,
+                        onValueChange = {
+                            extraText = it
+                            rule = rule.copy(toExtra = it.split('\n', ',').map { line -> line.trim() }.filter { line -> line.isNotEmpty() })
+                        },
+                        label = { Text(stringResource(R.string.group_extra_hint)) },
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                    Text(stringResource(R.string.rule_recipients_desc), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
 
                 Label(R.string.rule_shabbat)

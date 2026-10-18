@@ -33,10 +33,10 @@ object Routes {
 
     /** [uri] = a backup file to preview straight away (opened from outside the app). */
     fun backup(uri: String? = null) = "backup" + (uri?.let { "?uri=" + android.net.Uri.encode(it) } ?: "")
-    const val GREETING = "greeting/{id}?day={day}"
+    const val GREETING = "greeting/{id}?day={day}&rule={rule}"
 
     /** [day] is the occurrence day (epoch day) to greet for; -1 = the next one. */
-    fun greeting(id: Long, day: Long = -1L) = "greeting/$id?day=$day"
+    fun greeting(id: Long, day: Long = -1L, rule: Long = -1L) = "greeting/$id?day=$day&rule=$rule"
     const val CHECKLIST = "checklist/{id}"
 
     fun checklist(id: Long) = "checklist/$id"

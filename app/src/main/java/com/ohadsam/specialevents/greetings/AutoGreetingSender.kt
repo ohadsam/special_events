@@ -84,6 +84,9 @@ class AutoGreetingSender(
         return AutoSend.chooseTemplate(GroupLogic.greetingTemplateId(plan.rule.templateId, eventGroups), candidates)
     }
 
+    /** Sends one message by SMS right now (the user asked for it) and records it. False when permission or a number is missing. */
+    suspend fun sendNow(eventId: Long, day: Long, r: Recipient, text: String): Boolean = hasPermission() && send(r, text, eventId, day)
+
     private suspend fun send(r: Recipient, text: String, eventId: Long, day: Long): Boolean {
         val phone = PhoneNumbers.forDial(r.phone) ?: return false
         return try {

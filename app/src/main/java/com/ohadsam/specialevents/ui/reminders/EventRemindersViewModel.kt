@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.ohadsam.specialevents.AppContainer
 import com.ohadsam.specialevents.data.prefs.AppSettings
 import com.ohadsam.specialevents.domain.SpecialEvent
+import com.ohadsam.specialevents.domain.groups.EventGroup
 import com.ohadsam.specialevents.domain.reminders.ReminderDefaults
 import com.ohadsam.specialevents.domain.reminders.ReminderRule
 import com.ohadsam.specialevents.domain.reminders.ReminderSuggestions
@@ -25,10 +26,11 @@ data class EventRemindersState(
     val rules: List<ReminderRule> = emptyList(),
     val suggestions: List<Suggestion> = emptyList(),
     val settings: AppSettings = AppSettings(),
+    val groups: List<EventGroup> = emptyList(),
 )
 
 class EventRemindersViewModel(private val container: AppContainer, private val eventId: Long) : ViewModel() {
-    val state: StateFlow<EventRemindersState> = combine(container.events.allEvents, container.reminders.allRules, container.settings.settings) { events, all, settings ->
+    private val base = combine(container.events.allEvents, container.reminders.allRules, container.settings.settings) { events, all, settings ->
         val event = events.firstOrNull { it.id == eventId }
         val rules = all.filter { it.eventId == eventId }
         EventRemindersState(
@@ -38,7 +40,10 @@ class EventRemindersViewModel(private val container: AppContainer, private val e
             suggestions = if (event == null) emptyList() else ReminderSuggestions.forEvent(event, rules, LocalDate.now(), settings),
             settings = settings,
         )
-    }.flowOn(Dispatchers.Default).stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), EventRemindersState())
+    }
+
+    val state: StateFlow<EventRemindersState> = combine(base, container.groups.groups) { s, groups -> s.copy(groups = groups) }
+        .flowOn(Dispatchers.Default).stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), EventRemindersState())
 
     fun save(rule: ReminderRule) {
         viewModelScope.launch { container.reminders.save(rule.copy(eventId = eventId, origin = if (rule.id == 0L) rule.origin else com.ohadsam.specialevents.domain.reminders.RuleOrigin.USER)) }

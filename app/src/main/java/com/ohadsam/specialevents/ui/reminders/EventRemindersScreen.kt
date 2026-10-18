@@ -124,6 +124,7 @@ fun EventRemindersScreen(viewModel: EventRemindersViewModel, onBack: () -> Unit)
                 initial = rule,
                 event = event,
                 settings = state.settings,
+                groups = state.groups,
                 onDismiss = { editing = null },
                 onSave = {
                     viewModel.save(it)

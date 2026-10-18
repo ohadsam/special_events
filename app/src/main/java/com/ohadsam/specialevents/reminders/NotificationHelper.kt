@@ -83,7 +83,7 @@ class NotificationHelper(private val context: Context) {
             // A "time to greet" prompt: tapping it opens the greeting screen for that day.
             val title = context.getString(R.string.notif_greet_title, emoji, event.personName ?: event.title)
             val body = lead + milestone + "\n" + context.getString(R.string.notif_greet_hint)
-            return NotificationContent(notificationId(plan.rule.id, item.date), event.id, title, body, plan.rule.profileKey, "greeting/${event.id}?day=${item.date.toEpochDay()}")
+            return NotificationContent(notificationId(plan.rule.id, item.date), event.id, title, body, plan.rule.profileKey, "greeting/${event.id}?day=${item.date.toEpochDay()}&rule=${plan.rule.id}")
         }
         val body = lead + milestone + "\n" + dates
         val title = "$emoji ${event.title}"

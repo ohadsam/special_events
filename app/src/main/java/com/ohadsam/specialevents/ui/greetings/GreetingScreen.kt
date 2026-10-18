@@ -108,9 +108,9 @@ fun GreetingScreen(viewModel: GreetingViewModel, onBack: () -> Unit) {
                 state.templates.forEach { t -> FilterChip(selected = t.id == state.selectedId, onClick = { viewModel.selectTemplate(t) }, label = { Text(t.name) }) }
             }
             OutlinedTextField(
-                value = state.text,
+                value = if (state.target == Target.LIST) state.list.body else state.text,
                 onValueChange = viewModel::setText,
-                label = { Text(stringResource(R.string.greeting_text)) },
+                label = { Text(stringResource(if (state.target == Target.LIST) R.string.greeting_text_shared else R.string.greeting_text)) },
                 supportingText = if (state.missing.isNotEmpty()) {
                     { Text(stringResource(R.string.greeting_missing, state.missing.joinToString(", "))) }
                 } else {
@@ -126,24 +126,29 @@ fun GreetingScreen(viewModel: GreetingViewModel, onBack: () -> Unit) {
                 FilterChip(selected = state.target == Target.PERSON, onClick = { viewModel.setTarget(Target.PERSON) }, label = { Text(stringResource(R.string.greeting_to_person)) })
                 FilterChip(selected = state.target == Target.SELF, onClick = { viewModel.setTarget(Target.SELF) }, label = { Text(stringResource(R.string.greeting_to_self)) })
                 FilterChip(selected = state.target == Target.MANUAL, onClick = { viewModel.setTarget(Target.MANUAL) }, label = { Text(stringResource(R.string.greeting_to_manual)) })
+                FilterChip(selected = state.target == Target.LIST, onClick = { viewModel.setTarget(Target.LIST) }, label = { Text(stringResource(R.string.greeting_to_list)) })
             }
             if (state.target == Target.MANUAL) {
                 OutlinedTextField(value = state.manual, onValueChange = viewModel::setManual, label = { Text(stringResource(R.string.greeting_manual_hint)) }, singleLine = true, modifier = Modifier.fillMaxWidth())
             }
-            Text(
-                listOfNotNull(state.phone, state.email).joinToString(" · ").ifEmpty { stringResource(R.string.greeting_no_destination) },
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
+            if (state.target == Target.LIST) {
+                RecipientQueue(state, viewModel, subject, notFound = { android.widget.Toast.makeText(context, notFound, android.widget.Toast.LENGTH_LONG).show() })
+            } else {
+                Text(
+                    listOfNotNull(state.phone, state.email).joinToString(" · ").ifEmpty { stringResource(R.string.greeting_no_destination) },
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
 
-            Button(onClick = { send(SendChannel.WHATSAPP) }, enabled = state.text.isNotBlank(), modifier = Modifier.fillMaxWidth()) { Text(stringResource(R.string.greeting_send_whatsapp)) }
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
-                OutlinedButton(onClick = { send(SendChannel.EMAIL) }, enabled = state.text.isNotBlank(), modifier = Modifier.weight(1f)) { Text(stringResource(R.string.greeting_send_email)) }
-                OutlinedButton(onClick = { send(SendChannel.SMS) }, enabled = state.text.isNotBlank(), modifier = Modifier.weight(1f)) { Text(stringResource(R.string.greeting_send_sms)) }
-            }
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
-                OutlinedButton(onClick = { send(SendChannel.SHARE) }, enabled = state.text.isNotBlank(), modifier = Modifier.weight(1f)) { Text(stringResource(R.string.greeting_send_other)) }
-                OutlinedButton(onClick = { clipboard.setText(AnnotatedString(state.text)) }, enabled = state.text.isNotBlank(), modifier = Modifier.weight(1f)) { Text(stringResource(R.string.greeting_copy)) }
+                Button(onClick = { send(SendChannel.WHATSAPP) }, enabled = state.text.isNotBlank(), modifier = Modifier.fillMaxWidth()) { Text(stringResource(R.string.greeting_send_whatsapp)) }
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
+                    OutlinedButton(onClick = { send(SendChannel.EMAIL) }, enabled = state.text.isNotBlank(), modifier = Modifier.weight(1f)) { Text(stringResource(R.string.greeting_send_email)) }
+                    OutlinedButton(onClick = { send(SendChannel.SMS) }, enabled = state.text.isNotBlank(), modifier = Modifier.weight(1f)) { Text(stringResource(R.string.greeting_send_sms)) }
+                }
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
+                    OutlinedButton(onClick = { send(SendChannel.SHARE) }, enabled = state.text.isNotBlank(), modifier = Modifier.weight(1f)) { Text(stringResource(R.string.greeting_send_other)) }
+                    OutlinedButton(onClick = { clipboard.setText(AnnotatedString(state.text)) }, enabled = state.text.isNotBlank(), modifier = Modifier.weight(1f)) { Text(stringResource(R.string.greeting_copy)) }
+                }
             }
 
             VoiceSection(state, viewModel, onSend = {
