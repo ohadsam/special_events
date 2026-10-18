@@ -4,7 +4,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.ohadsam.specialevents.AppContainer
+import android.net.Uri
 import com.ohadsam.specialevents.calendar.CalendarBasis
+import com.ohadsam.specialevents.contacts.ContactsReader
+import com.ohadsam.specialevents.contacts.PhotoStore
 import com.ohadsam.specialevents.domain.EditorDate
 import com.ohadsam.specialevents.domain.EventType
 import com.ohadsam.specialevents.domain.Gender
@@ -14,12 +17,14 @@ import com.ohadsam.specialevents.domain.SpecialEvent
 import com.ohadsam.specialevents.domain.Tag
 import com.ohadsam.specialevents.ui.common.defaultEmoji
 import java.time.LocalDate
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 data class EditorState(
     val loading: Boolean = true,
@@ -41,6 +46,11 @@ data class EditorState(
     /** Set once the user touches the date or its calendar, so changing the type no longer re-picks the calendar. */
     val basisUserSet: Boolean = false,
     val knownTags: List<Tag> = emptyList(),
+    val photoUri: String? = null,
+    val contactLookupUri: String? = null,
+    val contactName: String? = null,
+    val contactPhone: String? = null,
+    val contactEmail: String? = null,
 ) {
     val emoji: String get() = chosenEmoji ?: IconSuggester.suggest(type, title, type.defaultEmoji())
     val emojiOptions: List<String> get() = IconSuggester.options(type, title, type.defaultEmoji())
@@ -77,6 +87,10 @@ class EditorViewModel(private val container: AppContainer, private val eventId: 
                     colorArgb = event.colorArgb,
                     chosenEmoji = event.iconKey,
                     knownTags = tags,
+                    photoUri = event.photoUri,
+                    contactLookupUri = event.contactLookupUri,
+                    contactPhone = event.contactPhone,
+                    contactEmail = event.contactEmail,
                 )
             }
             baseline = normalized(_state.value)
@@ -86,7 +100,7 @@ class EditorViewModel(private val container: AppContainer, private val eventId: 
     /** True when the user changed something that would be lost by leaving the editor. */
     fun isDirty(): Boolean = !_state.value.loading && _state.value.savedId == null && normalized(_state.value) != baseline
 
-    private fun normalized(s: EditorState) = s.copy(newTag = "", titleError = false, saving = false, savedId = null, knownTags = emptyList(), basisUserSet = false)
+    private fun normalized(s: EditorState) = s.copy(newTag = "", titleError = false, saving = false, savedId = null, knownTags = emptyList(), basisUserSet = false, contactName = null)
 
     fun setType(type: EventType) = _state.update { s ->
         val basisChanged = s.isNew && !s.basisUserSet && s.date.basis != type.defaultBasis
@@ -123,6 +137,55 @@ class EditorViewModel(private val container: AppContainer, private val eventId: 
 
     fun removeTag(name: String) = _state.update { it.copy(tags = it.tags - name) }
 
+    // --- photo and contact ---
+
+    private val newPhotos = mutableSetOf<String>()
+
+    fun onPhotoPicked(uri: Uri) {
+        viewModelScope.launch {
+            val saved = withContext(Dispatchers.IO) { PhotoStore.saveFrom(container.appContext, uri) } ?: return@launch
+            setPhoto(saved)
+        }
+    }
+
+    fun removePhoto() = setPhoto(null)
+
+    private fun setPhoto(uri: String?) {
+        _state.update { s ->
+            // A photo picked in this session and then replaced is garbage right away; the original is kept until Save.
+            s.photoUri?.takeIf { it in newPhotos }?.let { PhotoStore.delete(it); newPhotos.remove(it) }
+            uri?.let { newPhotos.add(it) }
+            s.copy(photoUri = uri)
+        }
+    }
+
+    /** The system contact picker needs no permission; its answer is read once and the useful parts are copied into the event. */
+    fun onContactPicked(uri: Uri) {
+        viewModelScope.launch {
+            val picked = withContext(Dispatchers.IO) { ContactsReader(container.appContext.contentResolver).readPicked(uri) } ?: return@launch
+            val photo = if (_state.value.photoUri == null && picked.photo != null) withContext(Dispatchers.IO) { PhotoStore.save(container.appContext, picked.photo) } else null
+            photo?.let { newPhotos.add(it) }
+            _state.update {
+                it.copy(
+                    contactLookupUri = picked.lookupUri,
+                    contactName = picked.name,
+                    contactPhone = picked.phone,
+                    contactEmail = picked.email,
+                    title = it.title.ifBlank { picked.name },
+                    titleError = false,
+                    photoUri = it.photoUri ?: photo,
+                )
+            }
+        }
+    }
+
+    fun unlinkContact() = _state.update { it.copy(contactLookupUri = null, contactName = null, contactPhone = null, contactEmail = null) }
+
+    override fun onCleared() {
+        val keep = if (_state.value.savedId != null) _state.value.photoUri else null
+        newPhotos.filter { it != keep }.forEach(PhotoStore::delete)
+    }
+
     fun save() {
         val s = _state.value
         if (s.saving) return
@@ -147,9 +210,15 @@ class EditorViewModel(private val container: AppContainer, private val eventId: 
                 notes = s.notes.trim().ifEmpty { null },
                 colorArgb = s.colorArgb,
                 iconKey = s.chosenEmoji,
+                photoUri = s.photoUri,
+                contactLookupUri = s.contactLookupUri,
+                contactPhone = s.contactPhone,
+                contactEmail = s.contactEmail,
                 tags = s.tags.map { known[it.lowercase()] ?: Tag(name = it) },
             )
             val id = container.events.save(event)
+            // The previous photo file is only deleted once the change is really saved.
+            base?.photoUri?.takeIf { it != s.photoUri }?.let(PhotoStore::delete)
             if (base == null) container.reminders.addDefaults(id, s.type)
             _state.update { it.copy(saving = false, savedId = id) }
         }

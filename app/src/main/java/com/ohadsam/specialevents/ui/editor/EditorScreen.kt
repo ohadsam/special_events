@@ -2,6 +2,9 @@ package com.ohadsam.specialevents.ui.editor
 
 import androidx.annotation.StringRes
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -67,6 +70,7 @@ import com.ohadsam.specialevents.calendar.CalendarBasis
 import com.ohadsam.specialevents.domain.EditorDate
 import com.ohadsam.specialevents.domain.EventType
 import com.ohadsam.specialevents.domain.Gender
+import com.ohadsam.specialevents.ui.common.EventAvatar
 import com.ohadsam.specialevents.ui.common.GregorianDatePickerDialog
 import com.ohadsam.specialevents.ui.common.gregorianLong
 import com.ohadsam.specialevents.ui.common.gregorianNoYear
@@ -107,6 +111,7 @@ fun EditorScreen(viewModel: EditorViewModel, onClose: () -> Unit, onSaved: (Long
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             TypeChips(state.type, viewModel::setType)
+            PersonSection(state, viewModel)
             OutlinedTextField(
                 value = state.title,
                 onValueChange = viewModel::setTitle,
@@ -140,6 +145,34 @@ fun EditorScreen(viewModel: EditorViewModel, onClose: () -> Unit, onSaved: (Long
             },
             dismissButton = { TextButton(onClick = { confirmDiscard = false }) { Text(stringResource(R.string.editor_discard_keep)) } },
         )
+    }
+}
+
+@Composable
+private fun PersonSection(state: EditorState, vm: EditorViewModel) {
+    val pickPhoto = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri -> uri?.let(vm::onPhotoPicked) }
+    val pickContact = rememberLauncherForActivityResult(ActivityResultContracts.PickContact()) { uri -> uri?.let(vm::onContactPicked) }
+    val accent = state.colorArgb?.let { Color(it) } ?: MaterialTheme.colorScheme.primaryContainer
+    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+        EventAvatar(state.photoUri, state.emoji, accent, 72.dp)
+        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedButton(onClick = { pickPhoto.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) }) {
+                    Text(stringResource(if (state.photoUri == null) R.string.editor_photo_add else R.string.editor_photo_change))
+                }
+                if (state.photoUri != null) TextButton(onClick = vm::removePhoto) { Text(stringResource(R.string.editor_photo_remove)) }
+            }
+            if (state.contactLookupUri == null) {
+                TextButton(onClick = { pickContact.launch(null) }) { Text(stringResource(R.string.editor_contact_link)) }
+            } else {
+                InputChip(
+                    selected = true,
+                    onClick = vm::unlinkContact,
+                    label = { Text(stringResource(R.string.editor_contact_linked, state.contactName ?: state.title)) },
+                    trailingIcon = { Icon(Icons.Outlined.Close, contentDescription = stringResource(R.string.editor_contact_unlink), modifier = Modifier.size(18.dp)) },
+                )
+            }
+        }
     }
 }
 

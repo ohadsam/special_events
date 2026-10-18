@@ -20,6 +20,8 @@ import kotlinx.coroutines.SupervisorJob
 
 /** Manual DI root: one place that builds the app's singletons (no Hilt). Grows by batch. */
 class AppContainer(private val context: Context) {
+    val appContext: Context get() = context.applicationContext
+
     val logger = AppLogger(
         file = File(context.filesDir, "logs/app.log"),
         echo = { e ->

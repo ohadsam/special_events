@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.ohadsam.specialevents.AppContainer
 import com.ohadsam.specialevents.calendar.CalendarBasis
+import com.ohadsam.specialevents.contacts.PhotoStore
 import com.ohadsam.specialevents.calendar.DualDate
 import com.ohadsam.specialevents.calendar.HebrewDate
 import com.ohadsam.specialevents.calendar.MitzvahDay
@@ -56,7 +57,9 @@ class DetailViewModel(private val container: AppContainer, private val eventId: 
 
     fun delete() {
         viewModelScope.launch {
+            val photo = state.value.event?.photoUri
             container.events.delete(eventId)
+            PhotoStore.delete(photo)
         }
     }
 

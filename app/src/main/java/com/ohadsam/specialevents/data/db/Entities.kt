@@ -32,6 +32,9 @@ data class EventEntity(
     val archived: Boolean = false,
     val createdAt: Long,
     val updatedAt: Long,
+    // Added in schema v3; kept last so a fresh install and an upgraded database have the same column order.
+    val contactPhone: String? = null,
+    val contactEmail: String? = null,
 )
 
 @Entity(tableName = "tags", indices = [Index(value = ["name"], unique = true)])

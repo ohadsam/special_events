@@ -26,6 +26,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.ohadsam.specialevents.ui.calendar.CalendarScreen
 import com.ohadsam.specialevents.ui.common.ViewModelFactory
 import com.ohadsam.specialevents.ui.upcoming.UpcomingScreen
+import com.ohadsam.specialevents.ui.contacts.ImportContactsScreen
+import com.ohadsam.specialevents.ui.contacts.ImportContactsViewModel
 import com.ohadsam.specialevents.ui.detail.DetailScreen
 import com.ohadsam.specialevents.ui.detail.DetailViewModel
 import com.ohadsam.specialevents.ui.editor.EditorScreen
@@ -87,6 +89,7 @@ fun AppRoot(container: AppContainer, pendingRoute: String? = null, onRouteHandle
                     onOpenEvent = { nav.navigate(Routes.detail(it)) },
                     onOpenSearch = { nav.navigate(Routes.SEARCH) },
                     onOpenReminderHealth = { nav.navigate(Routes.REMINDER_HEALTH) },
+                    onImportContacts = { nav.navigate(Routes.IMPORT_CONTACTS) },
                 )
             }
             composable(TopLevel.CALENDAR.route) {
@@ -131,6 +134,10 @@ fun AppRoot(container: AppContainer, pendingRoute: String? = null, onRouteHandle
                 val id = entry.arguments?.getLong("id") ?: 0L
                 val vm: EventRemindersViewModel = viewModel(key = "reminders-$id", factory = EventRemindersViewModel.Factory(container, id))
                 EventRemindersScreen(vm, onBack = { nav.popBackStack() })
+            }
+            composable(Routes.IMPORT_CONTACTS) {
+                val vm: ImportContactsViewModel = viewModel(factory = factory)
+                ImportContactsScreen(vm, onBack = { nav.popBackStack() })
             }
             composable(Routes.REMINDER_HEALTH) {
                 ReminderHealthScreen(container, onBack = { nav.popBackStack() })

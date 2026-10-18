@@ -1,5 +1,7 @@
 package com.ohadsam.specialevents.ui.detail
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -56,6 +58,7 @@ import com.ohadsam.specialevents.calendar.ParshaNames
 import com.ohadsam.specialevents.domain.Gender
 import com.ohadsam.specialevents.domain.UpcomingItem
 import com.ohadsam.specialevents.domain.reminders.ReminderLabels
+import com.ohadsam.specialevents.ui.common.EventAvatar
 import com.ohadsam.specialevents.ui.common.dateLabel
 import com.ohadsam.specialevents.ui.common.defaultEmoji
 import com.ohadsam.specialevents.ui.common.gregorianLong
@@ -139,6 +142,21 @@ fun DetailScreen(viewModel: DetailViewModel, onBack: () -> Unit, onEdit: () -> U
                     Text("$shabbat · ${gregorianLong(m.shabbat)}", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
+            if (event.contactPhone != null || event.contactLookupUri != null) {
+                val context = androidx.compose.ui.platform.LocalContext.current
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    event.contactPhone?.let { phone ->
+                        OutlinedButton(onClick = { context.startActivity(Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + Uri.encode(phone))).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) }) {
+                            Text(stringResource(R.string.detail_call))
+                        }
+                    }
+                    event.contactLookupUri?.let { lookup ->
+                        OutlinedButton(onClick = { runCatching { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(lookup)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) } }) {
+                            Text(stringResource(R.string.detail_open_contact))
+                        }
+                    }
+                }
+            }
             Section(stringResource(R.string.detail_section_reminders)) {
                 if (state.rules.isEmpty()) Text(stringResource(R.string.detail_reminders_none), color = MaterialTheme.colorScheme.onSurfaceVariant)
                 state.rules.forEach { rule ->
@@ -190,9 +208,7 @@ private fun Header(state: DetailState) {
     val event = state.event ?: return
     val accent = event.colorArgb?.let { Color(it) } ?: MaterialTheme.colorScheme.primaryContainer
     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-        Box(Modifier.size(72.dp).clip(CircleShape).background(accent), contentAlignment = Alignment.Center) {
-            Text(event.iconKey ?: event.type.defaultEmoji(), fontSize = 36.sp)
-        }
+        EventAvatar(event.photoUri, event.iconKey ?: event.type.defaultEmoji(), accent, 72.dp)
         Column {
             Text(event.title, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
             Text(

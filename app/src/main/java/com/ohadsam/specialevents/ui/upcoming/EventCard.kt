@@ -34,6 +34,7 @@ import com.ohadsam.specialevents.domain.Gender
 import com.ohadsam.specialevents.domain.ItemKind
 import com.ohadsam.specialevents.domain.UpcomingItem
 
+import com.ohadsam.specialevents.ui.common.EventAvatar
 import com.ohadsam.specialevents.ui.common.dateLabel
 import com.ohadsam.specialevents.ui.common.defaultEmoji
 import com.ohadsam.specialevents.ui.common.labelRes
@@ -44,7 +45,7 @@ fun EventCard(item: UpcomingItem, mode: CalendarMode, onClick: () -> Unit, modif
     val accent = event.colorArgb?.let { Color(it) } ?: MaterialTheme.colorScheme.primaryContainer
     OutlinedCard(onClick = onClick, modifier = modifier.fillMaxWidth().semantics(mergeDescendants = true) {}) {
         Row(Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            Avatar(event.iconKey ?: event.type.defaultEmoji(), accent)
+            EventAvatar(event.photoUri, event.iconKey ?: event.type.defaultEmoji(), accent, 52.dp)
             Column(Modifier.weight(1f)) {
                 Text(event.title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 Text(
@@ -63,13 +64,6 @@ fun EventCard(item: UpcomingItem, mode: CalendarMode, onClick: () -> Unit, modif
             }
             CountdownPill(item.daysUntil)
         }
-    }
-}
-
-@Composable
-private fun Avatar(emoji: String, color: Color) {
-    Box(Modifier.size(52.dp).clip(CircleShape).background(color), contentAlignment = Alignment.Center) {
-        Text(emoji, fontSize = 26.sp)
     }
 }
 

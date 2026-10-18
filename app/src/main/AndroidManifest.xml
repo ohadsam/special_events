@@ -7,6 +7,8 @@
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.VIBRATE" />
+    <!-- Contacts (batch 7): only asked for when the user imports birthdays from the address book; linking one contact uses the system picker and needs no permission. -->
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
 
     <application
         android:name=".SpecialEventsApp"

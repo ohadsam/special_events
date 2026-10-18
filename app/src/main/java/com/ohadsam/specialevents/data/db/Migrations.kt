@@ -23,5 +23,15 @@ object Migrations {
         }
     }
 
-    val ALL: Array<Migration> = arrayOf(V1_TO_V2)
+    const val ADD_CONTACT_PHONE = "ALTER TABLE `events` ADD COLUMN `contactPhone` TEXT"
+    const val ADD_CONTACT_EMAIL = "ALTER TABLE `events` ADD COLUMN `contactEmail` TEXT"
+
+    val V2_TO_V3 = object : Migration(2, 3) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL(ADD_CONTACT_PHONE)
+            db.execSQL(ADD_CONTACT_EMAIL)
+        }
+    }
+
+    val ALL: Array<Migration> = arrayOf(V1_TO_V2, V2_TO_V3)
 }

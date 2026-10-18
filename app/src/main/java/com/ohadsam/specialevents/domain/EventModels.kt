@@ -37,6 +37,9 @@ data class SpecialEvent(
     val iconKey: String? = null,
     val photoUri: String? = null,
     val contactLookupUri: String? = null,
+    /** Copied from the linked contact when it was picked, so greetings can reach the person without keeping READ_CONTACTS. */
+    val contactPhone: String? = null,
+    val contactEmail: String? = null,
     val archived: Boolean = false,
     val tags: List<Tag> = emptyList(),
     val createdAt: Long = 0,
