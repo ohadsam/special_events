@@ -51,6 +51,9 @@ Real incidents carried over from earlier apps (keep concrete; add new ones below
 - Kotlin block comments NEST: a glob like `dir/*.json` inside a KDoc opens a second comment and breaks the whole file (ktlint reports "Unclosed comment"). Never write `/*` in comment text.
 - A release that forces users to reinstall (changed applicationId/signing key/versionCode not increasing) loses their data - the `latest-apk.yml` guard compares against the published APK.
 - GitHub Actions can refuse to start ("payments failed / spending limit"): that is not a code failure - stop, do not merge unverified, tell the owner.
+- strings.xml: an unescaped apostrophe (`'`) breaks resource compilation with a cryptic "Failed to compile values resource" - use the typographic geresh or `\'`.
+- Lint `ByteOrderMark`: never put a literal U+FEFF in source; write `"\uFEFF"`. When lint fails, the console shows only a count - CI prints the findings from `lint-results-debug.txt` in the failure summary.
+- A first-run dialog covers the UI under test: emulator tests must dismiss it first (`AppRobot.dismissWelcome`).
 - KSP occasionally flakes (`Expected start of the object '{', but had 'EOF'`) — re-run CI, don't "fix".
 
 ## 8. Merge

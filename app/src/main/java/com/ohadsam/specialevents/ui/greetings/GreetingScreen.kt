@@ -128,7 +128,7 @@ fun GreetingScreen(viewModel: GreetingViewModel, onBack: () -> Unit) {
                 emojis = IconSuggester.options(event.type, event.title, event.type.defaultEmoji()),
                 onEmoji = { viewModel.setText(body + it) },
                 onSendPhoto = { uri ->
-                    if (GreetingSender.sendImage(context, uri, state.text, state.phone, state.settings.countryCode)) {
+                    if (GreetingSender.sendImage(context, uri, body, state.phone, state.settings.countryCode)) {
                         viewModel.launched(SendChannel.WHATSAPP)
                     } else {
                         android.widget.Toast.makeText(context, notFound, android.widget.Toast.LENGTH_LONG).show()

@@ -17,6 +17,7 @@ All of it lives in the app's private storage (Room database, DataStore, `files/p
 | CSV formula injection | Cells starting with `= + - @` are prefixed (phone numbers excepted). |
 | HTML injection in print/share | Every user string escaped; colours validated; only `data:image/` URIs accepted; WebView has JavaScript, file and network access off. |
 | Other apps calling our components | Only `MainActivity` (launcher + validated VIEW), the widget receivers/config activity (required by the launcher; the config activity refuses an invalid widget id) are exported. Boot/date receivers are not exported. All `PendingIntent`s are `FLAG_IMMUTABLE`. |
+| Gallery photo in a greeting | Chosen with the system photo picker (no storage permission); only that one URI is handed to the target app, read-only and temporary; the app keeps no copy. |
 | File sharing | `FileProvider` limited to cache sub-folders `voice/`, `backup/`, `share/`, granted per share with read-only URI permission. |
 | Unwanted SMS cost / spam | Automatic SMS is opt-in per rule, needs the SEND_SMS permission, shows the count and cost warning for bulk sends, is capped at 30 recipients and records each recipient to avoid double sends. |
 | Logs leaking personal data | Log lines carry ids and counts only, never names, phones or message text (audited in batch 14). |
