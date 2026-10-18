@@ -19,6 +19,8 @@ object WidgetUpdater {
     suspend fun updateAll(context: Context) {
         runCatching { UpcomingWidget().updateAll(context) }
         runCatching { HebrewDateWidget().updateAll(context) }
+        runCatching { EventWidget().updateAll(context) }
+        runCatching { MonthWidget().updateAll(context) }
     }
 
     /** One alarm shortly after local midnight, so date-based widgets roll over even if the system broadcast is missed. */

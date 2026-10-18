@@ -356,6 +356,13 @@
     <string name="widget_upcoming_empty">אין אירועים. לחצו + כדי להוסיף.</string>
     <string name="widget_hebrew_date_name">התאריך היום</string>
     <string name="widget_hebrew_date_desc">התאריך העברי והלועזי של היום והאירוע הקרוב</string>
+    <string name="widget_event_name">אירוע וצ׳קליסט</string>
+    <string name="widget_event_desc">אירוע אחד עם ספירה לאחור והצ׳קליסט שלו — מסמנים ישר מהמסך</string>
+    <string name="widget_event_unset">הקישו לבחירת אירוע — או הסירו והוסיפו את הווידג׳ט מחדש</string>
+    <string name="widget_event_pick">איזה אירוע להציג?</string>
+    <string name="widget_event_none">אין עדיין אירועים. הוסיפו אירוע באפליקציה ואז חזרו לכאן.</string>
+    <string name="widget_month_name">מיני־חודש</string>
+    <string name="widget_month_desc">החודש הנוכחי עם סימון ימים שיש בהם אירועים</string>
     <string name="action_undo">בטל</string>
     <string name="action_delete">מחק</string>
     <string name="checklist_title">צ׳קליסט ומתנות</string>
