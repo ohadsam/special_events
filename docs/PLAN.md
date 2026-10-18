@@ -21,7 +21,7 @@ Order is by dependency: pure logic first (cheap to test), then data, UI, engines
 | 11 | Backup/export/import/share: JSON (versioned), scheduled folder backup, encrypted backup, CSV/ICS, `.sevents` open-with, share-APK | S11 | 0.13.0 | [x] |
 | 11c | Scheduled folder backup (SAF + WorkManager), keep N copies, backup-age reminder; CSV import with column mapping | S11 | 0.13.5 | [ ] |
 | 12 | Calendar sync: CalendarContract import/export (Google + others), dedupe, dedicated calendar | S12 | 0.14.0 | [x] |
-| 13 | (מוחלף ב-P1 + חבילת אימוג'י/סטיקרים) Print & rich visuals: WebView/JS print layouts, PDF, greeting-card image, emoji/sticker pack | S13 | 0.15.0 | [ ] |
+| 13 | (מוחלף ב-P1 + חבילת אימוג'י/סטיקרים) Print & rich visuals: WebView/JS print layouts, PDF, greeting-card image, emoji/sticker pack | S13 | 0.15.0 | [x] |
 | V1 | תצוגות: מחליף יום/שבוע/חודש/קרובים, דפדוף והחלקה, קפיצה (תאריך/אירוע/״הצג בלוח שנה״), סינון משולב + group by + order, תצוגות שמורות, זיכרון העדפות | S19 | 0.15.0 | [ ] |
 | G1 | קבוצות: קבוצות מובנות + מותאמות, מאפיינים (צבע/אימוג'י/תמונה/גופן/תגיות), תבנית תזכורות וברכות לקבוצה, רשימת תפוצה, ירושה, DB v8 | S18.2 | 0.15.0 | [ ] |
 | E1 | הוספת אירוע בטקסט חופשי (עברית) + שדות + בורר מערכת מסונכרנים, אישור עם שני הלוחות ויום בשבוע | S18.4 | 0.16.0 | [ ] |
