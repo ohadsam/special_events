@@ -1,5 +1,5 @@
 # Special Events – Agent Memory
-**Last updated:** v0.17.0 (batches 0–12, V1, G1, E1 done; H1 (help) next)
+**Last updated:** v0.18.0 (batches 0–12, V1, G1, E1, H1 done; T1 (greeting templates v2) next)
 Read order: CLAUDE.md → docs/PLAN.md → STRUCTURE.md → the batch's section in docs/SPEC.md.
 
 ## Recently done
@@ -42,6 +42,8 @@ Read order: CLAUDE.md → docs/PLAN.md → STRUCTURE.md → the batch's section 
 - v0.16.0: batch G1: groups. Not done: group photo and font/card styling (needs the card design of S1/P1), sharing a single group/template as its own file (backup covers it), reordering groups, recipients queue UI (T2). Unverified on device: editor layout at 200% font, emoji entry.
 
 - v0.17.0: batch E1: free-text dates. Not done: English input, relative phrases ("לפני שבועיים"), parsing names/relations out of the same sentence (e.g. "אמא של דנה נולדה ב..."), speech input. Unverified on device: field layout, RTL punctuation (maqaf/geresh typed from phone keyboards).
+
+- v0.18.0: batch H1: help system. Not done: help buttons on Search/Templates/Import/Logs screens, per-field info (i) buttons, first-run walkthrough (batch 15), English texts. Update the matching HelpTopic text whenever a screen changes (release-checklist step 5).
 
 ## Known issues / open items (need the owner)
 - Feature spec for "אירועים מיוחדים" not yet provided → fill `docs/SPEC.md`, then define batches in `docs/PLAN.md`.
@@ -87,6 +89,9 @@ Notification timing, permission flows, visuals, TalkBack.
 
 ## Ideas (v0.17.0)
 - Voice dictation of the date; fill title/gender from the same sentence ("דנה, בת 46"); English month names; relative dates; show a mini month calendar with the parsed day highlighted; learn the user's habitual format.
+
+## Ideas (v0.18.0)
+- First-run walkthrough with coach marks; per-field info buttons (date rules, tzeit method); animated GIF/illustrations in the guide; help search from the settings screen; share a guide section; link from the notification permission banner to the right topic.
 
 ## Ideas (from batch 5)
 - Yahrzeit candle reminder anchored to sunset (rule time = "N minutes before sunset") instead of a fixed 16:00; per-rule custom sound picker (profile `sound:<uri>` is already supported); quiet hours; "mark as greeted" action (batch 8); a daily digest notification option; reminders inheriting from tags.
