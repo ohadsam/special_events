@@ -57,7 +57,7 @@ object ReminderLabels {
             Channel.NOTIFICATION -> ""
             Channel.WHATSAPP -> " · ברכה בוואטסאפ"
             Channel.EMAIL -> " · ברכה במייל"
-            Channel.SMS -> " · ברכה בהודעה"
+            Channel.SMS -> if (rule.autoSend) " · ברכה אוטומטית בהודעה" else " · ברכה בהודעה"
         }
         return "${offsetText(rule.offsetValue, rule.offsetUnit)} $moment$tier$channel"
     }

@@ -86,6 +86,9 @@ data class ReminderRuleEntity(
     val origin: String,
     // Added in schema v5; last, with a default, so an upgraded database and a fresh one are identical.
     @ColumnInfo(defaultValue = "FIXED") val timeMode: String = "FIXED",
+    // Added in schema v6.
+    @ColumnInfo(defaultValue = "0") val autoSend: Boolean = false,
+    val templateId: Long? = null,
 )
 
 /** A greeting text the user wrote (the built-in ones live in code, see `GreetingCatalog`). */

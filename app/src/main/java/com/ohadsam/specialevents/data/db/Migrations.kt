@@ -60,5 +60,15 @@ object Migrations {
         }
     }
 
-    val ALL: Array<Migration> = arrayOf(V1_TO_V2, V2_TO_V3, V3_TO_V4, V4_TO_V5)
+    const val ADD_RULE_AUTO_SEND = "ALTER TABLE `reminder_rules` ADD COLUMN `autoSend` INTEGER NOT NULL DEFAULT 0"
+    const val ADD_RULE_TEMPLATE_ID = "ALTER TABLE `reminder_rules` ADD COLUMN `templateId` INTEGER"
+
+    val V5_TO_V6 = object : Migration(5, 6) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL(ADD_RULE_AUTO_SEND)
+            db.execSQL(ADD_RULE_TEMPLATE_ID)
+        }
+    }
+
+    val ALL: Array<Migration> = arrayOf(V1_TO_V2, V2_TO_V3, V3_TO_V4, V4_TO_V5, V5_TO_V6)
 }

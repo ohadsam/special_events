@@ -36,6 +36,10 @@ data class ReminderRule(
     val enabled: Boolean = true,
     val origin: RuleOrigin = RuleOrigin.DEFAULT,
     val timeMode: TimeMode = TimeMode.FIXED,
+    /** SMS greeting prompts only: send the message by itself, without asking (needs SEND_SMS). */
+    val autoSend: Boolean = false,
+    /** Template for an automatic message: a built-in (negative) or custom (positive) id; null = the best match for the event. */
+    val templateId: Long? = null,
 ) {
     companion object {
         const val DEFAULT_TIME_MINUTES = 8 * 60

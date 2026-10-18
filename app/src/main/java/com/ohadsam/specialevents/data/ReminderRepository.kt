@@ -55,6 +55,8 @@ object ReminderMapper {
         enabled = e.enabled,
         origin = enumOrDefault(e.origin, RuleOrigin.USER),
         timeMode = enumOrDefault(e.timeMode, TimeMode.FIXED),
+        autoSend = e.autoSend,
+        templateId = e.templateId,
     )
 
     fun toEntity(r: ReminderRule) = ReminderRuleEntity(
@@ -70,6 +72,8 @@ object ReminderMapper {
         enabled = r.enabled,
         origin = r.origin.name,
         timeMode = r.timeMode.name,
+        autoSend = r.autoSend,
+        templateId = r.templateId,
     )
 
     private inline fun <reified E : Enum<E>> enumOrDefault(name: String, default: E): E = enumValues<E>().firstOrNull { it.name == name } ?: default
