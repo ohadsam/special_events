@@ -59,6 +59,8 @@ Read order: CLAUDE.md → docs/PLAN.md → STRUCTURE.md → the batch's section 
 
 - v0.25.0: polish part 1 (search help button, first-run welcome). Remaining in batch 15: a11y pass, Baseline Profile, emulator UI tests, signing/README.
 
+- DECISION (owner, 2026-10-18): free WhatsApp/e-mail only → keep one-tap send per recipient + automatic SMS; do NOT build WhatsApp Business API / SMTP.
+
 ## Known issues / open items (need the owner)
 - Feature spec for "אירועים מיוחדים" not yet provided → fill `docs/SPEC.md`, then define batches in `docs/PLAN.md`.
 - **Signing key:** `app/sideload.jks` (password in app/build.gradle.kts) is committed on purpose so every CI build updates in place; NOT a store key. Never change it after users installed the app.
