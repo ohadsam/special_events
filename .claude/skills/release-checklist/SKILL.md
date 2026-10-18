@@ -57,7 +57,12 @@ Real incidents carried over from earlier apps (keep concrete; add new ones below
 Feature branch → push → PR → CI green → merge to `main`. Resolve conflicts for real; never force-push over others' work. Don't start the next batch on red CI.
 
 ## Project gates (app-specific; append here)
-_Special Events: none yet — add after the first batches (e.g. date/time-zone rules for events, reminder delivery, contacts/calendar permissions)._
+_Special Events:_
+- `docs/SECURITY.md` (threat model, permission list) is updated whenever a permission, exported component, file format or share path changes.
+- Every screen change updates its `HelpTopic` text in `strings.xml` (`help_<topic>_body`) - stale help is a defect.
+- Schema changes: a `Migration` constant matched to `app/schemas/<n>.json` by a `MigrationSchemaVnTest`, verified by hand against the CI-committed JSON on the first push.
+- Anything that sends messages (SMS, share) is opt-in, capped, and shows the count/cost before sending.
+- Imported or shared files are untrusted: clamp, skip bad entries, force dangerous settings off, preview before writing.
 
 ## Done means
 All four passes ran and findings fixed (incl. security, appearance, performance, usability gates); version + What's New + changelog updated; docs and PLAN status updated; localization/RTL and help/info checked; permissions/security reviewed; tests added and CI green; skills + this checklist self-reviewed; merged (or PR ready).

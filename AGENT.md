@@ -1,5 +1,5 @@
 # Special Events – Agent Memory
-**Last updated:** v0.22.0 (batches 0–12, V1, G1, E1, H1, T1, T2, S1, P1 done; 11c, 14 (security) and 15 (polish) remain)
+**Last updated:** v0.23.0 (batches 0–10, 11, 12, V1, G1, E1, H1, T1, T2, S1, P1, 14 done; 11c (scheduled backup) and 15 (polish) remain)
 Read order: CLAUDE.md → docs/PLAN.md → STRUCTURE.md → the batch's section in docs/SPEC.md.
 
 ## Recently done
@@ -52,6 +52,8 @@ Read order: CLAUDE.md → docs/PLAN.md → STRUCTURE.md → the batch's section 
 - v0.21.0: batch S1: sharing. Not done: person card as an IMAGE (comes with P1 print/visuals), sender name in the file, QR code/link sharing, in-app sharing history. Unverified on device: ACTION_SEND with application/octet-stream to WhatsApp and file managers keeping the .sevents name; VIEW intent for received files.
 
 - v0.22.0: batch P1: printing. Not done: yearly wall calendar (12 pages) and week/day sheets, stickers/emoji pack, JS-based layouts (HTML+CSS was enough), saving PDFs without the print dialog. Unverified on device: print dialog from Compose WebView, A5 sizing on printers, card-as-PNG on devices where an off-screen WebView draws blank (falls back to a message), Hebrew fonts available on the device.
+
+- v0.23.0: batch 14: security. Not done: encrypting the database at rest (SQLCipher + Keystore), BiometricPrompt with crypto binding, hiding widget content when locked, in-app dependency vulnerability scan (Dependabot PRs only). Unverified on device: the system confirm screen flow and the stop/start around it (authInProgress guard), FLAG_SECURE in recents, behaviour when the user removes the device lock while the setting is on (the setting is ignored, not enforced).
 
 ## Known issues / open items (need the owner)
 - Feature spec for "אירועים מיוחדים" not yet provided → fill `docs/SPEC.md`, then define batches in `docs/PLAN.md`.
@@ -112,6 +114,9 @@ Notification timing, permission flows, visuals, TalkBack.
 
 ## Ideas (v0.22.0)
 - Year wall calendar (12 pages); weekly planner; address labels/envelopes from contacts; card with a hand-drawn signature; sticker pack (needs the owner's choice); save PDF straight to a chosen folder via PdfDocument; QR code on the card linking to a message.
+
+## Ideas (v0.23.0)
+- Encrypted database (SQLCipher); BiometricPrompt (strong) with a Keystore key; lock the widgets' details; quick-lock button in the toolbar; app-lock grace period after a notification tap; panic wipe option; audit log of backups/exports.
 
 ## Ideas (from batch 5)
 - Yahrzeit candle reminder anchored to sunset (rule time = "N minutes before sunset") instead of a fixed 16:00; per-rule custom sound picker (profile `sound:<uri>` is already supported); quiet hours; "mark as greeted" action (batch 8); a daily digest notification option; reminders inheriting from tags.

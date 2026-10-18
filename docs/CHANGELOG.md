@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.23.0
+- אבטחה: נעילת אפליקציה (KeyguardManager), FLAG_SECURE, docs/SECURITY.md, Dependabot, BootReceiver לא מיוצא, ביקורת לוגים והרשאות.
+
 ## 0.22.0
 - הדפסה: מחוללי HTML טהורים (כרטיס/חודש/רשימה) עם הגנת escape, WebView נעול, PrintManager ו-PDF, כרטיס כתמונה, שימוש חוזר במנוע התצוגה לסינון וקיבוץ.
 
