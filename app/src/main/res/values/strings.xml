@@ -526,6 +526,7 @@
     <string name="datetext_e_month">לא מצאתי חודש — למשל ״17 באוקטובר״ או ״כ׳ בחשוון״.</string>
     <string name="datetext_e_day">לא מצאתי את היום בחודש.</string>
     <string name="datetext_e_invalid">התאריך הזה לא קיים בלוח.</string>
+    <string name="print_accent_pick">צבע הדגשה</string>
     <string name="onboarding_title">ברוכים הבאים</string>
     <string name="onboarding_start">בואו נתחיל</string>
     <string name="onboarding_guide">למדריך המלא</string>

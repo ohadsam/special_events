@@ -65,6 +65,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -438,10 +440,10 @@ private fun MoreOptions(state: EditorState, vm: EditorViewModel) {
 private fun ColorSwatch(color: Int?, selected: Boolean, onClick: () -> Unit) {
     val description = stringResource(if (color == null) R.string.editor_color_none else R.string.editor_color_pick)
     Box(
-        Modifier.size(40.dp).clip(CircleShape)
+        Modifier.minimumInteractiveComponentSize().size(40.dp).clip(CircleShape)
             .background(color?.let { Color(it) } ?: MaterialTheme.colorScheme.surfaceVariant)
             .border(BorderStroke(if (selected) 3.dp else 1.dp, if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline), CircleShape)
-            .clickable(onClick = onClick)
+            .selectable(selected = selected, role = Role.RadioButton, onClick = onClick)
             .semantics { contentDescription = description },
         contentAlignment = Alignment.Center,
     ) { if (color == null) Text("∅") }

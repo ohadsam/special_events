@@ -55,6 +55,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.material3.minimumInteractiveComponentSize
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -235,8 +240,12 @@ private fun SwitchRow(label: Int, checked: Boolean, onChange: (Boolean) -> Unit)
 @Composable
 private fun AccentDot(hex: String, selected: Boolean, onClick: () -> Unit) {
     val color = Color(android.graphics.Color.parseColor(hex))
+    val description = stringResource(R.string.print_accent_pick)
     Box(
-        Modifier.size(40.dp).clip(CircleShape).background(color).then(if (selected) Modifier.border(3.dp, MaterialTheme.colorScheme.onSurface, CircleShape) else Modifier).clickable(onClick = onClick),
+        Modifier.minimumInteractiveComponentSize().size(40.dp).clip(CircleShape).background(color)
+            .then(if (selected) Modifier.border(3.dp, MaterialTheme.colorScheme.onSurface, CircleShape) else Modifier)
+            .selectable(selected = selected, role = Role.RadioButton, onClick = onClick)
+            .semantics { contentDescription = description },
     )
 }
 

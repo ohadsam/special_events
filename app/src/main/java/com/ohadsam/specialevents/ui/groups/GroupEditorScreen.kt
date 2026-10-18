@@ -54,6 +54,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.material3.minimumInteractiveComponentSize
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ohadsam.specialevents.R
@@ -230,8 +233,8 @@ private fun Heading(res: Int) = Text(stringResource(res), style = MaterialTheme.
 private fun ColorDot(argb: Int, selected: Boolean, onClick: () -> Unit) {
     val description = stringResource(R.string.group_color_pick)
     Box(
-        Modifier.size(44.dp).clip(CircleShape).background(Color(argb)).then(if (selected) Modifier.border(3.dp, MaterialTheme.colorScheme.onSurface, CircleShape) else Modifier)
-            .clickable(onClick = onClick).semantics { contentDescription = description },
+        Modifier.minimumInteractiveComponentSize().size(44.dp).clip(CircleShape).background(Color(argb)).then(if (selected) Modifier.border(3.dp, MaterialTheme.colorScheme.onSurface, CircleShape) else Modifier)
+            .selectable(selected = selected, role = Role.RadioButton, onClick = onClick).semantics { contentDescription = description },
         contentAlignment = Alignment.Center,
     ) {
         if (selected) Icon(Icons.Outlined.Check, contentDescription = null, tint = Color.White)
