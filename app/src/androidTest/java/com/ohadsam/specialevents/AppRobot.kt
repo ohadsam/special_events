@@ -5,7 +5,9 @@ import androidx.compose.ui.test.junit4.AndroidComposeTestRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.printToString
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 
 typealias AppRule = AndroidComposeTestRule<ActivityScenarioRule<MainActivity>, MainActivity>
@@ -13,6 +15,7 @@ typealias AppRule = AndroidComposeTestRule<ActivityScenarioRule<MainActivity>, M
 /** Small helpers shared by the emulator tests: the first-run welcome must not hide the screen under test. */
 object AppRobot {
     private const val WELCOME_WAIT_MS = 4_000L
+    private const val TREE_LIMIT = 1_500
 
     fun text(rule: AppRule, res: Int): String = rule.activity.getString(res)
 
@@ -30,7 +33,12 @@ object AppRobot {
 
     fun click(rule: ComposeTestRule, label: String, scroll: Boolean = false) {
         val node = rule.onAllNodesWithText(label).onFirst()
-        (if (scroll) node.performScrollTo() else node).performClick()
+        try {
+            (if (scroll) node.performScrollTo() else node).performClick()
+        } catch (e: AssertionError) {
+            // Put what was on screen into the failure so a CI log is enough to diagnose it.
+            throw AssertionError("click '$label' failed; screen: " + rule.onRoot().printToString().take(TREE_LIMIT), e)
+        }
         rule.waitForIdle()
     }
 

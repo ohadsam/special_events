@@ -49,5 +49,5 @@ jobs:
         run: |
           echo "=== UI RESULTS BEGIN ==="
           grep -rhoE 'tests="[0-9]+"|failures="[0-9]+"|errors="[0-9]+"' app/build/outputs/androidTest-results --include=*.xml | sort | uniq -c || true
-          grep -rhE -A3 '<failure|<error' app/build/outputs/androidTest-results --include=*.xml | cut -c1-300 | head -40 || true
+          grep -rhE -B1 -A14 '<failure|<error' app/build/outputs/androidTest-results --include=*.xml | cut -c1-300 | head -70 || true
           echo "=== UI RESULTS END ==="
