@@ -119,5 +119,21 @@ object Migrations {
         }
     }
 
-    val ALL: Array<Migration> = arrayOf(V1_TO_V2, V2_TO_V3, V3_TO_V4, V4_TO_V5, V5_TO_V6, V6_TO_V7, V7_TO_V8, V8_TO_V9)
+    const val ADD_RULE_TO_PERSON = "ALTER TABLE `reminder_rules` ADD COLUMN `toPerson` INTEGER NOT NULL DEFAULT 1"
+    const val ADD_RULE_TO_SELF = "ALTER TABLE `reminder_rules` ADD COLUMN `toSelf` INTEGER NOT NULL DEFAULT 0"
+    const val ADD_RULE_TO_GROUPS = "ALTER TABLE `reminder_rules` ADD COLUMN `toGroupIds` TEXT"
+    const val ADD_RULE_TO_EXTRA = "ALTER TABLE `reminder_rules` ADD COLUMN `toExtra` TEXT"
+    const val ADD_SENT_RECIPIENT = "ALTER TABLE `greetings_sent` ADD COLUMN `recipient` TEXT"
+
+    val V9_TO_V10 = object : Migration(9, 10) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL(ADD_RULE_TO_PERSON)
+            db.execSQL(ADD_RULE_TO_SELF)
+            db.execSQL(ADD_RULE_TO_GROUPS)
+            db.execSQL(ADD_RULE_TO_EXTRA)
+            db.execSQL(ADD_SENT_RECIPIENT)
+        }
+    }
+
+    val ALL: Array<Migration> = arrayOf(V1_TO_V2, V2_TO_V3, V3_TO_V4, V4_TO_V5, V5_TO_V6, V6_TO_V7, V7_TO_V8, V8_TO_V9, V9_TO_V10)
 }

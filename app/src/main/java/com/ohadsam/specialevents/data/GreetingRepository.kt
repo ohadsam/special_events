@@ -37,9 +37,15 @@ class GreetingRepository(db: AppDatabase, private val clock: Clock = Clock.syste
     /** (eventId, occurrence day) pairs that were greeted, for the "greeted" check marks. */
     val greetedKeys: Flow<Set<Pair<Long, Long>>> = dao.observeAllSent().map { rows -> rows.map { it.eventId to it.occurrenceDay }.toSet() }
 
-    suspend fun markSent(eventId: Long, occurrenceDay: Long, channel: SendChannel, text: String) {
-        dao.insertSent(GreetingSentEntity(eventId = eventId, occurrenceDay = occurrenceDay, channel = channel.name, sentAt = clock.millis(), preview = text.take(PREVIEW_CHARS)))
+    /** [recipient] is the [com.ohadsam.specialevents.domain.groups.Recipient.key] when the greeting went to one of several people. */
+    suspend fun markSent(eventId: Long, occurrenceDay: Long, channel: SendChannel, text: String, recipient: String? = null) {
+        dao.insertSent(
+            GreetingSentEntity(eventId = eventId, occurrenceDay = occurrenceDay, channel = channel.name, sentAt = clock.millis(), preview = text.take(PREVIEW_CHARS), recipient = recipient),
+        )
     }
+
+    /** Who of a multi-recipient greeting already got it for this occurrence. */
+    suspend fun sentRecipients(eventId: Long, occurrenceDay: Long): Set<String> = dao.sentRecipients(eventId, occurrenceDay).toSet()
 
     suspend fun deleteSent(id: Long) = dao.deleteSent(id)
 

@@ -163,6 +163,10 @@ object BackupCodec {
         put("enabled", r.enabled)
         put("origin", r.origin.name)
         put("timeMode", r.timeMode.name)
+        put("toPerson", r.toPerson)
+        put("toSelf", r.toSelf)
+        put("toGroups", JsonArray(r.toGroupIds.map { JsonPrimitive(it) }))
+        put("toExtra", JsonArray(r.toExtra.map { JsonPrimitive(it) }))
     }
 
     private fun parseRule(o: JsonObject): ReminderRule? {
@@ -181,6 +185,10 @@ object BackupCodec {
             timeMode = enumOf<TimeMode>(o.str("timeMode")) ?: TimeMode.FIXED,
             autoSend = false,
             templateId = null,
+            toPerson = o.bool("toPerson") ?: true,
+            toSelf = o.bool("toSelf") ?: false,
+            toGroupIds = (o["toGroups"] as? JsonArray).orEmpty().mapNotNull { (it as? JsonPrimitive)?.longOrNull }.take(MAX_TAGS).toSet(),
+            toExtra = (o["toExtra"] as? JsonArray).orEmpty().mapNotNull { (it as? JsonPrimitive)?.takeIf { p -> p.isString }?.contentOrNull?.trim()?.take(MAX_TITLE)?.takeIf { s -> s.isNotEmpty() } }.take(MAX_TAGS),
         )
     }
 

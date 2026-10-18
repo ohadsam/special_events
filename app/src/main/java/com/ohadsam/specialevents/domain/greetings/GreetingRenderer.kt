@@ -9,16 +9,18 @@ data class GreetingContext(
     val hebrewDate: String? = null,
     val gregorianDate: String? = null,
     val parsha: String? = null,
+    /** Who this copy is addressed to ("היי {נמען}"); null when sending to one person or when not known. */
+    val recipient: String? = null,
 )
 
 /**
- * Fills a template. Placeholders: {שם} {גיל} {שנים} {יחס} {תאריך_עברי} {תאריך_לועזי} {פרשה}, each optionally followed by styles:
+ * Fills a template. Placeholders: {שם} {גיל} {שנים} {יחס} {תאריך_עברי} {תאריך_לועזי} {פרשה} {נמען}, each optionally followed by styles:
  * `{שם|מפוזר:-|הדגש|צבע:אדום}` (see [PlaceholderStyles]).
  * Text inside `[[ ... ]]` is optional: it is dropped entirely when any placeholder inside it is unknown, so one template reads well
  * both with and without an age ("מזל טוב {שם}[[ ליום הולדת {גיל}]]!").
  */
 object GreetingRenderer {
-    val PLACEHOLDERS = listOf("שם", "גיל", "שנים", "יחס", "תאריך_עברי", "תאריך_לועזי", "פרשה")
+    val PLACEHOLDERS = listOf("שם", "גיל", "שנים", "יחס", "תאריך_עברי", "תאריך_לועזי", "פרשה", "נמען")
     private val OPTIONAL = Regex("\\[\\[(.*?)]]", RegexOption.DOT_MATCHES_ALL)
     private val VARIABLE = Regex("\\{([^{}]+)}")
     private val SPACE_BEFORE_PUNCTUATION = Regex("[ \\t]+([,.!?:;])")
@@ -85,6 +87,7 @@ object GreetingRenderer {
         "תאריך_עברי" to ctx.hebrewDate,
         "תאריך_לועזי" to ctx.gregorianDate,
         "פרשה" to ctx.parsha,
+        "נמען" to ctx.recipient?.takeIf { it.isNotBlank() },
     )
 }
 

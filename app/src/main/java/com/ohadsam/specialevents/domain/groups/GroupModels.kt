@@ -29,7 +29,10 @@ data class EventGroup(
 )
 
 /** One address a group greeting can go to. [label] is the member's name, or the raw address for extras. */
-data class Recipient(val label: String, val phone: String? = null, val email: String? = null)
+data class Recipient(val label: String, val phone: String? = null, val email: String? = null) {
+    /** Identity for de-duplication and for remembering who was already greeted: the phone digits, else the address. */
+    val key: String get() = phone?.filter { it.isDigit() || it == '+' }?.takeIf { it.isNotEmpty() } ?: email?.trim()?.lowercase().orEmpty()
+}
 
 object GroupDefaults {
     private const val FAMILY_COLOR = 0xFFE57373.toInt()
@@ -68,7 +71,7 @@ object GroupLogic {
 
     /** The group's rules as fresh, unattached rules ready to be saved for [eventId]. */
     fun templateFor(group: EventGroup, eventId: Long): List<ReminderRule> =
-        group.reminderRules.map { it.copy(id = 0, eventId = eventId, origin = RuleOrigin.DEFAULT) }
+        group.reminderRules.map { it.copy(id = 0, eventId = eventId, origin = RuleOrigin.DEFAULT, toGroupIds = emptySet()) }
 
     /** Which group's template an event gets when it belongs to several: the first by the user's order that has one. */
     fun groupWithTemplate(groups: List<EventGroup>): EventGroup? = groups.sortedBy { it.sortOrder }.firstOrNull { it.reminderRules.isNotEmpty() }
@@ -101,4 +104,38 @@ object GroupLogic {
     }
 
     private const val MIN_DIGITS = 7
+}
+
+/** Works out who a reminder rule sends to. */
+object RecipientResolver {
+    private const val SELF_LABEL = "אני"
+    const val MAX_RECIPIENTS = 30
+
+    /**
+     * [membersOf] gives the events that belong to a group. The result has each phone/address once, in this order: the person, me, the
+     * groups (in the order given), the extras - and at most [MAX_RECIPIENTS], so one rule can never fan out without limit.
+     */
+    fun resolve(
+        rule: ReminderRule,
+        event: SpecialEvent,
+        groups: List<EventGroup>,
+        membersOf: (Long) -> List<SpecialEvent>,
+        selfPhone: String,
+        selfEmail: String,
+    ): List<Recipient> {
+        val all = ArrayList<Recipient>()
+        if (rule.toPerson && (!event.contactPhone.isNullOrBlank() || !event.contactEmail.isNullOrBlank())) {
+            all += Recipient(event.personName ?: event.title, event.contactPhone?.takeIf { it.isNotBlank() }, event.contactEmail?.takeIf { it.isNotBlank() })
+        }
+        if (rule.toSelf && (selfPhone.isNotBlank() || selfEmail.isNotBlank())) {
+            all += Recipient(SELF_LABEL, selfPhone.takeIf { it.isNotBlank() }, selfEmail.takeIf { it.isNotBlank() })
+        }
+        for (id in rule.toGroupIds) {
+            val group = groups.firstOrNull { it.id == id } ?: continue
+            all += GroupLogic.recipients(group.copy(extraRecipients = emptyList()), membersOf(id))
+        }
+        all += GroupLogic.recipients(EventGroup(name = "", extraRecipients = rule.toExtra), emptyList())
+        val seen = HashSet<String>()
+        return all.filter { it.key.isNotEmpty() && seen.add(it.key) }.take(MAX_RECIPIENTS)
+    }
 }

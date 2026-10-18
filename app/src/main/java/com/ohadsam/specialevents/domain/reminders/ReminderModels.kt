@@ -40,6 +40,14 @@ data class ReminderRule(
     val autoSend: Boolean = false,
     /** Template for an automatic message: a built-in (negative) or custom (positive) id; null = the best match for the event. */
     val templateId: Long? = null,
+    /**
+     * Who a greeting prompt or automatic message goes to (greeting channels only): the event's own person, me, the lists of the chosen
+     * groups, and extra phone numbers or addresses. The defaults keep the old behaviour - the person alone.
+     */
+    val toPerson: Boolean = true,
+    val toSelf: Boolean = false,
+    val toGroupIds: Set<Long> = emptySet(),
+    val toExtra: List<String> = emptyList(),
 ) {
     companion object {
         const val DEFAULT_TIME_MINUTES = 8 * 60

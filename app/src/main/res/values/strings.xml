@@ -664,6 +664,7 @@
     <string name="rule_auto_send">שלח את הברכה בעצמה</string>
     <string name="rule_auto_send_desc">ההודעה תישלח אוטומטית ב-SMS בזמן התזכורת, בלי לשאול. עלות לפי חבילת ה-SMS שלכם. אם אין הרשאה או מספר, תקבלו תזכורת רגילה.</string>
     <string name="rule_auto_send_no_phone">לאירוע אין מספר טלפון — עד שתוסיפו אחד תקבלו תזכורת רגילה.</string>
+    <string name="auto_sent_many_title">ברכה נשלחה בעניין %1$s ל-%2$d נמענים</string>
     <string name="auto_sent_title">ברכה נשלחה ל%1$s</string>
     <string name="greeting_copy">העתק</string>
     <string name="greeting_history">ברכות שנשלחו</string>

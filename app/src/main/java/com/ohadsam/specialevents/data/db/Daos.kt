@@ -99,6 +99,9 @@ interface GreetingDao {
     @Insert
     suspend fun insertSent(s: GreetingSentEntity): Long
 
+    @Query("SELECT recipient FROM greetings_sent WHERE eventId = :eventId AND occurrenceDay = :day AND recipient IS NOT NULL")
+    suspend fun sentRecipients(eventId: Long, day: Long): List<String>
+
     @Query("DELETE FROM greetings_sent WHERE id = :id")
     suspend fun deleteSent(id: Long)
 }

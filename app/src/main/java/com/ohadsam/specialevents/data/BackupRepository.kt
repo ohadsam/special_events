@@ -48,9 +48,11 @@ class BackupRepository(
             idMap[event.id] = events.save(event.copy(id = 0, photoUri = null, contactLookupUri = null))
             added++
         }
-        incoming.rules.forEach { r -> idMap[r.eventId]?.let { reminders.save(r.copy(id = 0, eventId = it)) } }
-        incoming.checklist.forEach { i -> idMap[i.eventId]?.let { checklists.save(i.copy(id = 0, eventId = it)) } }
         val groupIds = importGroups(incoming, idMap)
+        incoming.rules.forEach { r ->
+            idMap[r.eventId]?.let { reminders.save(r.copy(id = 0, eventId = it, toGroupIds = r.toGroupIds.mapNotNull(groupIds::get).toSet())) }
+        }
+        incoming.checklist.forEach { i -> idMap[i.eventId]?.let { checklists.save(i.copy(id = 0, eventId = it)) } }
         importTemplates(incoming, groupIds)
         added
     }

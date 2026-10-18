@@ -76,7 +76,7 @@ class AppContainer(private val context: Context) {
     val reminderScheduler: ReminderScheduler by lazy {
         ReminderScheduler(
             context.applicationContext, events, reminders, settings, notifications, ReminderState(context.applicationContext),
-            AutoGreetingSender(context.applicationContext, greetings, groups, notifications, logger), logger,
+            AutoGreetingSender(context.applicationContext, greetings, groups, events, settings, notifications, logger), logger,
         )
     }
 }

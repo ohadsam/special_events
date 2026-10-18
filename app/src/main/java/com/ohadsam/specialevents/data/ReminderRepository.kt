@@ -57,6 +57,10 @@ object ReminderMapper {
         timeMode = enumOrDefault(e.timeMode, TimeMode.FIXED),
         autoSend = e.autoSend,
         templateId = e.templateId,
+        toPerson = e.toPerson,
+        toSelf = e.toSelf,
+        toGroupIds = e.toGroupIds?.split(',')?.mapNotNull { it.trim().toLongOrNull() }?.toSet().orEmpty(),
+        toExtra = e.toExtra?.split('\n')?.map { it.trim() }?.filter { it.isNotEmpty() }.orEmpty(),
     )
 
     fun toEntity(r: ReminderRule) = ReminderRuleEntity(
@@ -74,6 +78,10 @@ object ReminderMapper {
         timeMode = r.timeMode.name,
         autoSend = r.autoSend,
         templateId = r.templateId,
+        toPerson = r.toPerson,
+        toSelf = r.toSelf,
+        toGroupIds = r.toGroupIds.joinToString(",").ifEmpty { null },
+        toExtra = r.toExtra.joinToString("\n").ifEmpty { null },
     )
 
     private inline fun <reified E : Enum<E>> enumOrDefault(name: String, default: E): E = enumValues<E>().firstOrNull { it.name == name } ?: default

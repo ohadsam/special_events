@@ -89,6 +89,11 @@ data class ReminderRuleEntity(
     // Added in schema v6.
     @ColumnInfo(defaultValue = "0") val autoSend: Boolean = false,
     val templateId: Long? = null,
+    // Added in schema v10: who the message goes to.
+    @ColumnInfo(defaultValue = "1") val toPerson: Boolean = true,
+    @ColumnInfo(defaultValue = "0") val toSelf: Boolean = false,
+    val toGroupIds: String? = null,
+    val toExtra: String? = null,
 )
 
 /** A greeting text the user wrote (the built-in ones live in code, see `GreetingCatalog`). */
@@ -118,6 +123,8 @@ data class GreetingSentEntity(
     val channel: String,
     val sentAt: Long,
     val preview: String,
+    // Added in schema v10: which recipient of a multi-recipient greeting this row is for (null = the event's person).
+    val recipient: String? = null,
 )
 
 /** A checklist step or gift of an event; see `ChecklistItem` in the domain. */
