@@ -132,7 +132,7 @@ object RecipientResolver {
         }
         for (id in rule.toGroupIds) {
             val group = groups.firstOrNull { it.id == id } ?: continue
-            all += GroupLogic.recipients(group.copy(extraRecipients = emptyList()), membersOf(id))
+            all += GroupLogic.recipients(group, membersOf(id))
         }
         all += GroupLogic.recipients(EventGroup(name = "", extraRecipients = rule.toExtra), emptyList())
         val seen = HashSet<String>()
