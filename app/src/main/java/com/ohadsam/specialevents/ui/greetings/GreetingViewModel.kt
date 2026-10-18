@@ -15,6 +15,8 @@ import com.ohadsam.specialevents.domain.UpcomingItem
 import com.ohadsam.specialevents.domain.greetings.GreetingCatalog
 import com.ohadsam.specialevents.domain.greetings.GreetingRenderer
 import com.ohadsam.specialevents.domain.greetings.GreetingTemplate
+import com.ohadsam.specialevents.domain.greetings.RichText
+import com.ohadsam.specialevents.domain.greetings.Span
 import com.ohadsam.specialevents.domain.greetings.SongIdea
 import com.ohadsam.specialevents.domain.greetings.SongSuggestions
 import com.ohadsam.specialevents.domain.groups.GroupLogic
@@ -40,6 +42,8 @@ data class GreetingState(
     val templates: List<GreetingTemplate> = emptyList(),
     val selectedId: Long? = null,
     val text: String = "",
+    /** The styled form of [text] while it is still exactly what the template produced; null once the user edited it by hand. */
+    val spans: List<Span>? = null,
     val target: Target = Target.PERSON,
     val manual: String = "",
     val settings: AppSettings = AppSettings(),
@@ -104,6 +108,7 @@ class GreetingViewModel(private val container: AppContainer, private val eventId
                 templates = templates,
                 selectedId = first?.id,
                 text = if (first != null && item != null) GreetingRenderer.render(first.body, contextOf(event, item)) else "",
+                spans = if (first != null && item != null) GreetingRenderer.renderRich(first.body, contextOf(event, item)) else null,
                 target = if (event.contactPhone != null || event.contactEmail != null) Target.PERSON else Target.MANUAL,
             )
         }
@@ -124,10 +129,11 @@ class GreetingViewModel(private val container: AppContainer, private val eventId
     fun selectTemplate(t: GreetingTemplate) = local.update { s ->
         val event = s.event
         val item = s.item
-        s.copy(selectedId = t.id, text = if (event != null && item != null) GreetingRenderer.render(t.body, contextOf(event, item)) else t.body)
+        val spans = if (event != null && item != null) GreetingRenderer.renderRich(t.body, contextOf(event, item)) else null
+        s.copy(selectedId = t.id, text = spans?.let(RichText::plain) ?: t.body, spans = spans)
     }
 
-    fun setText(value: String) = local.update { it.copy(text = value) }
+    fun setText(value: String) = local.update { it.copy(text = value, spans = it.spans?.takeIf { spans -> RichText.plain(spans) == value }) }
 
     fun setTarget(target: Target) = local.update { it.copy(target = target) }
 

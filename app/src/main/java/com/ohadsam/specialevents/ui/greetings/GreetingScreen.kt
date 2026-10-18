@@ -68,7 +68,7 @@ fun GreetingScreen(viewModel: GreetingViewModel, onBack: () -> Unit) {
     val notFound = stringResource(R.string.greeting_no_app)
 
     fun send(channel: SendChannel) {
-        val ok = GreetingSender.send(context, channel, state.text, state.phone, state.email, state.settings.countryCode, subject)
+        val ok = GreetingSender.send(context, channel, state.text, state.phone, state.email, state.settings.countryCode, subject, state.spans)
         if (ok) {
             // The question waits behind WhatsApp / the mail app and is there when the user comes back.
             viewModel.launched(channel)

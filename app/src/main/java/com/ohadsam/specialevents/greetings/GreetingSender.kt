@@ -6,6 +6,8 @@ import android.content.Intent
 import android.net.Uri
 import com.ohadsam.specialevents.data.SendChannel
 import com.ohadsam.specialevents.domain.greetings.PhoneNumbers
+import com.ohadsam.specialevents.domain.greetings.RichText
+import com.ohadsam.specialevents.domain.greetings.Span
 
 /**
  * Hands a greeting to WhatsApp, the mail app, the SMS app or any app. WhatsApp has no API for silent sending, so these open the
@@ -15,10 +17,20 @@ object GreetingSender {
     private val WHATSAPP_PACKAGES = listOf("com.whatsapp", "com.whatsapp.w4b")
 
     /** Returns false when nothing could handle the request (e.g. no mail app installed). */
-    fun send(context: Context, channel: SendChannel, text: String, phone: String?, email: String?, countryCode: String, subject: String): Boolean {
+    fun send(
+        context: Context,
+        channel: SendChannel,
+        text: String,
+        phone: String?,
+        email: String?,
+        countryCode: String,
+        subject: String,
+        /** The styled greeting, when the text is still what the template produced; each app gets the styles it can show. */
+        spans: List<Span>? = null,
+    ): Boolean {
         val intents = when (channel) {
-            SendChannel.WHATSAPP -> whatsApp(text, phone, countryCode)
-            SendChannel.EMAIL -> listOf(mail(text, email, subject))
+            SendChannel.WHATSAPP -> whatsApp(spans?.let(RichText::whatsApp) ?: text, phone, countryCode)
+            SendChannel.EMAIL -> listOf(mail(text, email, subject, spans?.let(RichText::html)))
             SendChannel.SMS -> listOf(sms(text, phone))
             SendChannel.SHARE -> listOf(Intent.createChooser(plain(text), null))
         }
@@ -63,9 +75,10 @@ object GreetingSender {
         return WHATSAPP_PACKAGES.map { plain(text).setPackage(it) } + Intent.createChooser(plain(text), null)
     }
 
-    private fun mail(text: String, email: String?, subject: String): Intent =
+    private fun mail(text: String, email: String?, subject: String, html: String?): Intent =
         Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:")).putExtra(Intent.EXTRA_EMAIL, arrayOf(email.orEmpty()).filter { it.isNotBlank() }.toTypedArray())
             .putExtra(Intent.EXTRA_SUBJECT, subject).putExtra(Intent.EXTRA_TEXT, text)
+            .also { if (html != null) it.putExtra(Intent.EXTRA_HTML_TEXT, html) }
 
     private fun sms(text: String, phone: String?): Intent =
         Intent(Intent.ACTION_SENDTO, Uri.parse("smsto:${PhoneNumbers.forDial(phone).orEmpty()}")).putExtra("sms_body", text)
