@@ -35,6 +35,10 @@ jobs:
           awk '/What went wrong/{f=1} f{print; n++} n>10{exit}' build.log | cut -c1-300 || true
           # Also as annotations: readable cheaply with  gh api repos/OWNER/REPO/check-runs/JOB_ID/annotations -q '.[].message'
           grep -E "^e: |Test .*FAILED|AssertionError|What went wrong|Execution failed" build.log | cut -c1-250 | head -12 | while read -r l; do echo "::error::${l}"; done || true
+          # Lint prints only a count to the console; the findings live in the text report.
+          for f in app/build/reports/lint-results-debug.txt; do
+            [ -f "$f" ] && grep -E "Error:|Warning:" "$f" | cut -c1-250 | head -15 | while read -r l; do echo "::error::${l}"; echo "$l"; done
+          done || true
           echo "=== FAILURE SUMMARY END ==="
       - name: Commit regenerated Room schemas (only when they changed; [skip ci] prevents a loop)
         if: steps.has.outputs.ok == 'true' && github.event_name == 'push'
