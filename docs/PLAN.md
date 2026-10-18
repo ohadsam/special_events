@@ -19,7 +19,7 @@ Order is by dependency: pure logic first (cheap to test), then data, UI, engines
 | 9 | Per-event checklist + gift tracker + templates | S9 | 0.11.0 | [x] |
 | 10 | Widgets (Glance): upcoming, single event + interactive checklist, countdown, Hebrew date, mini-month; config screens | S10 | 0.12.0 | [x] |
 | 11 | Backup/export/import/share: JSON (versioned), scheduled folder backup, encrypted backup, CSV/ICS, `.sevents` open-with, share-APK | S11 | 0.13.0 | [x] |
-| 11c | Scheduled folder backup (SAF + WorkManager), keep N copies, backup-age reminder; CSV import with column mapping | S11 | 0.24.0 | [ ] |
+| 11c | Scheduled folder backup (SAF + WorkManager), keep N copies, backup-age reminder; CSV import with column mapping | S11 | 0.24.0 | [x] |
 | 12 | Calendar sync: CalendarContract import/export (Google + others), dedupe, dedicated calendar | S12 | 0.14.0 | [x] |
 | 13 | (מוחלף ב-P1 + חבילת אימוג'י/סטיקרים) Print & rich visuals: WebView/JS print layouts, PDF, greeting-card image, emoji/sticker pack | S13 | 0.22.0 | [~] |
 | V1 | תצוגות: מחליף יום/שבוע/חודש/קרובים, דפדוף והחלקה, קפיצה (תאריך/אירוע/״הצג בלוח שנה״), סינון משולב + group by + order, תצוגות שמורות, זיכרון העדפות | S19 | 0.15.0 | [x] |

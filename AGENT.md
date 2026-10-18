@@ -1,5 +1,5 @@
 # Special Events – Agent Memory
-**Last updated:** v0.23.0 (batches 0–10, 11, 12, V1, G1, E1, H1, T1, T2, S1, P1, 14 done; 11c (scheduled backup) and 15 (polish) remain)
+**Last updated:** v0.24.0 (next: batch 15 polish)
 Read order: CLAUDE.md → docs/PLAN.md → STRUCTURE.md → the batch's section in docs/SPEC.md.
 
 ## Recently done
@@ -54,6 +54,8 @@ Read order: CLAUDE.md → docs/PLAN.md → STRUCTURE.md → the batch's section 
 - v0.22.0: batch P1: printing. Not done: yearly wall calendar (12 pages) and week/day sheets, stickers/emoji pack, JS-based layouts (HTML+CSS was enough), saving PDFs without the print dialog. Unverified on device: print dialog from Compose WebView, A5 sizing on printers, card-as-PNG on devices where an off-screen WebView draws blank (falls back to a message), Hebrew fonts available on the device.
 
 - v0.23.0: batch 14: security. Not done: encrypting the database at rest (SQLCipher + Keystore), BiometricPrompt with crypto binding, hiding widget content when locked, in-app dependency vulnerability scan (Dependabot PRs only). Unverified on device: the system confirm screen flow and the stop/start around it (authInProgress guard), FLAG_SECURE in recents, behaviour when the user removes the device lock while the setting is on (the setting is ignored, not enforced).
+
+- v0.24.0: auto-backup to SAF folder (WorkManager, retention, status) and CSV import with column mapping (11c). Unverified on device: SAF folder write/prune, periodic worker.
 
 ## Known issues / open items (need the owner)
 - Feature spec for "אירועים מיוחדים" not yet provided → fill `docs/SPEC.md`, then define batches in `docs/PLAN.md`.
@@ -117,6 +119,9 @@ Notification timing, permission flows, visuals, TalkBack.
 
 ## Ideas (v0.23.0)
 - Encrypted database (SQLCipher); BiometricPrompt (strong) with a Keystore key; lock the widgets' details; quick-lock button in the toolbar; app-lock grace period after a notification tap; panic wipe option; audit log of backups/exports.
+
+## Ideas (v0.24.0)
+- Backup-age reminder notification; Google-Contacts CSV preset; encrypted auto-backup (password stored via Keystore); restore from the auto-backup folder in one tap.
 
 ## Ideas (from batch 5)
 - Yahrzeit candle reminder anchored to sunset (rule time = "N minutes before sunset") instead of a fixed 16:00; per-rule custom sound picker (profile `sound:<uri>` is already supported); quiet hours; "mark as greeted" action (batch 8); a daily digest notification option; reminders inheriting from tags.
