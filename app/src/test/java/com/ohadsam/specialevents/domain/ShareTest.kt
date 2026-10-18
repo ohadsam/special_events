@@ -143,3 +143,34 @@ class ImportSelectionTest {
         assertEquals(listOf(1L to 5L), r.members)
     }
 }
+
+class BackupRetentionTest {
+    private val names = listOf(
+        "special-events-auto-2026-10-01.json", "special-events-auto-2026-10-03.json", "special-events-auto-2026-10-02.json",
+        "special-events-auto-2026-10-03 (1).json", "photos.zip", "special-events-2026-01-01.json",
+    )
+
+    @Test
+    fun keepsTheNewestCopiesAndNeverTouchesOtherFiles() {
+        val gone = com.ohadsam.specialevents.domain.backup.BackupRetention.toDelete(names, 2)
+        assertEquals(listOf("special-events-auto-2026-10-02.json", "special-events-auto-2026-10-01.json"), gone)
+        assertTrue(com.ohadsam.specialevents.domain.backup.BackupRetention.toDelete(names, 10).isEmpty())
+        assertEquals(3, com.ohadsam.specialevents.domain.backup.BackupRetention.toDelete(names, 0).size)
+    }
+
+    @Test
+    fun fileNameCarriesTheDate() {
+        assertEquals("special-events-auto-2026-10-18.json", com.ohadsam.specialevents.domain.backup.BackupRetention.fileName(LocalDate.of(2026, 10, 18)))
+    }
+
+    @Test
+    fun staleOnlyWhenThereIsDataAndTheLastBackupIsOld() {
+        val day = 24L * 60 * 60 * 1000
+        val r = com.ohadsam.specialevents.domain.backup.BackupRetention
+        assertFalse(r.isStale(0, 100 * day, 30, hasEvents = false))
+        assertTrue(r.isStale(0, 100 * day, 30, hasEvents = true))
+        assertFalse(r.isStale(90 * day, 100 * day, 30, hasEvents = true))
+        assertTrue(r.isStale(60 * day, 100 * day, 30, hasEvents = true))
+        assertTrue(r.isStale(100 * day, 50 * day, 30, hasEvents = true))
+    }
+}

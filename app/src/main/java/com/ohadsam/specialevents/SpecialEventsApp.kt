@@ -9,7 +9,9 @@ import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 class SpecialEventsApp : Application() {
@@ -28,6 +30,12 @@ class SpecialEventsApp : Application() {
         log.i("App", "start v${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})")
         container.notifications.createChannels()
         watchRemindersInputs()
+        appScope.launch {
+            // Keeps WorkManager in line with the backup settings (also repairs the job after an update or a data clear).
+            container.settings.settings.map { it.autoBackupFolder to it.autoBackupDays }.distinctUntilChanged().collect {
+                runCatching { com.ohadsam.specialevents.backup.AutoBackup.schedule(applicationContext, container.settings.settings.first()) }
+            }
+        }
         appScope.launch {
             runCatching {
                 if (!container.settings.settings.first().groupsSeeded) {

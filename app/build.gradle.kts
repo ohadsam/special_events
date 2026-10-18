@@ -98,6 +98,7 @@ dependencies {
     ksp(libs.room.compiler)
     implementation(libs.datastore.preferences)
     implementation(libs.serialization.json)
+    implementation(libs.androidx.work.runtime)
     implementation(libs.glance.appwidget)
     implementation(libs.glance.material3)
     implementation(libs.compose.ui)

@@ -1,6 +1,7 @@
 package com.ohadsam.specialevents.ui.backup
 
 import android.content.Context
+import android.content.Intent
 import android.net.Uri
 import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
@@ -9,7 +10,9 @@ import androidx.lifecycle.viewModelScope
 import com.ohadsam.specialevents.AppContainer
 import com.ohadsam.specialevents.BuildConfig
 import com.ohadsam.specialevents.R
+import com.ohadsam.specialevents.backup.AutoBackup
 import com.ohadsam.specialevents.backup.BackupFiles
+import com.ohadsam.specialevents.data.prefs.AppSettings
 import com.ohadsam.specialevents.domain.backup.BackupCodec
 import com.ohadsam.specialevents.domain.backup.BackupCrypto
 import com.ohadsam.specialevents.domain.backup.CsvExport
@@ -27,7 +30,9 @@ import java.time.Instant
 import java.time.LocalDate
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -69,6 +74,33 @@ class BackupViewModel(private val container: AppContainer) : ViewModel() {
     private val _state = MutableStateFlow(BackupState())
     val state: StateFlow<BackupState> = _state
     private val context: Context get() = container.appContext
+
+    /** Folder, interval and last result of the automatic backup. */
+    val settings: StateFlow<AppSettings> = container.settings.settings.stateIn(viewModelScope, SharingStarted.Eagerly, AppSettings())
+
+    /** Remembers the folder the user picked; the permission survives restarts so the background job can write there. */
+    fun setFolder(uri: Uri) {
+        val ok = runCatching { context.contentResolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION) }.isSuccess
+        if (!ok) {
+            _state.update { it.copy(message = UiMessage(R.string.backup_auto_err_permission)) }
+            return
+        }
+        viewModelScope.launch { container.settings.update { it.copy(autoBackupFolder = uri.toString(), lastBackupError = "") } }
+    }
+
+    fun setAutoDays(days: Int) {
+        viewModelScope.launch { container.settings.update { it.copy(autoBackupDays = days) } }
+    }
+
+    fun setAutoKeep(keep: Int) {
+        viewModelScope.launch { container.settings.update { it.copy(autoBackupKeep = keep) } }
+    }
+
+    /** One backup into the chosen folder right now. */
+    fun backupNow() = launchBusy {
+        val error = AutoBackup.runNow(context)
+        _state.update { it.copy(message = UiMessage(if (error.isEmpty()) R.string.backup_auto_done else R.string.backup_auto_failed)) }
+    }
 
     fun messageShown() = _state.update { it.copy(message = null) }
 

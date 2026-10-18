@@ -39,4 +39,11 @@ data class AppSettings(
     val appLockTimeoutSeconds: Int = 60,
     /** Blank the app in the recent-apps list and block screenshots. */
     val hideContent: Boolean = false,
+    /** Automatic backup: the folder the user picked (a persisted SAF tree URI, empty = none), how often in days (0 = off), copies to keep. */
+    val autoBackupFolder: String = "",
+    val autoBackupDays: Int = 0,
+    val autoBackupKeep: Int = 5,
+    /** When the last automatic or manual-to-folder backup finished, and how it went ("" = fine, otherwise a short code). */
+    val lastBackupAt: Long = 0,
+    val lastBackupError: String = "",
 )

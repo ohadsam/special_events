@@ -7,6 +7,8 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -23,6 +25,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -56,13 +59,16 @@ import com.ohadsam.specialevents.ui.common.defaultEmoji
 import com.ohadsam.specialevents.backup.BackupFiles
 import com.ohadsam.specialevents.domain.backup.BackupCodec
 import com.ohadsam.specialevents.domain.backup.BackupCrypto
+import com.ohadsam.specialevents.domain.backup.BackupRetention
 import com.ohadsam.specialevents.domain.backup.ImportMode
 
 /** Save, restore and share: a JSON backup of everything, and the installed app itself for passing on to someone else. */
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun BackupScreen(viewModel: BackupViewModel, onBack: () -> Unit, openUri: String? = null, onShareEvents: () -> Unit = {}) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val settings by viewModel.settings.collectAsStateWithLifecycle()
+    val pickFolder = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri -> if (uri != null) viewModel.setFolder(uri) }
     val context = LocalContext.current
     val snackbar = remember { SnackbarHostState() }
     var encrypt by remember { mutableStateOf(false) }
@@ -143,6 +149,27 @@ fun BackupScreen(viewModel: BackupViewModel, onBack: () -> Unit, openUri: String
 
             OutlinedButton(onClick = onShareEvents, enabled = !state.busy, modifier = Modifier.fillMaxWidth()) { Text(stringResource(R.string.backup_share_events)) }
 
+            Heading(R.string.backup_auto_title)
+            Text(stringResource(R.string.backup_auto_desc), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            OutlinedButton(onClick = { pickFolder.launch(null) }, modifier = Modifier.fillMaxWidth()) {
+                Text(if (settings.autoBackupFolder.isBlank()) stringResource(R.string.backup_auto_pick) else stringResource(R.string.backup_auto_folder, folderName(settings.autoBackupFolder)))
+            }
+            if (settings.autoBackupFolder.isNotBlank()) {
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    listOf(0, 1, 7, 30).forEach { d -> FilterChip(selected = settings.autoBackupDays == d, onClick = { viewModel.setAutoDays(d) }, label = { Text(stringResource(intervalLabel(d))) }) }
+                }
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    listOf(3, 5, 10).forEach { k -> FilterChip(selected = settings.autoBackupKeep == k, onClick = { viewModel.setAutoKeep(k) }, label = { Text(stringResource(R.string.backup_auto_keep, k)) }) }
+                }
+                OutlinedButton(onClick = viewModel::backupNow, enabled = !state.busy, modifier = Modifier.fillMaxWidth()) { Text(stringResource(R.string.backup_auto_now)) }
+            }
+            val stale = BackupRetention.isStale(settings.lastBackupAt, System.currentTimeMillis(), STALE_DAYS, hasEvents = true)
+            Text(
+                lastBackupText(settings.lastBackupAt, settings.lastBackupError),
+                style = MaterialTheme.typography.bodySmall,
+                color = if (stale || settings.lastBackupError.isNotEmpty()) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+
             Heading(R.string.backup_section_restore)
             Text(stringResource(R.string.backup_restore_desc), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             OutlinedButton(onClick = { open.launch(arrayOf("application/json", "text/plain", "application/octet-stream")) }, enabled = !state.busy, modifier = Modifier.fillMaxWidth()) {
@@ -208,6 +235,26 @@ fun BackupScreen(viewModel: BackupViewModel, onBack: () -> Unit, openUri: String
 }
 
 private const val IMPORT_DIALOG_MAX_HEIGHT = 440
+private const val STALE_DAYS = 30
+
+private fun intervalLabel(days: Int) = when (days) {
+    0 -> R.string.backup_auto_off
+    1 -> R.string.backup_auto_daily
+    7 -> R.string.backup_auto_weekly
+    else -> R.string.backup_auto_monthly
+}
+
+/** The last path segment of the picked folder, readable ("Documents/backups"). */
+private fun folderName(uri: String): String = android.net.Uri.decode(uri.substringAfterLast("%3A", uri.substringAfterLast('/')))
+
+@Composable
+private fun lastBackupText(at: Long, error: String): String = when {
+    error.isNotEmpty() -> stringResource(R.string.backup_auto_error_line, error)
+    at <= 0 -> stringResource(R.string.backup_auto_never)
+    else -> stringResource(R.string.backup_auto_last, java.time.LocalDateTime.ofInstant(java.time.Instant.ofEpochMilli(at), java.time.ZoneId.systemDefault()).format(LAST_FORMAT))
+}
+
+private val LAST_FORMAT: java.time.format.DateTimeFormatter = java.time.format.DateTimeFormatter.ofPattern("d.M.yyyy HH:mm")
 
 @Composable
 private fun PasswordDialog(onSubmit: (CharArray) -> Unit, onCancel: () -> Unit) {
