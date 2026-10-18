@@ -5,7 +5,8 @@ import androidx.compose.ui.test.junit4.AndroidComposeTestRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.onRoot
+import androidx.compose.ui.test.isRoot
+import androidx.compose.ui.test.onAllNodes
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.printToString
 import androidx.test.ext.junit.rules.ActivityScenarioRule
@@ -37,9 +38,15 @@ object AppRobot {
             (if (scroll) node.performScrollTo() else node).performClick()
         } catch (e: AssertionError) {
             // Put what was on screen into the failure so a CI log is enough to diagnose it.
-            throw AssertionError("click '$label' failed; screen: " + rule.onRoot().printToString().take(TREE_LIMIT), e)
+            throw AssertionError("click '$label' failed; screen: " + screen(rule), e)
         }
         rule.waitForIdle()
+    }
+
+    /** Every window's tree (a dialog is a second root), trimmed. */
+    private fun screen(rule: ComposeTestRule): String {
+        val roots = rule.onAllNodes(isRoot())
+        return (0 until roots.fetchSemanticsNodes().size).joinToString(" || ") { roots[it].printToString().take(TREE_LIMIT) }
     }
 
     fun back(rule: AppRule) {
