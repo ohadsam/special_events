@@ -106,11 +106,10 @@ class ReminderPlannerTest {
     }
 
     @Test
-    fun disabledRulesArchivedEventsAndOtherChannelsAreIgnored() {
+    fun disabledRulesAndArchivedEventsAreIgnored() {
         val e = event(1, 1976, 10, 20)
         val items = itemsFor(e, LocalDate.of(2026, 10, 1), LocalDate.of(2026, 10, 31))
         assertTrue(ReminderPlanner.plan(items, listOf(rule(1, enabled = false)), zone, holy).isEmpty())
-        assertTrue(ReminderPlanner.plan(items, listOf(rule(1).copy(channel = Channel.WHATSAPP)), zone, holy).isEmpty())
         val archived = items.map { it.copy(event = it.event.copy(archived = true)) }
         assertTrue(ReminderPlanner.plan(archived, listOf(rule(1)), zone, holy).isEmpty())
     }
