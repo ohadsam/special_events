@@ -68,6 +68,8 @@ import com.ohadsam.specialevents.domain.search.SearchSuggestions
 import com.ohadsam.specialevents.ui.common.GregorianDatePickerDialog
 import com.ohadsam.specialevents.ui.common.gregorianShort
 import com.ohadsam.specialevents.ui.common.labelRes
+import com.ohadsam.specialevents.ui.help.HelpButton
+import com.ohadsam.specialevents.ui.help.HelpTopic
 import com.ohadsam.specialevents.ui.upcoming.EventCard
 import java.time.LocalDate
 
@@ -107,6 +109,7 @@ fun SearchScreen(viewModel: SearchViewModel, onBack: () -> Unit, onOpenEvent: (L
                         IconButton(onClick = viewModel::clear) { Icon(Icons.Outlined.Close, contentDescription = stringResource(R.string.search_clear)) }
                     }
                     IconButton(onClick = { filtersOpen = !filtersOpen }) { Icon(Icons.Outlined.Tune, contentDescription = stringResource(R.string.search_filters)) }
+                    HelpButton(HelpTopic.SEARCH)
                 },
             )
         },
