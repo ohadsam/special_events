@@ -10,7 +10,13 @@ import com.ohadsam.specialevents.AppContainer
 import com.ohadsam.specialevents.BuildConfig
 import com.ohadsam.specialevents.R
 import com.ohadsam.specialevents.backup.BackupFiles
+import com.ohadsam.specialevents.domain.EventTimeline
 import com.ohadsam.specialevents.domain.backup.BackupCodec
+import com.ohadsam.specialevents.domain.backup.BackupCrypto
+import com.ohadsam.specialevents.domain.backup.CsvExport
+import com.ohadsam.specialevents.domain.backup.DecryptResult
+import com.ohadsam.specialevents.domain.backup.ExportedDay
+import com.ohadsam.specialevents.domain.backup.IcsExport
 import com.ohadsam.specialevents.domain.backup.BackupData
 import com.ohadsam.specialevents.domain.backup.BackupError
 import com.ohadsam.specialevents.domain.backup.DecodeResult
@@ -22,6 +28,7 @@ import java.time.LocalDate
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -31,7 +38,21 @@ data class UiMessage(@StringRes val res: Int, val args: List<Any> = emptyList())
 /** A file the user picked, read and checked, waiting for a decision about how to import it. */
 data class PendingImport(val data: BackupData, val skipped: Int, val mode: ImportMode, val preview: ImportPreview)
 
-data class BackupState(val busy: Boolean = false, val message: UiMessage? = null, val pending: PendingImport? = null)
+/** What the user is saving to a file. */
+enum class ExportKind(val extension: String, val mime: String) {
+    BACKUP("json", "application/json"),
+    ENCRYPTED("sevents", "application/octet-stream"),
+    ICS("ics", "text/calendar"),
+    CSV("csv", "text/csv"),
+}
+
+data class BackupState(
+    val busy: Boolean = false,
+    val message: UiMessage? = null,
+    val pending: PendingImport? = null,
+    /** An encrypted file was chosen and waits for its password. */
+    val needPassword: Boolean = false,
+)
 
 class BackupViewModel(private val container: AppContainer) : ViewModel() {
     private val _state = MutableStateFlow(BackupState())
@@ -40,19 +61,38 @@ class BackupViewModel(private val container: AppContainer) : ViewModel() {
 
     fun messageShown() = _state.update { it.copy(message = null) }
 
-    fun suggestedName(): String = BackupFiles.fileName("special-events", "json", LocalDate.now())
+    /** Held only in memory while an encrypted file waits for its password. */
+    private var encryptedText: String? = null
 
-    /** Writes a backup into the file the user chose in the system picker. */
-    fun exportTo(uri: Uri) = runWithMessage(R.string.backup_saved) {
-        val text = encodeNow()
+    fun suggestedName(kind: ExportKind): String = BackupFiles.fileName("special-events", kind.extension, LocalDate.now())
+
+    /** Writes the chosen kind of file into the place the user picked in the system picker. [password] is only used for [ExportKind.ENCRYPTED]. */
+    fun exportTo(uri: Uri, kind: ExportKind, password: CharArray?) = runWithMessage(R.string.backup_saved) {
+        val text = contentFor(kind, password)
         withContext(Dispatchers.IO) { context.contentResolver.openOutputStream(uri, "wt")?.use { it.write(text.toByteArray()) } ?: error("no stream") }
     }
 
     /** Writes a backup to the cache and hands the file to [onReady] (on the main thread) for sharing. */
-    fun prepareShare(onReady: (File) -> Unit) = launchBusy {
-        val text = encodeNow()
-        val file = withContext(Dispatchers.IO) { BackupFiles.backupFile(context, suggestedName()).also { it.writeText(text) } }
+    fun prepareShare(kind: ExportKind, password: CharArray?, onReady: (File) -> Unit) = launchBusy {
+        val text = contentFor(kind, password)
+        val file = withContext(Dispatchers.IO) { BackupFiles.backupFile(context, suggestedName(kind)).also { it.writeText(text) } }
         onReady(file)
+    }
+
+    private suspend fun contentFor(kind: ExportKind, password: CharArray?): String = withContext(Dispatchers.Default) {
+        val today = LocalDate.now()
+        when (kind) {
+            ExportKind.BACKUP -> encodeNow()
+            ExportKind.ENCRYPTED -> BackupCrypto.encrypt(encodeNow(), requireNotNull(password) { "password" })
+            ExportKind.CSV -> CsvExport.build(container.events.allEvents.first())
+            ExportKind.ICS -> {
+                val rules = container.settings.settings.first().dateRules
+                val days = container.events.allEvents.first().filter { !it.archived }.flatMap { e ->
+                    EventTimeline.forEvent(e, today, ICS_YEARS, rules).map { ExportedDay(e, it.date, it.number) }
+                }
+                IcsExport.build(days, ICS_STAMP.format(java.time.ZonedDateTime.now(java.time.ZoneOffset.UTC)), BuildConfig.VERSION_NAME)
+            }
+        }
     }
 
     fun prepareApk(onReady: (File) -> Unit) {
@@ -71,6 +111,37 @@ class BackupViewModel(private val container: AppContainer) : ViewModel() {
     /** Reads the chosen file (size-limited) and shows what importing it would do. */
     fun load(uri: Uri) = launchBusy {
         val text = withContext(Dispatchers.IO) { readLimited(uri) }
+        if (text != null && BackupCrypto.isEncrypted(text)) {
+            encryptedText = text
+            _state.update { it.copy(needPassword = true) }
+        } else {
+            showPreview(text)
+        }
+    }
+
+    /** Tries the password on the waiting encrypted file; a wrong one just asks again. */
+    fun submitPassword(password: CharArray) = launchBusy {
+        val text = encryptedText ?: return@launchBusy
+        when (val result = withContext(Dispatchers.Default) { BackupCrypto.decrypt(text, password) }) {
+            is DecryptResult.Ok -> {
+                encryptedText = null
+                _state.update { it.copy(needPassword = false) }
+                showPreview(result.text)
+            }
+            DecryptResult.WrongPassword -> _state.update { it.copy(message = UiMessage(R.string.backup_err_password)) }
+            DecryptResult.Corrupt -> {
+                encryptedText = null
+                _state.update { it.copy(needPassword = false, message = UiMessage(R.string.backup_err_format)) }
+            }
+        }
+    }
+
+    fun cancelPassword() {
+        encryptedText = null
+        _state.update { it.copy(needPassword = false) }
+    }
+
+    private suspend fun showPreview(text: String?) {
         when (val result = text?.let(BackupCodec::decode) ?: DecodeResult.Failure(BackupError.TOO_BIG)) {
             is DecodeResult.Failure -> _state.update { it.copy(message = UiMessage(errorText(result.error))) }
             is DecodeResult.Ok -> _state.update {
@@ -139,6 +210,11 @@ class BackupViewModel(private val container: AppContainer) : ViewModel() {
                 _state.update { it.copy(busy = false) }
             }
         }
+    }
+
+    private companion object {
+        const val ICS_YEARS = 10
+        val ICS_STAMP: java.time.format.DateTimeFormatter = java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmss'Z'")
     }
 
     class Factory(private val container: AppContainer) : ViewModelProvider.Factory {

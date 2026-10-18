@@ -15,6 +15,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ohadsam.specialevents.data.prefs.AppSettings
 import com.ohadsam.specialevents.data.prefs.ThemeMode
 import com.ohadsam.specialevents.ui.nav.AppRoot
+import com.ohadsam.specialevents.ui.nav.Routes
 import com.ohadsam.specialevents.ui.theme.SpecialEventsTheme
 
 class MainActivity : ComponentActivity() {
@@ -23,12 +24,12 @@ class MainActivity : ComponentActivity() {
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
-        pendingRoute.value = intent.getStringExtra(EXTRA_ROUTE)
+        pendingRoute.value = routeOf(intent)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        pendingRoute.value = intent?.getStringExtra(EXTRA_ROUTE)
+        pendingRoute.value = intent?.let(::routeOf)
         enableEdgeToEdge()
         val container = (application as SpecialEventsApp).container
         setContent {
@@ -46,6 +47,10 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
+    /** A notification/widget names its screen; a file opened with this app goes to the backup preview. */
+    private fun routeOf(intent: Intent): String? =
+        intent.getStringExtra(EXTRA_ROUTE) ?: intent.data?.takeIf { intent.action == Intent.ACTION_VIEW }?.let { Routes.backup(it.toString()) }
 
     companion object {
         const val EXTRA_ROUTE = "route"

@@ -372,6 +372,17 @@
     <string name="backup_save_file">שמור לקובץ</string>
     <string name="backup_share">שתף גיבוי</string>
     <string name="backup_share_chooser">שיתוף גיבוי</string>
+    <string name="backup_encrypt">הצפן בסיסמה</string>
+    <string name="backup_password">סיסמה</string>
+    <string name="backup_password_again">סיסמה שוב</string>
+    <string name="backup_password_warning">לפחות %1$d תווים. אין דרך לשחזר סיסמה שנשכחה — בלעדיה אי אפשר לפתוח את הקובץ.</string>
+    <string name="backup_password_title">הקובץ מוצפן</string>
+    <string name="backup_password_open">פתח</string>
+    <string name="backup_err_password">הסיסמה שגויה, או שהקובץ שונה</string>
+    <string name="export_section">ייצוא ליומן ולגיליון</string>
+    <string name="export_desc">קובץ יומן (ICS) לפתיחה בכל אפליקציית יומן — כולל 10 השנים הקרובות והתאריך העברי; וקובץ CSV לאקסל וגוגל שיטס.</string>
+    <string name="export_ics">יומן (ICS)</string>
+    <string name="export_csv">גיליון (CSV)</string>
     <string name="backup_section_restore">שחזור</string>
     <string name="backup_restore_desc">בחרו קובץ גיבוי. לפני כל שינוי תראו מה ייווסף.</string>
     <string name="backup_restore_file">שחזר מקובץ</string>

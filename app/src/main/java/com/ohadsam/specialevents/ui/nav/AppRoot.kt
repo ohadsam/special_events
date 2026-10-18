@@ -113,7 +113,7 @@ fun AppRoot(container: AppContainer, pendingRoute: String? = null, onRouteHandle
                     onOpenReminderHealth = { nav.navigate(Routes.REMINDER_HEALTH) },
                     onImportContacts = { nav.navigate(Routes.IMPORT_CONTACTS) },
                     onOpenTemplates = { nav.navigate(Routes.TEMPLATES) },
-                    onOpenBackup = { nav.navigate(Routes.BACKUP) },
+                    onOpenBackup = { nav.navigate(Routes.backup()) },
                 )
             }
             composable(Routes.DETAIL, arguments = listOf(navArgument("id") { type = NavType.LongType })) { entry ->
@@ -165,9 +165,18 @@ fun AppRoot(container: AppContainer, pendingRoute: String? = null, onRouteHandle
                 val vm: ChecklistViewModel = viewModel(key = "checklist-$id", factory = ChecklistViewModel.Factory(container, id))
                 ChecklistScreen(vm, onBack = { nav.popBackStack() })
             }
-            composable(Routes.BACKUP) {
+            composable(
+                Routes.BACKUP,
+                arguments = listOf(
+                    navArgument("uri") {
+                        type = NavType.StringType
+                        nullable = true
+                        defaultValue = null
+                    },
+                ),
+            ) { entry ->
                 val vm: BackupViewModel = viewModel(factory = BackupViewModel.Factory(container))
-                BackupScreen(vm, onBack = { nav.popBackStack() })
+                BackupScreen(vm, onBack = { nav.popBackStack() }, openUri = entry.arguments?.getString("uri"))
             }
             composable(Routes.TEMPLATES) {
                 TemplatesScreen(viewModel(factory = factory), onBack = { nav.popBackStack() })

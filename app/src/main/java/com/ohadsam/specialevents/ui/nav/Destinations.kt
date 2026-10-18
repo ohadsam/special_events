@@ -21,7 +21,10 @@ object Routes {
     const val REMINDER_HEALTH = "reminder_health"
     const val IMPORT_CONTACTS = "import_contacts"
     const val TEMPLATES = "templates"
-    const val BACKUP = "backup"
+    const val BACKUP = "backup?uri={uri}"
+
+    /** [uri] = a backup file to preview straight away (opened from outside the app). */
+    fun backup(uri: String? = null) = "backup" + (uri?.let { "?uri=" + android.net.Uri.encode(it) } ?: "")
     const val GREETING = "greeting/{id}?day={day}"
 
     /** [day] is the occurrence day (epoch day) to greet for; -1 = the next one. */
