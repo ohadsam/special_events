@@ -19,6 +19,9 @@ object Routes {
     const val LOGS = "logs"
     const val SEARCH = "search"
     const val REMINDER_HEALTH = "reminder_health"
+    const val EVENT_REMINDERS = "reminders/{id}"
+
+    fun eventReminders(id: Long) = "reminders/$id"
     const val EDITOR = "editor/{id}?date={date}"
     const val DETAIL = "event/{id}"
 

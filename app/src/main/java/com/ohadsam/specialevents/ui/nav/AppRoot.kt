@@ -30,6 +30,8 @@ import com.ohadsam.specialevents.ui.detail.DetailScreen
 import com.ohadsam.specialevents.ui.detail.DetailViewModel
 import com.ohadsam.specialevents.ui.editor.EditorScreen
 import com.ohadsam.specialevents.ui.editor.EditorViewModel
+import com.ohadsam.specialevents.ui.reminders.EventRemindersScreen
+import com.ohadsam.specialevents.ui.reminders.EventRemindersViewModel
 import com.ohadsam.specialevents.ui.search.SearchScreen
 import com.ohadsam.specialevents.ui.settings.ReminderHealthScreen
 import com.ohadsam.specialevents.ui.settings.LogsScreen
@@ -104,7 +106,7 @@ fun AppRoot(container: AppContainer, pendingRoute: String? = null, onRouteHandle
             composable(Routes.DETAIL, arguments = listOf(navArgument("id") { type = NavType.LongType })) { entry ->
                 val id = entry.arguments?.getLong("id") ?: 0L
                 val vm: DetailViewModel = viewModel(key = "detail-$id", factory = DetailViewModel.Factory(container, id))
-                DetailScreen(vm, onBack = { nav.popBackStack() }, onEdit = { nav.navigate(Routes.editor(id)) })
+                DetailScreen(vm, onBack = { nav.popBackStack() }, onEdit = { nav.navigate(Routes.editor(id)) }, onEditReminders = { nav.navigate(Routes.eventReminders(id)) })
             }
             composable(
                 Routes.EDITOR,
@@ -124,6 +126,11 @@ fun AppRoot(container: AppContainer, pendingRoute: String? = null, onRouteHandle
             }
             composable(Routes.SEARCH) {
                 SearchScreen(viewModel(factory = factory), onBack = { nav.popBackStack() }, onOpenEvent = { nav.navigate(Routes.detail(it)) })
+            }
+            composable(Routes.EVENT_REMINDERS, arguments = listOf(navArgument("id") { type = NavType.LongType })) { entry ->
+                val id = entry.arguments?.getLong("id") ?: 0L
+                val vm: EventRemindersViewModel = viewModel(key = "reminders-$id", factory = EventRemindersViewModel.Factory(container, id))
+                EventRemindersScreen(vm, onBack = { nav.popBackStack() })
             }
             composable(Routes.REMINDER_HEALTH) {
                 ReminderHealthScreen(container, onBack = { nav.popBackStack() })

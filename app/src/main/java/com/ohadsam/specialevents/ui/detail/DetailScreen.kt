@@ -28,6 +28,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -66,7 +67,7 @@ import com.ohadsam.specialevents.ui.upcoming.milestoneLabel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DetailScreen(viewModel: DetailViewModel, onBack: () -> Unit, onEdit: () -> Unit) {
+fun DetailScreen(viewModel: DetailViewModel, onBack: () -> Unit, onEdit: () -> Unit, onEditReminders: () -> Unit) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     var menuOpen by remember { mutableStateOf(false) }
     var confirmDelete by remember { mutableStateOf(false) }
@@ -151,6 +152,7 @@ fun DetailScreen(viewModel: DetailViewModel, onBack: () -> Unit, onEdit: () -> U
                         )
                     }
                 }
+                OutlinedButton(onClick = onEditReminders, modifier = Modifier.fillMaxWidth()) { Text(stringResource(R.string.detail_edit_reminders)) }
             }
             event.notes?.let { Section(stringResource(R.string.detail_section_notes)) { Text(it, style = MaterialTheme.typography.bodyLarge) } }
             Tags(event.tags.map { it.name })

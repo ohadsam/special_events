@@ -37,5 +37,11 @@ object ReminderEngine {
         return ReminderPlanner.plan(items, rules, zone, holy).filter { it.fireAt >= from }
     }
 
+    /** When [rule] will next ring for [event] (after [now]), or null if it never will - used for the preview in the rule editor. */
+    fun nextFor(event: SpecialEvent, rule: ReminderRule, settings: AppSettings, now: Instant): PlannedReminder? =
+        plan(listOf(event), listOf(rule.copy(eventId = event.id, enabled = true)), settings, now, horizonDays = PREVIEW_HORIZON_DAYS)
+            .firstOrNull { it.fireAt > now }
+
+    private const val PREVIEW_HORIZON_DAYS = 800L
     private const val MARGIN_DAYS = 400L
 }
