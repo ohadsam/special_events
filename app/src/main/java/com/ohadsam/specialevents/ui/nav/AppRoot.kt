@@ -50,6 +50,8 @@ import com.ohadsam.specialevents.ui.groups.GroupEditorViewModel
 import com.ohadsam.specialevents.ui.groups.GroupsScreen
 import com.ohadsam.specialevents.ui.groups.GroupsViewModel
 import com.ohadsam.specialevents.ui.editor.EditorViewModel
+import com.ohadsam.specialevents.ui.print.PrintScreen
+import com.ohadsam.specialevents.ui.print.PrintViewModel
 import com.ohadsam.specialevents.ui.reminders.EventRemindersScreen
 import com.ohadsam.specialevents.ui.reminders.EventRemindersViewModel
 import com.ohadsam.specialevents.ui.search.SearchScreen
@@ -142,13 +144,14 @@ private fun AppScaffold(container: AppContainer, nav: NavHostController, pending
                     onOpenBackup = { nav.navigate(Routes.backup()) },
                     onOpenCalendarSync = { nav.navigate(Routes.CALENDAR_SYNC) },
                     onOpenGroups = { nav.navigate(Routes.GROUPS) },
+                    onOpenPrint = { nav.navigate(Routes.print()) },
                     onOpenGuide = { nav.navigate(Routes.guide()) },
                 )
             }
             composable(Routes.DETAIL, arguments = listOf(navArgument("id") { type = NavType.LongType })) { entry ->
                 val id = entry.arguments?.getLong("id") ?: 0L
                 val vm: DetailViewModel = viewModel(key = "detail-$id", factory = DetailViewModel.Factory(container, id))
-                DetailScreen(vm, onBack = { nav.popBackStack() }, onEdit = { nav.navigate(Routes.editor(id)) }, onEditReminders = { nav.navigate(Routes.eventReminders(id)) }, onGreet = { nav.navigate(Routes.greeting(id)) }, onOpenChecklist = { nav.navigate(Routes.checklist(id)) }, onShare = { nav.navigate(Routes.share(listOf(id))) })
+                DetailScreen(vm, onBack = { nav.popBackStack() }, onEdit = { nav.navigate(Routes.editor(id)) }, onEditReminders = { nav.navigate(Routes.eventReminders(id)) }, onGreet = { nav.navigate(Routes.greeting(id)) }, onOpenChecklist = { nav.navigate(Routes.checklist(id)) }, onShare = { nav.navigate(Routes.share(listOf(id))) }, onPrintCard = { nav.navigate(Routes.print(id)) })
             }
             composable(
                 Routes.EDITOR,
@@ -241,6 +244,19 @@ private fun AppScaffold(container: AppContainer, nav: NavHostController, pending
                 val ids = entry.arguments?.getString("ids")?.split(',')?.mapNotNull { it.toLongOrNull() }?.toSet().orEmpty()
                 val vm: ShareViewModel = viewModel(key = "share-$ids", factory = ShareViewModel.Factory(container, ids))
                 ShareScreen(vm, onBack = { nav.popBackStack() })
+            }
+            composable(
+                Routes.PRINT,
+                arguments = listOf(
+                    navArgument("event") {
+                        type = NavType.LongType
+                        defaultValue = -1L
+                    },
+                ),
+            ) { entry ->
+                val eventId = entry.arguments?.getLong("event")?.takeIf { it >= 0 }
+                val vm: PrintViewModel = viewModel(key = "print-$eventId", factory = PrintViewModel.Factory(container, eventId))
+                PrintScreen(vm, onBack = { nav.popBackStack() })
             }
             composable(Routes.GROUPS) {
                 GroupsScreen(viewModel(factory = GroupsViewModel.Factory(container)), onBack = { nav.popBackStack() }, onOpenGroup = { nav.navigate(Routes.group(it)) })

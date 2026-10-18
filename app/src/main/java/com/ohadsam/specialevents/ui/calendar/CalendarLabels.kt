@@ -1,5 +1,6 @@
 package com.ohadsam.specialevents.ui.calendar
 
+import android.content.Context
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
@@ -8,6 +9,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.ohadsam.specialevents.R
@@ -52,19 +54,25 @@ fun MarkKind.labelRes(): Int = when (this) {
     MarkKind.ROSH_CHODESH -> R.string.mark_rosh_chodesh
 }
 
-@Composable
-fun markText(mark: CalendarMark): String = when (mark.kind) {
-    MarkKind.CHANUKAH -> stringResource(R.string.mark_chanukah_day, mark.day)
-    MarkKind.SUKKOT -> stringResource(
-        when {
-            mark.yomTov -> R.string.mark_sukkot
-            mark.day == SUKKOT_LAST_DAY -> R.string.mark_hoshana_raba
-            else -> R.string.mark_sukkot_chol
-        },
-    )
-    MarkKind.PESACH -> stringResource(if (mark.yomTov) R.string.mark_pesach else R.string.mark_pesach_chol)
-    else -> stringResource(mark.kind.labelRes())
+/** The string resource for a mark and, for "day N of Chanukah", the number that goes into it. */
+private fun markSpec(mark: CalendarMark): Pair<Int, Int?> = when (mark.kind) {
+    MarkKind.CHANUKAH -> R.string.mark_chanukah_day to mark.day
+    MarkKind.SUKKOT -> sukkotRes(mark) to null
+    MarkKind.PESACH -> (if (mark.yomTov) R.string.mark_pesach else R.string.mark_pesach_chol) to null
+    else -> mark.kind.labelRes() to null
 }
+
+private fun sukkotRes(mark: CalendarMark): Int = when {
+    mark.yomTov -> R.string.mark_sukkot
+    mark.day == SUKKOT_LAST_DAY -> R.string.mark_hoshana_raba
+    else -> R.string.mark_sukkot_chol
+}
+
+@Composable
+fun markText(mark: CalendarMark): String = markText(LocalContext.current, mark)
+
+/** The same text outside a composition (printing, notifications). */
+fun markText(context: Context, mark: CalendarMark): String = markSpec(mark).let { (res, arg) -> if (arg != null) context.getString(res, arg) else context.getString(res) }
 
 private const val SUKKOT_LAST_DAY = 7
 

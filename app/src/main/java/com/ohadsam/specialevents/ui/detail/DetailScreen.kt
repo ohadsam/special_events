@@ -73,7 +73,7 @@ import com.ohadsam.specialevents.ui.upcoming.milestoneLabel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DetailScreen(viewModel: DetailViewModel, onBack: () -> Unit, onEdit: () -> Unit, onEditReminders: () -> Unit, onGreet: () -> Unit, onOpenChecklist: () -> Unit, onShare: () -> Unit) {
+fun DetailScreen(viewModel: DetailViewModel, onBack: () -> Unit, onEdit: () -> Unit, onEditReminders: () -> Unit, onGreet: () -> Unit, onOpenChecklist: () -> Unit, onShare: () -> Unit, onPrintCard: () -> Unit) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     var menuOpen by remember { mutableStateOf(false) }
     var confirmDelete by remember { mutableStateOf(false) }
@@ -95,6 +95,13 @@ fun DetailScreen(viewModel: DetailViewModel, onBack: () -> Unit, onEdit: () -> U
                         Box {
                             IconButton(onClick = { menuOpen = true }) { Icon(Icons.Outlined.MoreVert, contentDescription = stringResource(R.string.action_more)) }
                             DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
+                                DropdownMenuItem(
+                                    text = { Text(stringResource(R.string.detail_menu_print)) },
+                                    onClick = {
+                                        menuOpen = false
+                                        onPrintCard()
+                                    },
+                                )
                                 DropdownMenuItem(
                                     text = { Text(stringResource(R.string.detail_menu_share)) },
                                     onClick = {

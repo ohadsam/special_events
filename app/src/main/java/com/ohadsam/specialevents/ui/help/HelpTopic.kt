@@ -18,6 +18,7 @@ enum class HelpTopic(val key: String, @StringRes val title: Int, @StringRes val 
     CHECKLIST("checklist", R.string.help_checklist_title, R.string.help_checklist_body),
     SEARCH("search", R.string.help_search_title, R.string.help_search_body),
     WIDGETS("widgets", R.string.help_widgets_title, R.string.help_widgets_body),
+    PRINT("print", R.string.help_print_title, R.string.help_print_body),
     BACKUP("backup", R.string.help_backup_title, R.string.help_backup_body),
     CALENDAR_SYNC("calendar_sync", R.string.help_calsync_title, R.string.help_calsync_body),
     SETTINGS("settings", R.string.help_settings_title, R.string.help_settings_body),

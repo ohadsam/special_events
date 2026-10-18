@@ -20,6 +20,8 @@ class SpecialEventsApp : Application() {
 
     override fun onCreate() {
         super.onCreate()
+        // Must run before the first WebView exists: lets a printed card be drawn whole into a picture.
+        runCatching { android.webkit.WebView.enableSlowWholeDocumentDraw() }
         container = AppContainer(this)
         val log = container.logger
         log.purgeOlderThanDays(AppLogger.DEFAULT_RETENTION_DAYS)

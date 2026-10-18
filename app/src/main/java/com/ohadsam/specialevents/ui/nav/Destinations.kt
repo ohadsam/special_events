@@ -28,6 +28,10 @@ object Routes {
 
     /** [ids] are preselected events; empty = the user picks. */
     fun share(ids: Collection<Long> = emptyList()) = "share" + if (ids.isEmpty()) "" else "?ids=" + ids.joinToString(",")
+    const val PRINT = "print?event={event}"
+
+    /** [eventId] opens the greeting card for that event. */
+    fun print(eventId: Long? = null) = "print" + (eventId?.let { "?event=$it" } ?: "")
     const val GROUPS = "groups"
     const val GROUP_EDITOR = "group/{id}"
 
