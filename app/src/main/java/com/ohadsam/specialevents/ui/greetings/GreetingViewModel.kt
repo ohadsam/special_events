@@ -51,6 +51,8 @@ data class GreetingState(
     /** Set after a greeting was handed to another app: the screen asks "did you send it?". */
     val pendingConfirm: SendChannel? = null,
     val missing: Set<String> = emptySet(),
+    /** Groups the event belongs to; templates made for them are offered first. */
+    val groupIds: Set<Long> = emptySet(),
     val songs: List<SongIdea> = emptyList(),
     /** The voice greeting being prepared: recorded file, whether the microphone is on, whether it is playing back. */
     val voice: File? = null,
@@ -80,7 +82,7 @@ class GreetingViewModel(private val container: AppContainer, private val eventId
     val state: StateFlow<GreetingState> = combine(local, container.greetings.customTemplates, container.greetings.sentFor(eventId), container.settings.settings) { s, custom, history, settings ->
         val template = s.templates.firstOrNull { it.id == s.selectedId }
         s.copy(
-            templates = s.event?.let { GreetingCatalog.forEvent(it.type, it.gender, s.item?.milestone, custom) } ?: s.templates,
+            templates = s.event?.let { GreetingCatalog.preferGroups(GreetingCatalog.forEvent(it.type, it.gender, s.item?.milestone, custom), s.groupIds) } ?: s.templates,
             history = history,
             settings = settings,
             songs = s.event?.let { SongSuggestions.forEvent(it.type, it.gender, GreetingCatalog.milestoneKey(it.type, s.item?.milestone)) }.orEmpty(),
@@ -98,13 +100,16 @@ class GreetingViewModel(private val container: AppContainer, private val eventId
             val settings = container.settings.settings.first()
             val today = LocalDate.now()
             val item = pickItem(event, today, settings)
-            val templates = GreetingCatalog.forEvent(event.type, event.gender, item?.milestone, container.greetings.customTemplates.first())
-            val groupTemplate = GroupLogic.greetingTemplateId(null, container.groups.groupsOf(event.id))
+            val eventGroups = container.groups.groupsOf(event.id)
+            val groupIds = eventGroups.map { it.id }.toSet()
+            val templates = GreetingCatalog.preferGroups(GreetingCatalog.forEvent(event.type, event.gender, item?.milestone, container.greetings.customTemplates.first()), groupIds)
+            val groupTemplate = GroupLogic.greetingTemplateId(null, eventGroups)
             val first = templates.firstOrNull { it.id == groupTemplate } ?: templates.firstOrNull()
             local.value = GreetingState(
                 loading = false,
                 event = event,
                 item = item,
+                groupIds = groupIds,
                 templates = templates,
                 selectedId = first?.id,
                 text = if (first != null && item != null) GreetingRenderer.render(first.body, contextOf(event, item)) else "",

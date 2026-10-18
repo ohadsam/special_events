@@ -43,10 +43,12 @@ class AutoGreetingSender(
         val greeted = greetings.greetedKeys.first().contains(event.id to day)
         val decision = AutoSend.decide(plan.rule.autoSend, plan.rule.channel == Channel.SMS, hasPermission(), event.contactPhone, greeted)
         if (decision != AutoSendDecision.SEND) return decision == AutoSendDecision.ALREADY_GREETED
-        val template = AutoSend.chooseTemplate(
-            GroupLogic.greetingTemplateId(plan.rule.templateId, groups.groupsOf(event.id)),
+        val eventGroups = groups.groupsOf(event.id)
+        val candidates = GreetingCatalog.preferGroups(
             GreetingCatalog.forEvent(event.type, event.gender, plan.item.milestone, greetings.customTemplates.first()),
-        ) ?: return false
+            eventGroups.map { it.id }.toSet(),
+        )
+        val template = AutoSend.chooseTemplate(GroupLogic.greetingTemplateId(plan.rule.templateId, eventGroups), candidates) ?: return false
         val text = GreetingRenderer.render(template.body, GreetingContexts.of(event, plan.item))
         val phone = PhoneNumbers.forDial(event.contactPhone) ?: return false
         return try {

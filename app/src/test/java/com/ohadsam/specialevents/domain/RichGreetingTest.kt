@@ -70,4 +70,15 @@ class RichGreetingTest {
         assertEquals("דנה, שלום", RichText.plain(spans))
         assertTrue(spans.first().style.bold)
     }
+
+    @Test
+    fun builderTokensRenderBackToTheChosenStyle() {
+        val token = PlaceholderStyles.token("שם", PlaceholderStyles.Choice(spread = "-", bold = true, color = "אדום"))
+        assertEquals("{שם|מפוזר:--|הדגש|צבע:אדום}".replace("--", "-"), token)
+        val spans = GreetingRenderer.renderRich(token, ctx)
+        assertEquals("ד-נ-ה", RichText.plain(spans))
+        assertTrue(spans.single().style.bold)
+        assertEquals("#C62828", spans.single().style.color)
+        assertEquals("{גיל}", PlaceholderStyles.token("גיל", PlaceholderStyles.Choice()))
+    }
 }

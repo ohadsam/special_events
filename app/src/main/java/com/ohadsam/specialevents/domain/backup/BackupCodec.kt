@@ -243,16 +243,26 @@ object BackupCodec {
         put("name", t.name)
         put("body", t.body)
         put("forType", t.forType?.name)
+        put("folder", t.folder)
+        put("tags", JsonArray(t.tags.map { JsonPrimitive(it) }))
+        put("groups", JsonArray(t.groupIds.map { JsonPrimitive(it) }))
     }
 
     private fun parseTemplate(o: JsonObject): GreetingTemplate? {
         val name = o.str("name")?.trim()?.take(MAX_TITLE)?.takeIf { it.isNotEmpty() } ?: return null
         val body = o.str("body")?.take(MAX_TEXT)?.takeIf { it.isNotBlank() } ?: return null
-        return GreetingTemplate(0, name, body, forType = enumOf<EventType>(o.str("forType")))
+        return GreetingTemplate(
+            0, name, body,
+            forType = enumOf<EventType>(o.str("forType")),
+            folder = o.str("folder")?.trim()?.take(MAX_TITLE)?.ifEmpty { null },
+            tags = (o["tags"] as? JsonArray).orEmpty().mapNotNull { (it as? JsonPrimitive)?.takeIf { p -> p.isString }?.contentOrNull?.trim()?.take(MAX_TITLE)?.takeIf { s -> s.isNotEmpty() } }.take(MAX_TAGS),
+            groupIds = (o["groups"] as? JsonArray).orEmpty().mapNotNull { (it as? JsonPrimitive)?.longOrNull }.take(MAX_TAGS).toSet(),
+        )
     }
 
     private const val MAX_OFFSET = 365
     private const val MAX_EMOJI = 16
+    private const val MAX_TAGS = 50
 
     private inline fun <reified E : Enum<E>> enumOf(name: String?): E? = name?.let { n -> enumValues<E>().firstOrNull { it.name == n } }
 

@@ -99,6 +99,10 @@ data class GreetingTemplateEntity(
     val body: String,
     val forType: String?,
     val createdAt: Long,
+    // Added in schema v9.
+    val folder: String? = null,
+    val tags: String? = null,
+    val groupIds: String? = null,
 )
 
 /** "I greeted this event on this occurrence day by this channel" - the greeting history. */

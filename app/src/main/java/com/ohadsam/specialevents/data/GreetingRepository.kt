@@ -21,7 +21,12 @@ class GreetingRepository(db: AppDatabase, private val clock: Clock = Clock.syste
     val customTemplates: Flow<List<GreetingTemplate>> = dao.observeTemplates().map { rows -> rows.map(::toTemplate) }
 
     suspend fun saveTemplate(t: GreetingTemplate): Long {
-        val entity = GreetingTemplateEntity(maxOf(t.id, 0), t.name.trim(), t.body, t.forType?.name, clock.millis())
+        val entity = GreetingTemplateEntity(
+            maxOf(t.id, 0), t.name.trim(), t.body, t.forType?.name, clock.millis(),
+            folder = t.folder?.trim()?.ifEmpty { null },
+            tags = t.tags.joinToString("\n").ifEmpty { null },
+            groupIds = t.groupIds.joinToString(",").ifEmpty { null },
+        )
         return if (t.id > 0) t.id.also { dao.updateTemplate(entity) } else dao.insertTemplate(entity)
     }
 
@@ -39,7 +44,13 @@ class GreetingRepository(db: AppDatabase, private val clock: Clock = Clock.syste
     suspend fun deleteSent(id: Long) = dao.deleteSent(id)
 
     private fun toTemplate(e: GreetingTemplateEntity) =
-        GreetingTemplate(e.id, e.name, e.body, forType = e.forType?.let { n -> EventType.entries.firstOrNull { it.name == n } })
+        GreetingTemplate(
+            e.id, e.name, e.body,
+            forType = e.forType?.let { n -> EventType.entries.firstOrNull { it.name == n } },
+            folder = e.folder,
+            tags = e.tags?.split('\n')?.map { it.trim() }?.filter { it.isNotEmpty() }.orEmpty(),
+            groupIds = e.groupIds?.split(',')?.mapNotNull { it.trim().toLongOrNull() }?.toSet().orEmpty(),
+        )
 
     private fun toSent(e: GreetingSentEntity) = GreetingSent(
         e.id, e.eventId, e.occurrenceDay, SendChannel.entries.firstOrNull { it.name == e.channel } ?: SendChannel.SHARE, e.sentAt, e.preview,

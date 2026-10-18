@@ -19,6 +19,10 @@ data class GreetingTemplate(
     /** e.g. "age:JUBILEE_50", "age:DECADE", "gift:SILVER"; null = ordinary. */
     val milestone: String? = null,
     val builtIn: Boolean = false,
+    /** Where the user filed it, and how they labelled it; [groupIds] are the groups it is meant for (they are offered it first). */
+    val folder: String? = null,
+    val tags: List<String> = emptyList(),
+    val groupIds: Set<Long> = emptySet(),
 )
 
 object GreetingCatalog {
@@ -69,4 +73,9 @@ object GreetingCatalog {
         }
         return (custom + BUILT_IN).sortedBy { rank(it) }
     }
+
+    /** Templates made for one of the event's groups come first; otherwise the order is kept. */
+    fun preferGroups(templates: List<GreetingTemplate>, eventGroupIds: Set<Long>): List<GreetingTemplate> =
+        if (eventGroupIds.isEmpty()) templates else templates.sortedBy { if (it.groupIds.any { g -> g in eventGroupIds }) 0 else 1 }
+
 }

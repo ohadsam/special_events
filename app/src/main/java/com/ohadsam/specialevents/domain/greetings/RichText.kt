@@ -80,6 +80,28 @@ object PlaceholderStyles {
         return Span(text, style)
     }
 
+    /** What the user chose in the placeholder builder. [spread] null = letters stay together; [color] is a name from [COLOR_NAMES] or "#RRGGBB". */
+    data class Choice(
+        val spread: String? = null,
+        val bold: Boolean = false,
+        val italic: Boolean = false,
+        val underline: Boolean = false,
+        val strike: Boolean = false,
+        val color: String? = null,
+    )
+
+    /** The placeholder text to insert, e.g. `{שם|מפוזר:-|הדגש}`. */
+    fun token(name: String, c: Choice): String = buildString {
+        append('{').append(name)
+        c.spread?.let { append("|מפוזר:").append(it.take(MAX_SEPARATOR).ifEmpty { DEFAULT_SEPARATOR }) }
+        if (c.bold) append("|הדגש")
+        if (c.italic) append("|נטוי")
+        if (c.underline) append("|קו_תחתון")
+        if (c.strike) append("|קו_חוצה")
+        c.color?.let { append("|צבע:").append(it) }
+        append('}')
+    }
+
     /** "דנה" with "-" becomes "ד-נ-ה"; spaces between words stay as they are. */
     fun spread(text: String, separator: String): String = text.split(' ').joinToString(" ") { word ->
         word.codePoints().toArray().joinToString(separator) { String(Character.toChars(it)) }

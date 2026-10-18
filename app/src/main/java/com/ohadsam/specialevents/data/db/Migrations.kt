@@ -107,5 +107,17 @@ object Migrations {
         }
     }
 
-    val ALL: Array<Migration> = arrayOf(V1_TO_V2, V2_TO_V3, V3_TO_V4, V4_TO_V5, V5_TO_V6, V6_TO_V7, V7_TO_V8)
+    const val ADD_TEMPLATE_FOLDER = "ALTER TABLE `greeting_templates` ADD COLUMN `folder` TEXT"
+    const val ADD_TEMPLATE_TAGS = "ALTER TABLE `greeting_templates` ADD COLUMN `tags` TEXT"
+    const val ADD_TEMPLATE_GROUPS = "ALTER TABLE `greeting_templates` ADD COLUMN `groupIds` TEXT"
+
+    val V8_TO_V9 = object : Migration(8, 9) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL(ADD_TEMPLATE_FOLDER)
+            db.execSQL(ADD_TEMPLATE_TAGS)
+            db.execSQL(ADD_TEMPLATE_GROUPS)
+        }
+    }
+
+    val ALL: Array<Migration> = arrayOf(V1_TO_V2, V2_TO_V3, V3_TO_V4, V4_TO_V5, V5_TO_V6, V6_TO_V7, V7_TO_V8, V8_TO_V9)
 }
