@@ -107,4 +107,16 @@ class ViewEngineTest {
         assertEquals(today, EventJump.locate(next!!).date)
         assertNull(EventJump.next(events[0].copy(recurrence = Recurrence.ONCE), today.plusDays(1), com.ohadsam.specialevents.calendar.DateRules()))
     }
+
+    @Test
+    fun filtersAndGroupsByOwnerGroup() {
+        val membership = mapOf(1L to setOf(10L), 2L to setOf(10L, 20L), 3L to setOf(20L))
+        val onlyTen = ViewEngine.apply(items, ViewSpec(ViewFilter(groups = setOf(10L))), membership = membership).flatMap { g -> g.items.map { it.event.title } }
+        assertEquals(listOf("דנה לוי", "אבי ושרה"), onlyTen)
+        val grouped = ViewEngine.apply(items, ViewSpec(groupBy = GroupBy.GROUP), membership = membership, groupOrder = listOf(20L, 10L))
+        assertEquals(listOf<Long?>(20L, 10L, null), grouped.map { (it.key as GroupKey.Group).id })
+        assertEquals(2, grouped.first().items.size)
+        assertEquals(1, grouped.last().items.size)
+        assertTrue(ViewFilter(groups = setOf(1L)).isActive)
+    }
 }

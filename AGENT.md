@@ -1,5 +1,5 @@
 # Special Events – Agent Memory
-**Last updated:** v0.15.0 (batches 0–12 + V1 done; G1 (groups) next)
+**Last updated:** v0.16.0 (batches 0–12, V1, G1 done; E1 (free-text dates) next)
 Read order: CLAUDE.md → docs/PLAN.md → STRUCTURE.md → the batch's section in docs/SPEC.md.
 
 ## Recently done
@@ -39,6 +39,8 @@ Read order: CLAUDE.md → docs/PLAN.md → STRUCTURE.md → the batch's section 
 
 - v0.15.0: batch V1: views. Not done: saved views (named), group by owner group (after G1), unified single view-switcher screen (Upcoming and Calendar remain two tabs), Hebrew-month picker. Unverified on device: swipe vs scroll conflicts, long-press menu, bottom sheet at 200% font.
 
+- v0.16.0: batch G1: groups. Not done: group photo and font/card styling (needs the card design of S1/P1), sharing a single group/template as its own file (backup covers it), reordering groups, recipients queue UI (T2). Unverified on device: editor layout at 200% font, emoji entry.
+
 ## Known issues / open items (need the owner)
 - Feature spec for "אירועים מיוחדים" not yet provided → fill `docs/SPEC.md`, then define batches in `docs/PLAN.md`.
 - **Signing key:** `app/sideload.jks` (password in app/build.gradle.kts) is committed on purpose so every CI build updates in place; NOT a store key. Never change it after users installed the app.
@@ -77,6 +79,9 @@ Notification timing, permission flows, visuals, TalkBack.
 
 ## Ideas (v0.15.0)
 - Named saved views; group-by owner group once G1 lands; Hebrew month/year picker; a today-centred infinite week strip; quick filter by upcoming N days; swipe between day/week in the Upcoming list; export the current view (feeds P1 print).
+
+## Ideas (v0.16.0)
+- Reorder groups by drag; group photo; per-group card font and background (with P1); import a group template shared by someone else (S1); group birthdays widget; default group by event type; auto-suggest a group from relation text.
 
 ## Ideas (from batch 5)
 - Yahrzeit candle reminder anchored to sunset (rule time = "N minutes before sunset") instead of a fixed 16:00; per-rule custom sound picker (profile `sound:<uri>` is already supported); quiet hours; "mark as greeted" action (batch 8); a daily digest notification option; reminders inheriting from tags.
