@@ -61,7 +61,7 @@ jobs:
       - name: Signing certificate of the debug APK (must stay identical across builds)
         if: steps.has.outputs.ok == 'true'
         run: keytool -printcert -jarfile dist/*-debug.apk | grep -E 'SHA256|Owner' || true
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: steps.has.outputs.ok == 'true'
         with:
           name: debug-apk
