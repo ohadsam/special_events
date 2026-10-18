@@ -4,20 +4,21 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.ohadsam.specialevents.AppContainer
-import com.ohadsam.specialevents.calendar.ParshaNames
 import com.ohadsam.specialevents.data.GreetingSent
 import com.ohadsam.specialevents.data.SendChannel
 import com.ohadsam.specialevents.data.prefs.AppSettings
+import com.ohadsam.specialevents.greetings.GreetingContexts
 import com.ohadsam.specialevents.domain.EventTimeline
-import com.ohadsam.specialevents.domain.EventType
 import com.ohadsam.specialevents.domain.ItemKind
 import com.ohadsam.specialevents.domain.SpecialEvent
 import com.ohadsam.specialevents.domain.UpcomingItem
 import com.ohadsam.specialevents.domain.greetings.GreetingCatalog
-import com.ohadsam.specialevents.domain.greetings.GreetingContext
 import com.ohadsam.specialevents.domain.greetings.GreetingRenderer
 import com.ohadsam.specialevents.domain.greetings.GreetingTemplate
-import com.ohadsam.specialevents.ui.common.gregorianLong
+import com.ohadsam.specialevents.domain.greetings.SongIdea
+import com.ohadsam.specialevents.domain.greetings.SongSuggestions
+import com.ohadsam.specialevents.greetings.VoiceRecorder
+import java.io.File
 import java.time.LocalDate
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -45,6 +46,12 @@ data class GreetingState(
     /** Set after a greeting was handed to another app: the screen asks "did you send it?". */
     val pendingConfirm: SendChannel? = null,
     val missing: Set<String> = emptySet(),
+    val songs: List<SongIdea> = emptyList(),
+    /** The voice greeting being prepared: recorded file, whether the microphone is on, whether it is playing back. */
+    val voice: File? = null,
+    val recording: Boolean = false,
+    val playing: Boolean = false,
+    val voiceError: Boolean = false,
 ) {
     val greeted: Boolean get() = item != null && history.any { it.occurrenceDay == item.date.toEpochDay() }
 
@@ -63,6 +70,7 @@ data class GreetingState(
 
 class GreetingViewModel(private val container: AppContainer, private val eventId: Long, private val occurrenceDay: Long?) : ViewModel() {
     private val local = MutableStateFlow(GreetingState())
+    private val recorder = VoiceRecorder(container.appContext)
 
     val state: StateFlow<GreetingState> = combine(local, container.greetings.customTemplates, container.greetings.sentFor(eventId), container.settings.settings) { s, custom, history, settings ->
         val template = s.templates.firstOrNull { it.id == s.selectedId }
@@ -70,6 +78,7 @@ class GreetingViewModel(private val container: AppContainer, private val eventId
             templates = s.event?.let { GreetingCatalog.forEvent(it.type, it.gender, s.item?.milestone, custom) } ?: s.templates,
             history = history,
             settings = settings,
+            songs = s.event?.let { SongSuggestions.forEvent(it.type, it.gender, GreetingCatalog.milestoneKey(it.type, s.item?.milestone)) }.orEmpty(),
             missing = if (template != null && s.item != null && s.event != null) GreetingRenderer.missing(template.body, contextOf(s.event, s.item)) else emptySet(),
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), GreetingState())
@@ -108,15 +117,7 @@ class GreetingViewModel(private val container: AppContainer, private val eventId
         return EventTimeline.forEvent(event, today, 1, settings.dateRules).firstOrNull()
     }
 
-    private fun contextOf(event: SpecialEvent, item: UpcomingItem) = GreetingContext(
-        name = event.personName ?: event.title,
-        age = if (event.type == EventType.BIRTHDAY) item.number else null,
-        years = if (event.type != EventType.BIRTHDAY) item.number else null,
-        relation = event.relation,
-        hebrewDate = item.hebrew.format(),
-        gregorianDate = gregorianLong(item.date),
-        parsha = item.mitzvah?.parsha?.let { ParshaNames.label(it) },
-    )
+    private fun contextOf(event: SpecialEvent, item: UpcomingItem) = GreetingContexts.of(event, item)
 
     fun selectTemplate(t: GreetingTemplate) = local.update { s ->
         val event = s.event
@@ -141,6 +142,37 @@ class GreetingViewModel(private val container: AppContainer, private val eventId
         val item = s.item ?: return
         local.update { it.copy(pendingConfirm = null) }
         viewModelScope.launch { container.greetings.markSent(eventId, item.date.toEpochDay(), channel, s.text) }
+    }
+
+    /** Starts recording; the screen must hold the microphone permission. */
+    fun startRecording() {
+        val ok = recorder.start()
+        local.update { it.copy(recording = ok, voiceError = !ok, voice = if (ok) null else it.voice, playing = false) }
+    }
+
+    fun stopRecording() {
+        val file = recorder.stop()
+        local.update { it.copy(recording = false, voice = file, voiceError = file == null) }
+    }
+
+    fun togglePlayback() {
+        val file = local.value.voice ?: return
+        if (local.value.playing) {
+            recorder.stopPlayback()
+            local.update { it.copy(playing = false) }
+        } else {
+            val ok = recorder.play(file) { local.update { s -> s.copy(playing = false) } }
+            local.update { it.copy(playing = ok, voiceError = !ok) }
+        }
+    }
+
+    fun discardVoice() {
+        recorder.discard()
+        local.update { it.copy(voice = null, recording = false, playing = false, voiceError = false) }
+    }
+
+    override fun onCleared() {
+        recorder.release()
     }
 
     fun unmark(sent: GreetingSent) {

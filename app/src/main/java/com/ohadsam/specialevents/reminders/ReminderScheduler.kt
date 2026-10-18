@@ -8,6 +8,7 @@ import android.os.Build
 import com.ohadsam.specialevents.data.EventRepository
 import com.ohadsam.specialevents.data.ReminderRepository
 import com.ohadsam.specialevents.data.prefs.SettingsRepository
+import com.ohadsam.specialevents.greetings.AutoGreetingSender
 import com.ohadsam.specialevents.domain.reminders.ReminderEngine
 import com.ohadsam.specialevents.domain.reminders.ReminderPlanner
 import com.ohadsam.specialevents.domain.reminders.ShabbatPolicy
@@ -31,6 +32,7 @@ class ReminderScheduler(
     private val settings: SettingsRepository,
     private val notifications: NotificationHelper,
     private val state: ReminderState,
+    private val autoSender: AutoGreetingSender,
     private val logger: AppLogger,
 ) {
     private val alarms = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
@@ -54,7 +56,10 @@ class ReminderScheduler(
         // First run: nothing to catch up on. A clock set backwards must not hide reminders.
         val last = (state.lastHandled ?: now).let { if (it.isAfter(now)) now else it }
         val due = plan.filter { it.fireAt > last && it.fireAt <= now }
-        due.take(MAX_PER_PASS).forEach { notifications.show(notifications.contentFor(it, zone, cfg.calendarMode)) }
+        due.take(MAX_PER_PASS).forEach {
+            // An automatic SMS replaces the prompt when it went out; any other outcome falls back to the normal reminder.
+            if (!autoSender.handle(it)) notifications.show(notifications.contentFor(it, zone, cfg.calendarMode))
+        }
         state.lastHandled = now
         val next = plan.firstOrNull { it.fireAt > now }
         if (next == null) cancelAlarm() else setAlarm(pendingNext(), next.fireAt.toEpochMilli())

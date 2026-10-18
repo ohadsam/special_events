@@ -1,5 +1,6 @@
 package com.ohadsam.specialevents.ui.reminders
 
+import android.Manifest
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
@@ -77,6 +78,7 @@ fun RuleEditorDialog(
         val uri = result.data?.let { IntentCompat.getParcelableExtra(it, RingtoneManager.EXTRA_RINGTONE_PICKED_URI, Uri::class.java) }
         if (result.resultCode == Activity.RESULT_OK && uri != null) rule = rule.copy(profileKey = SoundProfile.custom(uri.toString()).key)
     }
+    val smsPermission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted -> rule = rule.copy(autoSend = granted) }
     val profile = SoundProfile.fromKey(rule.profileKey)
     val isCustom = profile.key !in SoundProfile.BUILT_IN.map { it.key }
 
@@ -122,6 +124,22 @@ fun RuleEditorDialog(
                 }
                 if (rule.channel != Channel.NOTIFICATION) {
                     Text(stringResource(R.string.rule_channel_desc), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+                if (rule.channel == Channel.SMS) {
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        Text(stringResource(R.string.rule_auto_send), Modifier.weight(1f), style = MaterialTheme.typography.bodyLarge)
+                        Switch(
+                            checked = rule.autoSend,
+                            onCheckedChange = { on ->
+                                if (on) smsPermission.launch(Manifest.permission.SEND_SMS) else rule = rule.copy(autoSend = false)
+                            },
+                        )
+                    }
+                    Text(
+                        stringResource(if (event.contactPhone == null) R.string.rule_auto_send_no_phone else R.string.rule_auto_send_desc),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
                 }
 
                 Label(R.string.rule_shabbat)

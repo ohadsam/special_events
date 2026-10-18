@@ -5,6 +5,7 @@ import android.util.Log
 import com.ohadsam.specialevents.log.AppLogger
 import com.ohadsam.specialevents.log.LogLevel
 import com.ohadsam.specialevents.reminders.NotificationHelper
+import com.ohadsam.specialevents.greetings.AutoGreetingSender
 import com.ohadsam.specialevents.reminders.ReminderScheduler
 import com.ohadsam.specialevents.reminders.ReminderState
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
@@ -61,6 +62,9 @@ class AppContainer(private val context: Context) {
     val notifications: NotificationHelper = NotificationHelper(context.applicationContext)
 
     val reminderScheduler: ReminderScheduler by lazy {
-        ReminderScheduler(context.applicationContext, events, reminders, settings, notifications, ReminderState(context.applicationContext), logger)
+        ReminderScheduler(
+            context.applicationContext, events, reminders, settings, notifications, ReminderState(context.applicationContext),
+            AutoGreetingSender(context.applicationContext, greetings, notifications, logger), logger,
+        )
     }
 }

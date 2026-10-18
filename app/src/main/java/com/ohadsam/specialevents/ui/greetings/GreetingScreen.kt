@@ -16,7 +16,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.DeleteOutline
+import androidx.compose.material.icons.outlined.MusicNote
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
@@ -141,6 +143,26 @@ fun GreetingScreen(viewModel: GreetingViewModel, onBack: () -> Unit) {
                 OutlinedButton(onClick = { clipboard.setText(AnnotatedString(state.text)) }, enabled = state.text.isNotBlank(), modifier = Modifier.weight(1f)) { Text(stringResource(R.string.greeting_copy)) }
             }
 
+            VoiceSection(state, viewModel, onSend = {
+                val file = state.voice
+                val ok = file != null && GreetingSender.sendVoice(context, file, state.phone, state.settings.countryCode)
+                if (ok) viewModel.launched(SendChannel.WHATSAPP) else android.widget.Toast.makeText(context, notFound, android.widget.Toast.LENGTH_LONG).show()
+            })
+
+            if (state.songs.isNotEmpty()) {
+                Text(stringResource(R.string.greeting_songs), style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.primary)
+                Text(stringResource(R.string.greeting_songs_hint), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    state.songs.forEach { song ->
+                        AssistChip(
+                            onClick = { openUrl(context, song.url, notFound) },
+                            label = { Text(song.label) },
+                            leadingIcon = { Icon(Icons.Outlined.MusicNote, contentDescription = null) },
+                        )
+                    }
+                }
+            }
+
             if (state.history.isNotEmpty()) {
                 Text(stringResource(R.string.greeting_history), style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.primary)
                 state.history.forEach { HistoryRow(it, onDelete = { viewModel.unmark(it) }) }
@@ -196,4 +218,12 @@ private fun SaveTemplateDialog(onDismiss: () -> Unit, onSave: (String) -> Unit) 
         confirmButton = { TextButton(enabled = name.isNotBlank(), onClick = { onSave(name) }) { Text(stringResource(R.string.action_save)) } },
         dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.action_cancel)) } },
     )
+}
+
+private fun openUrl(context: android.content.Context, url: String, notFound: String) {
+    try {
+        context.startActivity(android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(url)).addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK))
+    } catch (e: android.content.ActivityNotFoundException) {
+        android.widget.Toast.makeText(context, notFound, android.widget.Toast.LENGTH_LONG).show()
+    }
 }

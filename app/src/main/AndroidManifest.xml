@@ -10,6 +10,12 @@
     <!-- Contacts (batch 7): only asked for when the user imports birthdays from the address book; linking one contact uses the system picker and needs no permission. -->
     <uses-permission android:name="android.permission.READ_CONTACTS" />
 
+    <!-- Greetings (batch 8b): the microphone only while the user records a voice greeting; SMS only for a rule the user set to send by itself. -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.SEND_SMS" />
+    <uses-feature android:name="android.hardware.telephony" android:required="false" />
+    <uses-feature android:name="android.hardware.microphone" android:required="false" />
+
     <!-- Lets the app see whether WhatsApp is installed (Android 11+ package visibility) when handing it a greeting. -->
     <queries>
         <package android:name="com.whatsapp" />
@@ -36,6 +42,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.files"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/file_paths" />
+        </provider>
 
         <receiver android:name=".reminders.ReminderReceiver" android:exported="false" />
         <receiver android:name=".reminders.ReminderActionReceiver" android:exported="false" />

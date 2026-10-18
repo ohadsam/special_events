@@ -33,6 +33,27 @@ object GreetingSender {
         return false
     }
 
+    /**
+     * Hands a recorded voice greeting to WhatsApp (straight to the person's chat when the number is known - the `jid` extra is
+     * what WhatsApp reads for that) or, failing that, to any app. The user still taps Send.
+     */
+    fun sendVoice(context: Context, file: java.io.File, phone: String?, countryCode: String): Boolean {
+        val uri = androidx.core.content.FileProvider.getUriForFile(context, context.packageName + ".files", file)
+        fun audio() = Intent(Intent.ACTION_SEND).setType("audio/mp4").putExtra(Intent.EXTRA_STREAM, uri).addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        val digits = PhoneNumbers.forWhatsApp(phone, countryCode)
+        val intents = WHATSAPP_PACKAGES.map { pkg -> audio().setPackage(pkg).also { if (digits != null) it.putExtra("jid", "$digits@s.whatsapp.net") } } +
+            Intent.createChooser(audio(), null).addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        for (intent in intents) {
+            try {
+                context.startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+                return true
+            } catch (e: ActivityNotFoundException) {
+                // try the next way
+            }
+        }
+        return false
+    }
+
     private fun plain(text: String) = Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_TEXT, text)
 
     /** A wa.me link opens the chat with the person when the number is known; otherwise the WhatsApp contact picker, otherwise any app. */
