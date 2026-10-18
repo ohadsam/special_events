@@ -104,6 +104,7 @@ fun AppRoot(container: AppContainer, pendingRoute: String? = null, onRouteHandle
                     viewModel(factory = factory),
                     onOpenLogs = { nav.navigate(Routes.LOGS) },
                     onOpenReminderHealth = { nav.navigate(Routes.REMINDER_HEALTH) },
+                    onImportContacts = { nav.navigate(Routes.IMPORT_CONTACTS) },
                 )
             }
             composable(Routes.DETAIL, arguments = listOf(navArgument("id") { type = NavType.LongType })) { entry ->
