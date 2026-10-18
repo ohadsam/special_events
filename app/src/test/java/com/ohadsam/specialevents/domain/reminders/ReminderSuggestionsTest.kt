@@ -31,7 +31,7 @@ class ReminderSuggestionsTest {
     fun anEventWithTheTypeDefaultsOnlyLacksAWeekAheadReminder() {
         val e = event(EventType.BIRTHDAY, 1990, 11, 4)
         assertEquals(listOf("week-before"), ids(e, withDefaults(e)))
-        val yahrzeit = event(EventType.YAHRZEIT, 5750, 8, 20, basis = CalendarBasis.HEBREW)
+        val yahrzeit = event(EventType.YAHRZEIT, 5750, 8, 21, basis = CalendarBasis.HEBREW) // 21 Cheshvan 5787 is a Sunday
         assertEquals(emptyList<String>(), ids(yahrzeit, withDefaults(yahrzeit)))
     }
 
