@@ -21,6 +21,10 @@ object Routes {
     const val REMINDER_HEALTH = "reminder_health"
     const val IMPORT_CONTACTS = "import_contacts"
     const val TEMPLATES = "templates"
+    const val GROUPS = "groups"
+    const val GROUP_EDITOR = "group/{id}"
+
+    fun group(id: Long) = "group/$id"
     const val CALENDAR_SYNC = "calendar_sync"
     const val BACKUP = "backup?uri={uri}"
 

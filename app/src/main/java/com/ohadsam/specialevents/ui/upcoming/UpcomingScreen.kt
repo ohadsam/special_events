@@ -93,6 +93,7 @@ fun UpcomingScreen(
         ViewActions(
             toggleType = viewModel::toggleType,
             toggleTag = viewModel::toggleTag,
+            toggleGroup = viewModel::toggleGroup,
             setMilestonesOnly = viewModel::setMilestonesOnly,
             setRange = viewModel::setRange,
             clearFilters = viewModel::clearFilters,
@@ -182,6 +183,7 @@ private fun TypeChips(selected: Set<EventType>, onToggle: (EventType) -> Unit, o
 
 @Composable
 private fun Body(state: UpcomingState, actions: ViewActions, onAddEvent: () -> Unit, onOpenEvent: (Long) -> Unit, onImportContacts: () -> Unit) {
+    val groupNames = state.eventGroups.associate { it.id to listOfNotNull(it.emoji, it.name).joinToString(" ") }
     when {
         state.loading -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
         state.noEvents -> EmptyState(Icons.Outlined.Cake, R.string.upcoming_empty_title, R.string.upcoming_empty_body, R.string.action_add_first_event, onAddEvent, R.string.import_from_contacts, onImportContacts)
@@ -193,7 +195,7 @@ private fun Body(state: UpcomingState, actions: ViewActions, onAddEvent: () -> U
             state.groups.forEach { (group, groupItems) ->
                 item(key = "header-$group") {
                     Text(
-                        groupTitle(group) + if (state.spec.groupBy == GroupBy.NONE) "" else " (${groupItems.size})",
+                        groupTitle(group, groupNames) + if (state.spec.groupBy == GroupBy.NONE) "" else " (${groupItems.size})",
                         style = MaterialTheme.typography.titleSmall,
                         color = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.padding(top = 8.dp, bottom = 2.dp),
@@ -249,7 +251,7 @@ private fun previewState(): UpcomingState {
     return UpcomingState(loading = false, today = today, groups = ViewEngine.apply(items, ViewSpec()))
 }
 
-private fun previewActions() = ViewActions({}, {}, {}, { _, _ -> }, {}, {}, {}, {}, {}, {})
+private fun previewActions() = ViewActions({}, {}, {}, {}, { _, _ -> }, {}, {}, {}, {}, {}, {})
 
 @Preview(showBackground = true)
 @Composable

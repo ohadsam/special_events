@@ -7,6 +7,7 @@ import com.ohadsam.specialevents.data.prefs.AppSettings
 import com.ohadsam.specialevents.domain.EventTimeline
 import com.ohadsam.specialevents.domain.EventType
 import com.ohadsam.specialevents.domain.UpcomingItem
+import com.ohadsam.specialevents.domain.groups.EventGroup
 import com.ohadsam.specialevents.domain.views.EventJump
 import com.ohadsam.specialevents.domain.views.GroupBy
 import com.ohadsam.specialevents.domain.views.ItemGroup
@@ -38,6 +39,7 @@ data class UpcomingState(
     val spec: ViewSpec = ViewSpec(),
     /** Every tag in use, for the filter sheet. */
     val allTags: List<String> = emptyList(),
+    val eventGroups: List<EventGroup> = emptyList(),
     val settings: AppSettings = AppSettings(),
     /** True when there are no events at all (as opposed to none matching the filter). */
     val noEvents: Boolean = false,
@@ -60,28 +62,35 @@ class UpcomingViewModel(
         }
     }
 
+    private class Extras(val greeted: Set<Pair<Long, Long>>, val groups: List<EventGroup>, val membership: Map<Long, Set<Long>>)
+
+    private val extras = combine(container.greetings.greetedKeys, container.groups.groups, container.groups.membership, ::Extras)
+
     val state: StateFlow<UpcomingState> = combine(
         container.events.allEvents,
         container.settings.settings,
         today,
         filter,
-        container.greetings.greetedKeys,
-    ) { events, settings, day, f, greeted ->
+        extras,
+    ) { events, settings, day, f, extra ->
         val all = EventTimeline.upcoming(events, day, settings.inIsrael, settings.dateRules, horizonDays = horizonFor(f, day))
         val spec = ViewSpec(f, settings.upcomingGroupBy, settings.upcomingSortBy, settings.upcomingAscending)
         UpcomingState(
             loading = false,
             today = day,
-            groups = ViewEngine.apply(all, spec, settings.weekStartsOnSunday),
+            groups = ViewEngine.apply(all, spec, settings.weekStartsOnSunday, extra.membership, extra.groups.map { it.id }),
+            eventGroups = extra.groups,
             spec = spec,
             allTags = events.flatMap { e -> e.tags.map { it.name } }.distinct().sorted(),
             settings = settings,
             noEvents = events.none { !it.archived },
-            greeted = greeted,
+            greeted = extra.greeted,
         )
     }.flowOn(Dispatchers.Default).stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), UpcomingState())
 
     fun toggleType(type: EventType) = filter.update { f -> f.copy(types = if (type in f.types) f.types - type else f.types + type) }
+
+    fun toggleGroup(id: Long) = filter.update { f -> f.copy(groups = if (id in f.groups) f.groups - id else f.groups + id) }
 
     fun toggleTag(tag: String) = filter.update { f -> f.copy(tags = if (tag in f.tags) f.tags - tag else f.tags + tag) }
 

@@ -40,6 +40,10 @@ import com.ohadsam.specialevents.ui.greetings.GreetingViewModel
 import com.ohadsam.specialevents.ui.greetings.TemplatesScreen
 import com.ohadsam.specialevents.ui.detail.DetailViewModel
 import com.ohadsam.specialevents.ui.editor.EditorScreen
+import com.ohadsam.specialevents.ui.groups.GroupEditorScreen
+import com.ohadsam.specialevents.ui.groups.GroupEditorViewModel
+import com.ohadsam.specialevents.ui.groups.GroupsScreen
+import com.ohadsam.specialevents.ui.groups.GroupsViewModel
 import com.ohadsam.specialevents.ui.editor.EditorViewModel
 import com.ohadsam.specialevents.ui.reminders.EventRemindersScreen
 import com.ohadsam.specialevents.ui.reminders.EventRemindersViewModel
@@ -124,6 +128,7 @@ fun AppRoot(container: AppContainer, pendingRoute: String? = null, onRouteHandle
                     onOpenTemplates = { nav.navigate(Routes.TEMPLATES) },
                     onOpenBackup = { nav.navigate(Routes.backup()) },
                     onOpenCalendarSync = { nav.navigate(Routes.CALENDAR_SYNC) },
+                    onOpenGroups = { nav.navigate(Routes.GROUPS) },
                 )
             }
             composable(Routes.DETAIL, arguments = listOf(navArgument("id") { type = NavType.LongType })) { entry ->
@@ -191,6 +196,14 @@ fun AppRoot(container: AppContainer, pendingRoute: String? = null, onRouteHandle
             composable(Routes.CALENDAR_SYNC) {
                 val vm: CalendarSyncViewModel = viewModel(factory = CalendarSyncViewModel.Factory(container))
                 CalendarSyncScreen(vm, onBack = { nav.popBackStack() })
+            }
+            composable(Routes.GROUPS) {
+                GroupsScreen(viewModel(factory = GroupsViewModel.Factory(container)), onBack = { nav.popBackStack() }, onOpenGroup = { nav.navigate(Routes.group(it)) })
+            }
+            composable(Routes.GROUP_EDITOR, arguments = listOf(navArgument("id") { type = NavType.LongType })) { entry ->
+                val id = entry.arguments?.getLong("id") ?: 0L
+                val vm: GroupEditorViewModel = viewModel(key = "group-$id", factory = GroupEditorViewModel.Factory(container, id))
+                GroupEditorScreen(vm, onClose = { nav.popBackStack() })
             }
             composable(Routes.TEMPLATES) {
                 TemplatesScreen(viewModel(factory = factory), onBack = { nav.popBackStack() })

@@ -13,18 +13,26 @@ data class ItemGroup(val key: GroupKey, val items: List<UpcomingItem>)
 object ViewEngine {
     private const val DECADE = 10
 
-    fun apply(items: List<UpcomingItem>, spec: ViewSpec, weekStartsSunday: Boolean = true): List<ItemGroup> {
-        val kept = filter(items, spec.filter)
+    /** [membership] maps an event id to its group ids; [groupOrder] is the user's order of groups for headings. */
+    fun apply(
+        items: List<UpcomingItem>,
+        spec: ViewSpec,
+        weekStartsSunday: Boolean = true,
+        membership: Map<Long, Set<Long>> = emptyMap(),
+        groupOrder: List<Long> = emptyList(),
+    ): List<ItemGroup> {
+        val kept = filter(items, spec.filter, membership)
         val sorted = kept.sortedWith(comparator(spec.sortBy, spec.ascending))
-        return group(sorted, spec.groupBy, weekStartsSunday, spec.ascending)
+        return group(sorted, spec.groupBy, weekStartsSunday, spec.ascending, membership, groupOrder)
     }
 
-    fun filter(items: List<UpcomingItem>, f: ViewFilter): List<UpcomingItem> {
+    fun filter(items: List<UpcomingItem>, f: ViewFilter, membership: Map<Long, Set<Long>> = emptyMap()): List<UpcomingItem> {
         val q = TextSearch.normalize(f.query)
         val tags = f.tags.map(TextSearch::normalize).toSet()
         return items.filter { item ->
             val e = item.event
             (f.types.isEmpty() || e.type in f.types) &&
+                (f.groups.isEmpty() || membership[e.id].orEmpty().any { it in f.groups }) &&
                 (tags.isEmpty() || e.tags.any { TextSearch.normalize(it.name) in tags }) &&
                 (q.isEmpty() || UpcomingFilter.matchesText(e, q)) &&
                 (!f.milestonesOnly || isMilestone(item)) &&
@@ -61,11 +69,18 @@ object ViewEngine {
         }
     }
 
-    private fun group(sorted: List<UpcomingItem>, by: GroupBy, sundayFirst: Boolean, ascending: Boolean): List<ItemGroup> {
+    private fun group(
+        sorted: List<UpcomingItem>,
+        by: GroupBy,
+        sundayFirst: Boolean,
+        ascending: Boolean,
+        membership: Map<Long, Set<Long>>,
+        groupOrder: List<Long>,
+    ): List<ItemGroup> {
         if (by == GroupBy.NONE) return if (sorted.isEmpty()) emptyList() else listOf(ItemGroup(GroupKey.All, sorted))
         val buckets = LinkedHashMap<GroupKey, MutableList<UpcomingItem>>()
         for (item in sorted) {
-            for (key in keysOf(item, by, sundayFirst)) buckets.getOrPut(key) { ArrayList() }.add(item)
+            for (key in keysOf(item, by, sundayFirst, membership)) buckets.getOrPut(key) { ArrayList() }.add(item)
         }
         val groups = buckets.map { ItemGroup(it.key, it.value) }
         return when (by) {
@@ -74,12 +89,15 @@ object ViewEngine {
                 groups.sortedBy { g -> g.items.minOf { it.date } }.let { if (ascending) it else it.reversed() }
             GroupBy.TYPE -> groups.sortedBy { (it.key as GroupKey.Type).type.ordinal }
             GroupBy.TAG -> groups.sortedWith(compareBy({ (it.key as GroupKey.Tag).name == null }, { TextSearch.normalize((it.key as GroupKey.Tag).name.orEmpty()) }))
+            GroupBy.GROUP -> groups.sortedWith(
+                compareBy({ (it.key as GroupKey.Group).id == null }, { groupOrder.indexOf((it.key as GroupKey.Group).id).let { i -> if (i < 0) Int.MAX_VALUE else i } }),
+            )
             GroupBy.AGE_DECADE -> groups.sortedWith(compareBy({ (it.key as GroupKey.AgeDecade).from == null }, { (it.key as GroupKey.AgeDecade).from ?: 0 }))
             GroupBy.NONE -> groups
         }
     }
 
-    private fun keysOf(item: UpcomingItem, by: GroupBy, sundayFirst: Boolean): List<GroupKey> = when (by) {
+    private fun keysOf(item: UpcomingItem, by: GroupBy, sundayFirst: Boolean, membership: Map<Long, Set<Long>>): List<GroupKey> = when (by) {
         GroupBy.PROXIMITY -> listOf(GroupKey.Proximity(UpcomingFilter.groupOf(item.daysUntil)))
         GroupBy.DAY -> listOf(GroupKey.Day(item.date))
         GroupBy.WEEK -> listOf(GroupKey.Week(CalendarData.weekStart(item.date, sundayFirst)))
@@ -87,6 +105,7 @@ object ViewEngine {
         GroupBy.HEBREW_MONTH -> listOf(GroupKey.HebrewMonth(item.hebrew.year, item.hebrew.month))
         GroupBy.TYPE -> listOf(GroupKey.Type(item.event.type))
         GroupBy.TAG -> item.event.tags.map { GroupKey.Tag(it.name) }.distinct().ifEmpty { listOf(GroupKey.Tag(null)) }
+        GroupBy.GROUP -> membership[item.event.id].orEmpty().sorted().map { GroupKey.Group(it) }.ifEmpty { listOf(GroupKey.Group(null)) }
         GroupBy.AGE_DECADE -> listOf(GroupKey.AgeDecade(item.number?.let { it / DECADE * DECADE }))
         GroupBy.NONE -> listOf(GroupKey.All)
     }

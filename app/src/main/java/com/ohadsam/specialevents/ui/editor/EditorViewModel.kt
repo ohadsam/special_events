@@ -14,6 +14,8 @@ import com.ohadsam.specialevents.domain.Gender
 import com.ohadsam.specialevents.domain.IconSuggester
 import com.ohadsam.specialevents.domain.Recurrence
 import com.ohadsam.specialevents.domain.SpecialEvent
+import com.ohadsam.specialevents.domain.groups.EventGroup
+import com.ohadsam.specialevents.domain.groups.GroupLogic
 import com.ohadsam.specialevents.domain.Tag
 import com.ohadsam.specialevents.ui.common.defaultEmoji
 import java.time.LocalDate
@@ -51,6 +53,8 @@ data class EditorState(
     val contactName: String? = null,
     val contactPhone: String? = null,
     val contactEmail: String? = null,
+    val allGroups: List<EventGroup> = emptyList(),
+    val groupIds: Set<Long> = emptySet(),
 ) {
     val emoji: String get() = chosenEmoji ?: IconSuggester.suggest(type, title, type.defaultEmoji())
     val emojiOptions: List<String> get() = IconSuggester.options(type, title, type.defaultEmoji())
@@ -68,10 +72,12 @@ class EditorViewModel(private val container: AppContainer, private val eventId: 
     init {
         viewModelScope.launch {
             val tags = container.events.tags.first()
+            val allGroups = container.groups.groups.first()
+            val memberOf = if (eventId != 0L) container.groups.groupsOf(eventId).map { it.id }.toSet() else emptySet()
             val event = if (eventId != 0L) container.events.get(eventId) else null
             original = event
             _state.value = if (event == null) {
-                _state.value.copy(loading = false, knownTags = tags, date = initialDate?.let { EditorDate.today(it) } ?: _state.value.date)
+                _state.value.copy(loading = false, knownTags = tags, allGroups = allGroups, date = initialDate?.let { EditorDate.today(it) } ?: _state.value.date)
             } else {
                 val today = LocalDate.now()
                 EditorState(
@@ -87,6 +93,8 @@ class EditorViewModel(private val container: AppContainer, private val eventId: 
                     colorArgb = event.colorArgb,
                     chosenEmoji = event.iconKey,
                     knownTags = tags,
+                    allGroups = allGroups,
+                    groupIds = memberOf,
                     photoUri = event.photoUri,
                     contactLookupUri = event.contactLookupUri,
                     contactPhone = event.contactPhone,
@@ -100,7 +108,7 @@ class EditorViewModel(private val container: AppContainer, private val eventId: 
     /** True when the user changed something that would be lost by leaving the editor. */
     fun isDirty(): Boolean = !_state.value.loading && _state.value.savedId == null && normalized(_state.value) != baseline
 
-    private fun normalized(s: EditorState) = s.copy(newTag = "", titleError = false, saving = false, savedId = null, knownTags = emptyList(), basisUserSet = false, contactName = null)
+    private fun normalized(s: EditorState) = s.copy(newTag = "", titleError = false, saving = false, savedId = null, knownTags = emptyList(), allGroups = emptyList(), basisUserSet = false, contactName = null)
 
     fun setType(type: EventType) = _state.update { s ->
         val basisChanged = s.isNew && !s.basisUserSet && s.date.basis != type.defaultBasis
@@ -134,6 +142,8 @@ class EditorViewModel(private val container: AppContainer, private val eventId: 
             if (s.tags.any { it.equals(clean, ignoreCase = true) }) s.copy(newTag = "") else s.copy(tags = s.tags + clean, newTag = "")
         }
     }
+
+    fun toggleGroup(id: Long) = _state.update { it.copy(groupIds = if (id in it.groupIds) it.groupIds - id else it.groupIds + id) }
 
     fun removeTag(name: String) = _state.update { it.copy(tags = it.tags - name) }
 
@@ -198,6 +208,10 @@ class EditorViewModel(private val container: AppContainer, private val eventId: 
             val base = original
             val personType = s.type == EventType.BIRTHDAY || s.type == EventType.YAHRZEIT || s.type == EventType.BAR_BAT_MITZVAH
             val known = s.knownTags.associateBy { it.name.lowercase() }
+            val previousGroups = if (base == null) emptySet() else container.groups.groupsOf(base.id).map { it.id }.toSet()
+            val addedGroups = s.allGroups.filter { it.id in s.groupIds && it.id !in previousGroups }
+            // A group's tags go onto the people who join it.
+            val tagNames = (s.tags + addedGroups.flatMap { it.tags }).distinctBy { it.lowercase() }
             val event = (base ?: SpecialEvent(type = s.type, title = s.title, origin = s.date.toOrigin())).copy(
                 type = s.type,
                 title = s.title.trim(),
@@ -214,14 +228,23 @@ class EditorViewModel(private val container: AppContainer, private val eventId: 
                 contactLookupUri = s.contactLookupUri,
                 contactPhone = s.contactPhone,
                 contactEmail = s.contactEmail,
-                tags = s.tags.map { known[it.lowercase()] ?: Tag(name = it) },
+                tags = tagNames.map { known[it.lowercase()] ?: Tag(name = it) },
             )
             val id = container.events.save(event)
             // The previous photo file is only deleted once the change is really saved.
             base?.photoUri?.takeIf { it != s.photoUri }?.let(PhotoStore::delete)
             if (base == null) container.reminders.addDefaults(id, s.type)
+            container.groups.setGroupsOf(id, s.groupIds)
+            applyGroupTemplate(id, s.allGroups.filter { it.id in s.groupIds }, addedGroups.isNotEmpty())
             _state.update { it.copy(saving = false, savedId = id) }
         }
+    }
+
+    /** A newly joined group's reminders replace the default ones, but never rules the user edited. */
+    private suspend fun applyGroupTemplate(eventId: Long, groups: List<EventGroup>, joinedNew: Boolean) {
+        if (!joinedNew) return
+        val group = GroupLogic.groupWithTemplate(groups) ?: return
+        if (GroupLogic.mayApplyTemplate(container.reminders.forEvent(eventId))) container.reminders.replaceForEvent(eventId, GroupLogic.templateFor(group, eventId))
     }
 
     class Factory(private val container: AppContainer, private val eventId: Long, private val initialDate: LocalDate? = null) : ViewModelProvider.Factory {

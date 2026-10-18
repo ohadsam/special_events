@@ -6,7 +6,7 @@ import java.time.LocalDate
 import java.time.YearMonth
 
 /** How the list is divided under headings. */
-enum class GroupBy { PROXIMITY, DAY, WEEK, MONTH, HEBREW_MONTH, TYPE, TAG, AGE_DECADE, NONE }
+enum class GroupBy { PROXIMITY, DAY, WEEK, MONTH, HEBREW_MONTH, TYPE, TAG, GROUP, AGE_DECADE, NONE }
 
 enum class SortBy { DATE, NAME, TYPE, NUMBER, UPDATED, CREATED }
 
@@ -14,13 +14,15 @@ enum class SortBy { DATE, NAME, TYPE, NUMBER, UPDATED, CREATED }
 data class ViewFilter(
     val types: Set<EventType> = emptySet(),
     val tags: Set<String> = emptySet(),
+    /** Ids of the groups (family, friends...) an event must belong to - any one of them. */
+    val groups: Set<Long> = emptySet(),
     val query: String = "",
     /** Only round birthdays, silver/gold anniversaries, bar/bat mitzvah days... */
     val milestonesOnly: Boolean = false,
     val from: LocalDate? = null,
     val to: LocalDate? = null,
 ) {
-    val isActive: Boolean get() = types.isNotEmpty() || tags.isNotEmpty() || query.isNotBlank() || milestonesOnly || from != null || to != null
+    val isActive: Boolean get() = types.isNotEmpty() || tags.isNotEmpty() || groups.isNotEmpty() || query.isNotBlank() || milestonesOnly || from != null || to != null
 }
 
 data class ViewSpec(
@@ -45,6 +47,9 @@ sealed interface GroupKey {
     data class HebrewMonth(val year: Int, val month: Int) : GroupKey
 
     data class Type(val type: EventType) : GroupKey
+
+    /** [id] null = events in no group. */
+    data class Group(val id: Long?) : GroupKey
 
     /** [name] null = events without any tag. */
     data class Tag(val name: String?) : GroupKey

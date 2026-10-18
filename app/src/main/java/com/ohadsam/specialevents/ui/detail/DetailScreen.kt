@@ -183,6 +183,7 @@ fun DetailScreen(viewModel: DetailViewModel, onBack: () -> Unit, onEdit: () -> U
             }
             event.notes?.let { Section(stringResource(R.string.detail_section_notes)) { Text(it, style = MaterialTheme.typography.bodyLarge) } }
             Tags(event.tags.map { it.name })
+            Tags(state.groups.map { listOfNotNull(it.emoji, it.name).joinToString(" ") })
         }
     }
 

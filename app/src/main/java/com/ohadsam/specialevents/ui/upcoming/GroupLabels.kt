@@ -14,7 +14,7 @@ private const val DECADE_SPAN = 9
 
 /** The heading text of a group in the list. */
 @Composable
-fun groupTitle(key: GroupKey): String = when (key) {
+fun groupTitle(key: GroupKey, groupNames: Map<Long, String> = emptyMap()): String = when (key) {
     GroupKey.All -> stringResource(R.string.group_all)
     is GroupKey.Proximity -> stringResource(key.group.labelRes())
     is GroupKey.Day -> weekdayName(key.date) + " · " + gregorianShort(key.date)
@@ -22,6 +22,7 @@ fun groupTitle(key: GroupKey): String = when (key) {
     is GroupKey.Month -> gregorianMonthYear(key.month.atDay(1))
     is GroupKey.HebrewMonth -> HebrewCalendar.monthName(key.year, key.month) + " " + HebrewCalendar.yearLabel(key.year)
     is GroupKey.Type -> stringResource(key.type.labelRes())
+    is GroupKey.Group -> key.id?.let { groupNames[it] } ?: stringResource(R.string.group_none)
     is GroupKey.Tag -> key.name ?: stringResource(R.string.group_no_tag)
     is GroupKey.AgeDecade -> key.from?.let { stringResource(R.string.group_age_decade, it, it + DECADE_SPAN) } ?: stringResource(R.string.group_no_age)
 }

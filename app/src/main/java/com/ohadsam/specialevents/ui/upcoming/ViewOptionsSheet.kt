@@ -62,6 +62,14 @@ fun ViewOptionsSheet(state: UpcomingState, actions: ViewActions, onDismiss: () -
                 Text(stringResource(R.string.view_milestones_only), Modifier.weight(1f), style = MaterialTheme.typography.bodyLarge)
                 Switch(checked = spec.filter.milestonesOnly, onCheckedChange = actions.setMilestonesOnly)
             }
+            if (state.eventGroups.isNotEmpty()) {
+                Text(stringResource(R.string.view_groups), style = MaterialTheme.typography.labelLarge)
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    state.eventGroups.forEach { g ->
+                        FilterChip(selected = g.id in spec.filter.groups, onClick = { actions.toggleGroup(g.id) }, label = { Text(listOfNotNull(g.emoji, g.name).joinToString(" ")) })
+                    }
+                }
+            }
             if (state.allTags.isNotEmpty()) {
                 Text(stringResource(R.string.view_tags), style = MaterialTheme.typography.labelLarge)
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -110,6 +118,7 @@ private fun Heading(res: Int) = Text(stringResource(res), style = MaterialTheme.
 data class ViewActions(
     val toggleType: (com.ohadsam.specialevents.domain.EventType) -> Unit,
     val toggleTag: (String) -> Unit,
+    val toggleGroup: (Long) -> Unit,
     val setMilestonesOnly: (Boolean) -> Unit,
     val setRange: (LocalDate?, LocalDate?) -> Unit,
     val clearFilters: () -> Unit,

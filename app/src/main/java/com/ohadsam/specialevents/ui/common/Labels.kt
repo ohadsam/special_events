@@ -13,6 +13,7 @@ import com.ohadsam.specialevents.data.prefs.ThemeMode
 import com.ohadsam.specialevents.domain.EventType
 import com.ohadsam.specialevents.domain.TypeFilter
 import com.ohadsam.specialevents.domain.UpcomingGroup
+import com.ohadsam.specialevents.domain.reminders.Channel
 import com.ohadsam.specialevents.domain.views.GroupBy
 import com.ohadsam.specialevents.domain.views.SortBy
 
@@ -143,6 +144,7 @@ fun GroupBy.labelRes(): Int = when (this) {
     GroupBy.HEBREW_MONTH -> R.string.groupby_hebrew_month
     GroupBy.TYPE -> R.string.groupby_type
     GroupBy.TAG -> R.string.groupby_tag
+    GroupBy.GROUP -> R.string.groupby_group
     GroupBy.AGE_DECADE -> R.string.groupby_age
     GroupBy.NONE -> R.string.groupby_none
 }
@@ -155,4 +157,12 @@ fun SortBy.labelRes(): Int = when (this) {
     SortBy.NUMBER -> R.string.sortby_number
     SortBy.UPDATED -> R.string.sortby_updated
     SortBy.CREATED -> R.string.sortby_created
+}
+
+@StringRes
+fun Channel.labelRes(): Int = when (this) {
+    Channel.NOTIFICATION -> R.string.channel_notification
+    Channel.WHATSAPP -> R.string.channel_whatsapp
+    Channel.EMAIL -> R.string.channel_email
+    Channel.SMS -> R.string.channel_sms
 }

@@ -9,6 +9,7 @@ import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 class SpecialEventsApp : Application() {
@@ -25,7 +26,14 @@ class SpecialEventsApp : Application() {
         log.i("App", "start v${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})")
         container.notifications.createChannels()
         watchRemindersInputs()
-        appScope.launch { runCatching { container.groups.ensureBuiltIns() }.onFailure { log.e("App", "built-in groups failed", it) } }
+        appScope.launch {
+            runCatching {
+                if (!container.settings.settings.first().groupsSeeded) {
+                    container.groups.ensureBuiltIns()
+                    container.settings.update { it.copy(groupsSeeded = true) }
+                }
+            }.onFailure { log.e("App", "built-in groups failed", it) }
+        }
         WidgetUpdater.scheduleMidnight(this)
         val previous = Thread.getDefaultUncaughtExceptionHandler()
         Thread.setDefaultUncaughtExceptionHandler { t, e ->

@@ -344,6 +344,14 @@ private fun MoreOptions(state: EditorState, vm: EditorViewModel) {
             )
             IconButton(onClick = { vm.addTag() }) { Icon(Icons.Outlined.Add, contentDescription = stringResource(R.string.editor_tag_add)) }
         }
+        if (state.allGroups.isNotEmpty()) {
+            Text(stringResource(R.string.editor_groups), style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.primary)
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                state.allGroups.forEach { g ->
+                    FilterChip(selected = g.id in state.groupIds, onClick = { vm.toggleGroup(g.id) }, label = { Text(listOfNotNull(g.emoji, g.name).joinToString(" ")) })
+                }
+            }
+        }
         val suggestions = state.knownTags.filter { k -> state.tags.none { it.equals(k.name, ignoreCase = true) } }
         if (suggestions.isNotEmpty()) {
             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {

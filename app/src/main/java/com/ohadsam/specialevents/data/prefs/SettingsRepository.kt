@@ -44,6 +44,7 @@ class SettingsRepository(private val store: DataStore<Preferences>) {
             upcomingGroupBy = p[UPCOMING_GROUP].toEnum(d.upcomingGroupBy),
             upcomingSortBy = p[UPCOMING_SORT].toEnum(d.upcomingSortBy),
             upcomingAscending = p[UPCOMING_ASC] ?: d.upcomingAscending,
+            groupsSeeded = p[GROUPS_SEEDED] ?: d.groupsSeeded,
         )
     }
 
@@ -66,6 +67,7 @@ class SettingsRepository(private val store: DataStore<Preferences>) {
         p[UPCOMING_GROUP] = s.upcomingGroupBy.name
         p[UPCOMING_SORT] = s.upcomingSortBy.name
         p[UPCOMING_ASC] = s.upcomingAscending
+        p[GROUPS_SEEDED] = s.groupsSeeded
     }
 
     private inline fun <reified E : Enum<E>> String?.toEnum(default: E): E = enumValues<E>().firstOrNull { it.name == this } ?: default
@@ -89,5 +91,6 @@ class SettingsRepository(private val store: DataStore<Preferences>) {
         val UPCOMING_GROUP = stringPreferencesKey("upcoming_group")
         val UPCOMING_SORT = stringPreferencesKey("upcoming_sort")
         val UPCOMING_ASC = booleanPreferencesKey("upcoming_ascending")
+        val GROUPS_SEEDED = booleanPreferencesKey("groups_seeded")
     }
 }

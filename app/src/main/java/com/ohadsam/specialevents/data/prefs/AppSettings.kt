@@ -32,4 +32,6 @@ data class AppSettings(
     val upcomingGroupBy: GroupBy = GroupBy.PROXIMITY,
     val upcomingSortBy: SortBy = SortBy.DATE,
     val upcomingAscending: Boolean = true,
+    /** The starting groups were added once; deleting one later must not bring it back. */
+    val groupsSeeded: Boolean = false,
 )

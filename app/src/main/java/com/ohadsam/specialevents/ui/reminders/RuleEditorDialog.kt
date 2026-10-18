@@ -70,6 +70,8 @@ fun RuleEditorDialog(
     onDismiss: () -> Unit,
     onSave: (ReminderRule) -> Unit,
     onDelete: (() -> Unit)?,
+    /** The "next ring" line needs a real event; a group's template has none. */
+    showPreview: Boolean = true,
 ) {
     val context = LocalContext.current
     var rule by remember { mutableStateOf(initial) }
@@ -88,7 +90,7 @@ fun RuleEditorDialog(
         text = {
             Column(Modifier.heightIn(max = DIALOG_MAX_HEIGHT).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(14.dp)) {
                 Text(ReminderLabels.describe(rule), style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
-                PreviewLine(event, rule, settings)
+                if (showPreview) PreviewLine(event, rule, settings)
 
                 Label(R.string.rule_when)
                 Row(verticalAlignment = Alignment.CenterVertically) {

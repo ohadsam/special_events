@@ -14,6 +14,7 @@ import com.ohadsam.specialevents.domain.EventTimeline
 import com.ohadsam.specialevents.domain.SpecialEvent
 import com.ohadsam.specialevents.domain.UpcomingItem
 import com.ohadsam.specialevents.domain.checklist.Checklist
+import com.ohadsam.specialevents.domain.groups.EventGroup
 import com.ohadsam.specialevents.domain.checklist.ChecklistProgress
 import com.ohadsam.specialevents.domain.reminders.ReminderRule
 import java.time.LocalDate
@@ -35,11 +36,14 @@ data class DetailState(
     val mitzvah: MitzvahDay? = null,
     val rules: List<ReminderRule> = emptyList(),
     val checklist: ChecklistProgress = ChecklistProgress(0, 0),
+    val groups: List<EventGroup> = emptyList(),
     val deleted: Boolean = false,
 )
 
 class DetailViewModel(private val container: AppContainer, private val eventId: Long) : ViewModel() {
-    val state: StateFlow<DetailState> = combine(container.events.allEvents, container.settings.settings, container.reminders.allRules, container.checklists.forEvent(eventId)) { events, settings, allRules, checklist ->
+    private val groupInfo = combine(container.groups.groups, container.groups.membership) { groups, membership -> groups to membership }
+
+    val state: StateFlow<DetailState> = combine(container.events.allEvents, container.settings.settings, container.reminders.allRules, container.checklists.forEvent(eventId), groupInfo) { events, settings, allRules, checklist, (groups, membership) ->
         val event = events.firstOrNull { it.id == eventId }
         if (event == null) {
             // Gone from the database (deleted here or elsewhere): the screen closes itself.
@@ -55,6 +59,7 @@ class DetailViewModel(private val container: AppContainer, private val eventId: 
                 mitzvah = EventTimeline.mitzvahInfo(event, settings.inIsrael, settings.dateRules),
                 rules = allRules.filter { it.eventId == eventId },
                 checklist = Checklist.progress(checklist),
+                groups = groups.filter { it.id in membership[eventId].orEmpty() },
             )
         }
     }.flowOn(Dispatchers.Default).stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), DetailState())
