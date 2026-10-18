@@ -20,6 +20,23 @@ jobs:
         run: |
           chmod +x gradlew
           ./gradlew assembleRelease --stacktrace
+      - name: Guard - this build must install as a plain update over the published one
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          BT=$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -1)
+          NEW=$(ls app/build/outputs/apk/release/*.apk | head -1)
+          mkdir -p prev && cd prev
+          if ! gh release download latest --pattern '*.apk' --repo "$GITHUB_REPOSITORY" 2>/dev/null; then echo "No previous release: nothing to compare."; exit 0; fi
+          OLD=$(ls *.apk | head -1); cd ..
+          cert() { "$BT/apksigner" verify --print-certs "$1" | grep -m1 'certificate SHA-256 digest'; }
+          code() { "$BT/aapt2" dump badging "$1" | sed -n "s/.*versionCode='\([0-9]*\)'.*/\1/p" | head -1; }
+          pkg() { "$BT/aapt2" dump badging "$1" | sed -n "s/^package: name='\([^']*\)'.*/\1/p"; }
+          echo "old: $(pkg prev/$OLD) code=$(code prev/$OLD) $(cert prev/$OLD)"
+          echo "new: $(pkg $NEW) code=$(code $NEW) $(cert $NEW)"
+          [ "$(pkg prev/$OLD)" = "$(pkg $NEW)" ] || { echo "::error::applicationId changed - users would have to reinstall"; exit 1; }
+          [ "$(cert prev/$OLD)" = "$(cert $NEW)" ] || { echo "::error::signing certificate changed - users would have to reinstall"; exit 1; }
+          [ "$(code $NEW)" -gt "$(code prev/$OLD)" ] || { echo "::error::versionCode did not increase - Android refuses the update"; exit 1; }
       - name: Publish release "latest"
         env:
           GH_TOKEN: ${{ github.token }}

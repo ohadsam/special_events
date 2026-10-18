@@ -56,6 +56,7 @@ Package layout (grow by batch; don't pre-create empty packages):
 - Sealed-class additions must be handled in every `when` — grep before pushing.
 
 ## 5. Versioning & signing
+**In-place update guarantee (owner requirement, every native app):** each release installs as an ordinary *update* - never an uninstall/reinstall, never data loss. That needs ALL of: (1) same `applicationId` forever; (2) same signing certificate forever (debug and release both use the committed sideload key; never rotate it, never let a CI secret silently switch the key); (3) `versionCode` strictly increasing; (4) `allowBackup`/data untouched by updates: every Room schema change ships with a tested `Migration` (no destructive fallback), DataStore keys are only added, never repurposed; (5) `minSdk` never raised without telling the owner. The `latest-apk.yml` workflow enforces 1-3 by comparing the new APK with the published `latest` one (apksigner/aapt2) and failing on any difference - copy that step into every app.
 - `versionName` bumped per release (feature → minor, fix → patch). `versionCode` monotonic: e.g. `100 + git commit count` so every CI build is an in-place update. (CI checkout needs `fetch-depth: 0`.)
 - Sideload key committed on purpose (`app/sideload.jks`) lets every CI build update in place; it is **not** a store key. For Play: `KEYSTORE_*` secrets in `release.yml` (users reinstall once). Never change/delete the sideload key after users installed it.
 

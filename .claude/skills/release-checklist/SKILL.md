@@ -22,6 +22,8 @@ Not one merged skim. Re-read every changed file in each pass; fix every finding 
 - In-app What's New (e.g. `assets/whatsnew.json`): only this version's user-facing bullets, in the app's language; the in-app version label shows the new number.
 - Append a short, user-facing entry to `docs/CHANGELOG.md` (no implementation detail).
 
+- **Update-in-place gate:** same `applicationId` + signing certificate, `versionCode` higher, every schema/preferences change migrated and migration-tested. A release that would force an uninstall is a blocker, not a note.
+
 ## 3. Docs
 `docs/PLAN.md` status (adjust later batches if assumptions changed) · `docs/SPEC.md` if behavior diverged (fix the spec, not just the code) · `CLAUDE.md` if a convention/pattern changed · `AGENT.md` (Recently done / Open items / Not verifiable) · `STRUCTURE.md` file map if files were added · `README.md` if user-facing.
 
@@ -47,6 +49,8 @@ Real incidents carried over from earlier apps (keep concrete; add new ones below
 - Glance widgets: data captured once in `provideGlance` goes stale after `update()` — collect flows / read state inside `provideContent`.
 - Sealed-class additions must be handled in every `when` (planner, codec, list text, editor) — grep before pushing.
 - Kotlin block comments NEST: a glob like `dir/*.json` inside a KDoc opens a second comment and breaks the whole file (ktlint reports "Unclosed comment"). Never write `/*` in comment text.
+- A release that forces users to reinstall (changed applicationId/signing key/versionCode not increasing) loses their data - the `latest-apk.yml` guard compares against the published APK.
+- GitHub Actions can refuse to start ("payments failed / spending limit"): that is not a code failure - stop, do not merge unverified, tell the owner.
 - KSP occasionally flakes (`Expected start of the object '{', but had 'EOF'`) — re-run CI, don't "fix".
 
 ## 8. Merge

@@ -21,7 +21,14 @@ Order is by dependency: pure logic first (cheap to test), then data, UI, engines
 | 11 | Backup/export/import/share: JSON (versioned), scheduled folder backup, encrypted backup, CSV/ICS, `.sevents` open-with, share-APK | S11 | 0.13.0 | [x] |
 | 11c | Scheduled folder backup (SAF + WorkManager), keep N copies, backup-age reminder; CSV import with column mapping | S11 | 0.13.5 | [ ] |
 | 12 | Calendar sync: CalendarContract import/export (Google + others), dedupe, dedicated calendar | S12 | 0.14.0 | [x] |
-| 13 | Print & rich visuals: WebView/JS print layouts, PDF, greeting-card image, emoji/sticker pack | S13 | 0.15.0 | [ ] |
+| 13 | (מוחלף ב-P1 + חבילת אימוג'י/סטיקרים) Print & rich visuals: WebView/JS print layouts, PDF, greeting-card image, emoji/sticker pack | S13 | 0.15.0 | [ ] |
+| G1 | קבוצות: קבוצות מובנות + מותאמות, מאפיינים (צבע/אימוג'י/תמונה/גופן/תגיות), תבנית תזכורות וברכות לקבוצה, רשימת תפוצה, ירושה, DB v8 | S18.2 | 0.15.0 | [ ] |
+| E1 | הוספת אירוע בטקסט חופשי (עברית) + שדות + בורר מערכת מסונכרנים, אישור עם שני הלוחות ויום בשבוע | S18.4 | 0.16.0 | [ ] |
+| H1 | עזרה: כפתור ? לפי הקשר, חלונות עזרה, tooltips, מדריך משתמש בתוך האפליקציה | S18.5 | 0.17.0 | [ ] |
+| T1 | תבניות ברכה v2: תיקיות/תגיות/שיוך לקבוצות, טרנספורמציות placeholder ועיצוב לפי יעד | S18.6 | 0.18.0 | [ ] |
+| T2 | נמענים מרובים ורשימות תפוצה בכלל תזכורת, תור שליחה, SMS אוטומטי לקבוצה (וואטסאפ/מייל – ממתין להחלטה) | S18.7 | 0.19.0 | [ ] |
+| S1 | שיתוף מרובה (.sevents) + הצעת שמירה אצל המקבל + כרטיס אדם | S18.3,8 | 0.20.0 | [ ] |
+| P1 | הדפסה (מחליף את 13): כרטיס ברכה, לוח חודשי, רשימות עם סינון, PDF | S18.9,S13 | 0.21.0 | [ ] |
 | 14 | Security & privacy hardening: app lock, FLAG_SECURE, Keystore secrets, threat model, permission audit, dependency scan | S14 | 0.16.0 | [ ] |
 | 15 | Polish: a11y pass, onboarding, help/ⓘ, Baseline Profile, emulator UI tests + screenshots, signing, README | S15,S16 | 0.17.0 → 1.0.0 | [ ] |
 
