@@ -1,5 +1,7 @@
 package com.ohadsam.specialevents.ui.calsync
 
+import com.ohadsam.specialevents.ui.help.HelpTopic
+import com.ohadsam.specialevents.ui.help.HelpButton
 import android.Manifest
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -69,6 +71,7 @@ fun CalendarSyncScreen(viewModel: CalendarSyncViewModel, onBack: () -> Unit) {
             TopAppBar(
                 title = { Text(stringResource(R.string.calsync_title)) },
                 navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Outlined.ArrowBack, contentDescription = stringResource(R.string.action_back)) } },
+                actions = { HelpButton(HelpTopic.CALENDAR_SYNC) },
             )
         },
         bottomBar = {

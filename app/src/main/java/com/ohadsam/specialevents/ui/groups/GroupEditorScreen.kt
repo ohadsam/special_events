@@ -1,5 +1,7 @@
 package com.ohadsam.specialevents.ui.groups
 
+import com.ohadsam.specialevents.ui.help.HelpTopic
+import com.ohadsam.specialevents.ui.help.HelpButton
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -99,7 +101,10 @@ fun GroupEditorScreen(viewModel: GroupEditorViewModel, onClose: () -> Unit) {
             TopAppBar(
                 title = { Text(stringResource(if (state.isNew) R.string.group_new else R.string.group_edit)) },
                 navigationIcon = { IconButton(onClick = back) { Icon(Icons.AutoMirrored.Outlined.ArrowBack, contentDescription = stringResource(R.string.action_back)) } },
-                actions = { TextButton(onClick = { viewModel.save() }, enabled = !state.busy) { Text(stringResource(R.string.action_save)) } },
+                actions = {
+                    HelpButton(HelpTopic.GROUPS)
+                    TextButton(onClick = { viewModel.save() }, enabled = !state.busy) { Text(stringResource(R.string.action_save)) }
+                },
             )
         },
     ) { padding ->

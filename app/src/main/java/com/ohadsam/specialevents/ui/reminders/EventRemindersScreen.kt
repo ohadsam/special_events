@@ -1,5 +1,7 @@
 package com.ohadsam.specialevents.ui.reminders
 
+import com.ohadsam.specialevents.ui.help.HelpTopic
+import com.ohadsam.specialevents.ui.help.HelpButton
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -71,6 +73,7 @@ fun EventRemindersScreen(viewModel: EventRemindersViewModel, onBack: () -> Unit)
                 title = { Text(event?.let { stringResource(R.string.reminders_title_for, it.title) } ?: stringResource(R.string.detail_section_reminders)) },
                 navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Outlined.ArrowBack, contentDescription = stringResource(R.string.action_back)) } },
                 actions = {
+                    HelpButton(HelpTopic.REMINDERS)
                     Box {
                         IconButton(onClick = { menuOpen = true }) { Icon(Icons.Outlined.MoreVert, contentDescription = stringResource(R.string.action_more)) }
                         DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {

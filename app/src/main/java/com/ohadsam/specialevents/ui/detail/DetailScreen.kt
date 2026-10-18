@@ -1,5 +1,7 @@
 package com.ohadsam.specialevents.ui.detail
 
+import com.ohadsam.specialevents.ui.help.HelpTopic
+import com.ohadsam.specialevents.ui.help.HelpButton
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.background
@@ -87,6 +89,7 @@ fun DetailScreen(viewModel: DetailViewModel, onBack: () -> Unit, onEdit: () -> U
                     IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Outlined.ArrowBack, contentDescription = stringResource(R.string.action_back)) }
                 },
                 actions = {
+                    HelpButton(HelpTopic.EVENT)
                     if (event != null) {
                         IconButton(onClick = onEdit) { Icon(Icons.Outlined.Edit, contentDescription = stringResource(R.string.detail_edit)) }
                         Box {

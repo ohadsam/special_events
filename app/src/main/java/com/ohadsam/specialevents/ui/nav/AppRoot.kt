@@ -9,12 +9,14 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.navArgument
@@ -40,6 +42,9 @@ import com.ohadsam.specialevents.ui.greetings.GreetingViewModel
 import com.ohadsam.specialevents.ui.greetings.TemplatesScreen
 import com.ohadsam.specialevents.ui.detail.DetailViewModel
 import com.ohadsam.specialevents.ui.editor.EditorScreen
+import com.ohadsam.specialevents.ui.help.GuideScreen
+import com.ohadsam.specialevents.ui.help.HelpTopic
+import com.ohadsam.specialevents.ui.help.LocalOpenGuide
 import com.ohadsam.specialevents.ui.groups.GroupEditorScreen
 import com.ohadsam.specialevents.ui.groups.GroupEditorViewModel
 import com.ohadsam.specialevents.ui.groups.GroupsScreen
@@ -55,6 +60,12 @@ import com.ohadsam.specialevents.ui.settings.SettingsScreen
 @Composable
 fun AppRoot(container: AppContainer, pendingRoute: String? = null, onRouteHandled: () -> Unit = {}) {
     val nav = rememberNavController()
+    val openGuide: (HelpTopic) -> Unit = { nav.navigate(Routes.guide(it.key)) { launchSingleTop = true } }
+    CompositionLocalProvider(LocalOpenGuide provides openGuide) { AppScaffold(container, nav, pendingRoute, onRouteHandled) }
+}
+
+@Composable
+private fun AppScaffold(container: AppContainer, nav: NavHostController, pendingRoute: String?, onRouteHandled: () -> Unit) {
     val factory = remember { ViewModelFactory(container) }
     LaunchedEffect(pendingRoute) {
         pendingRoute?.let {
@@ -129,6 +140,7 @@ fun AppRoot(container: AppContainer, pendingRoute: String? = null, onRouteHandle
                     onOpenBackup = { nav.navigate(Routes.backup()) },
                     onOpenCalendarSync = { nav.navigate(Routes.CALENDAR_SYNC) },
                     onOpenGroups = { nav.navigate(Routes.GROUPS) },
+                    onOpenGuide = { nav.navigate(Routes.guide()) },
                 )
             }
             composable(Routes.DETAIL, arguments = listOf(navArgument("id") { type = NavType.LongType })) { entry ->
@@ -196,6 +208,18 @@ fun AppRoot(container: AppContainer, pendingRoute: String? = null, onRouteHandle
             composable(Routes.CALENDAR_SYNC) {
                 val vm: CalendarSyncViewModel = viewModel(factory = CalendarSyncViewModel.Factory(container))
                 CalendarSyncScreen(vm, onBack = { nav.popBackStack() })
+            }
+            composable(
+                Routes.GUIDE,
+                arguments = listOf(
+                    navArgument("topic") {
+                        type = NavType.StringType
+                        nullable = true
+                        defaultValue = null
+                    },
+                ),
+            ) { entry ->
+                GuideScreen(HelpTopic.byKey(entry.arguments?.getString("topic")), onBack = { nav.popBackStack() })
             }
             composable(Routes.GROUPS) {
                 GroupsScreen(viewModel(factory = GroupsViewModel.Factory(container)), onBack = { nav.popBackStack() }, onOpenGroup = { nav.navigate(Routes.group(it)) })

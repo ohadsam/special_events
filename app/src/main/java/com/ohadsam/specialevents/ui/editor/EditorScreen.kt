@@ -1,5 +1,7 @@
 package com.ohadsam.specialevents.ui.editor
 
+import com.ohadsam.specialevents.ui.help.HelpTopic
+import com.ohadsam.specialevents.ui.help.HelpButton
 import androidx.annotation.StringRes
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -105,6 +107,7 @@ fun EditorScreen(viewModel: EditorViewModel, onClose: () -> Unit, onSaved: (Long
                     IconButton(onClick = requestClose) { Icon(Icons.Outlined.Close, contentDescription = stringResource(R.string.action_close)) }
                 },
                 actions = {
+                    HelpButton(HelpTopic.EDITOR)
                     TextButton(onClick = viewModel::save, enabled = !state.saving && !state.loading) { Text(stringResource(R.string.action_save)) }
                 },
             )

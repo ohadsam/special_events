@@ -21,6 +21,9 @@ object Routes {
     const val REMINDER_HEALTH = "reminder_health"
     const val IMPORT_CONTACTS = "import_contacts"
     const val TEMPLATES = "templates"
+    const val GUIDE = "guide?topic={topic}"
+
+    fun guide(topic: String? = null) = "guide" + (topic?.let { "?topic=$it" } ?: "")
     const val GROUPS = "groups"
     const val GROUP_EDITOR = "group/{id}"
 

@@ -1,5 +1,7 @@
 package com.ohadsam.specialevents.ui.checklist
 
+import com.ohadsam.specialevents.ui.help.HelpTopic
+import com.ohadsam.specialevents.ui.help.HelpButton
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -73,6 +75,7 @@ fun ChecklistScreen(viewModel: ChecklistViewModel, onBack: () -> Unit) {
                 title = { Text(state.event?.title ?: stringResource(R.string.checklist_title)) },
                 navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Outlined.ArrowBack, contentDescription = stringResource(R.string.action_back)) } },
                 actions = {
+                    HelpButton(HelpTopic.CHECKLIST)
                     IconButton(onClick = { menu = true }) { Icon(Icons.Outlined.MoreVert, contentDescription = stringResource(R.string.action_more)) }
                     DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
                         DropdownMenuItem(text = { Text(stringResource(R.string.checklist_add_template)) }, onClick = { menu = false; viewModel.addTemplate() })

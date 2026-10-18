@@ -1,5 +1,8 @@
 package com.ohadsam.specialevents.ui.calendar
 
+import com.ohadsam.specialevents.ui.help.TooltipIconButton
+import com.ohadsam.specialevents.ui.help.HelpTopic
+import com.ohadsam.specialevents.ui.help.HelpButton
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.calculateZoom
@@ -78,11 +81,12 @@ private fun CalendarContent(state: CalendarState, vm: CalendarViewModel, onOpenE
             TopAppBar(
                 title = { Text(stringResource(R.string.tab_calendar)) },
                 actions = {
-                    IconButton(onClick = vm::goToday) { Icon(Icons.Outlined.Today, contentDescription = stringResource(R.string.calendar_today)) }
-                    IconButton(onClick = { jumpingToEvent = true }) { Icon(Icons.Outlined.Search, contentDescription = stringResource(R.string.calendar_jump_event)) }
-                    IconButton(onClick = { picking = true }) { Icon(Icons.Outlined.EditCalendar, contentDescription = stringResource(R.string.calendar_jump)) }
+                    HelpButton(HelpTopic.CALENDAR)
+                    TooltipIconButton(onClick = vm::goToday, icon = Icons.Outlined.Today, description = stringResource(R.string.calendar_today))
+                    TooltipIconButton(onClick = { jumpingToEvent = true }, icon = Icons.Outlined.Search, description = stringResource(R.string.calendar_jump_event))
+                    TooltipIconButton(onClick = { picking = true }, icon = Icons.Outlined.EditCalendar, description = stringResource(R.string.calendar_jump))
                     Box {
-                        IconButton(onClick = { menuOpen = true }) { Icon(Icons.Outlined.MoreVert, contentDescription = stringResource(R.string.action_more)) }
+                        TooltipIconButton(onClick = { menuOpen = true }, icon = Icons.Outlined.MoreVert, description = stringResource(R.string.action_more))
                         DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
                             LayerItem(R.string.calendar_layer_events, prefs.showEvents, vm::toggleEvents)
                             LayerItem(R.string.calendar_layer_holidays, prefs.showHolidays, vm::toggleHolidays)
@@ -163,12 +167,12 @@ private fun PeriodNav(state: CalendarState, onPrev: () -> Unit, onNext: () -> Un
     val titles = periodTitles(state.prefs.level, state.prefs.anchor, state.settings.calendarMode, state.settings.weekStartsOnSunday)
     Row(Modifier.fillMaxWidth().padding(horizontal = 4.dp), verticalAlignment = Alignment.CenterVertically) {
         // Arrows are auto-mirrored: in the Hebrew (RTL) layout "previous" points right.
-        IconButton(onClick = onPrev) { Icon(Icons.AutoMirrored.Outlined.KeyboardArrowLeft, contentDescription = stringResource(R.string.calendar_previous)) }
+        TooltipIconButton(onClick = onPrev, icon = Icons.AutoMirrored.Outlined.KeyboardArrowLeft, description = stringResource(R.string.calendar_previous))
         Column(Modifier.weight(1f).clickable(onClickLabel = stringResource(R.string.calendar_pick_month), onClick = onTitle), horizontalAlignment = Alignment.CenterHorizontally) {
             Text(titles.title, style = MaterialTheme.typography.titleMedium, textAlign = TextAlign.Center)
             titles.subtitle?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = TextAlign.Center) }
         }
-        IconButton(onClick = onNext) { Icon(Icons.AutoMirrored.Outlined.KeyboardArrowRight, contentDescription = stringResource(R.string.calendar_next)) }
+        TooltipIconButton(onClick = onNext, icon = Icons.AutoMirrored.Outlined.KeyboardArrowRight, description = stringResource(R.string.calendar_next))
     }
 }
 

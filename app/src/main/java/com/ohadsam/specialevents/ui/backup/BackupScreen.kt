@@ -1,5 +1,7 @@
 package com.ohadsam.specialevents.ui.backup
 
+import com.ohadsam.specialevents.ui.help.HelpTopic
+import com.ohadsam.specialevents.ui.help.HelpButton
 import android.content.Intent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -94,6 +96,7 @@ fun BackupScreen(viewModel: BackupViewModel, onBack: () -> Unit, openUri: String
             TopAppBar(
                 title = { Text(stringResource(R.string.backup_title)) },
                 navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Outlined.ArrowBack, contentDescription = stringResource(R.string.action_back)) } },
+                actions = { HelpButton(HelpTopic.BACKUP) },
             )
         },
     ) { padding ->

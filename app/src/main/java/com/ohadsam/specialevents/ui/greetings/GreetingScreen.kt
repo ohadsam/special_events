@@ -1,5 +1,7 @@
 package com.ohadsam.specialevents.ui.greetings
 
+import com.ohadsam.specialevents.ui.help.HelpTopic
+import com.ohadsam.specialevents.ui.help.HelpButton
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -80,6 +82,7 @@ fun GreetingScreen(viewModel: GreetingViewModel, onBack: () -> Unit) {
             TopAppBar(
                 title = { Text(stringResource(R.string.greeting_title)) },
                 navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Outlined.ArrowBack, contentDescription = stringResource(R.string.action_back)) } },
+                actions = { HelpButton(HelpTopic.GREETINGS) },
             )
         },
     ) { padding ->

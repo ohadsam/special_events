@@ -1,5 +1,8 @@
 package com.ohadsam.specialevents.ui.upcoming
 
+import com.ohadsam.specialevents.ui.help.TooltipIconButton
+import com.ohadsam.specialevents.ui.help.HelpTopic
+import com.ohadsam.specialevents.ui.help.HelpButton
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -128,8 +131,9 @@ fun UpcomingContent(
             TopAppBar(
                 title = { Text(stringResource(R.string.tab_upcoming)) },
                 actions = {
-                    IconButton(onClick = { options = true }) { Icon(Icons.Outlined.Tune, contentDescription = stringResource(R.string.view_options)) }
-                    IconButton(onClick = onOpenSearch) { Icon(Icons.Outlined.Search, contentDescription = stringResource(R.string.search_open)) }
+                    HelpButton(HelpTopic.UPCOMING)
+                    TooltipIconButton(onClick = { options = true }, icon = Icons.Outlined.Tune, description = stringResource(R.string.view_options))
+                    TooltipIconButton(onClick = onOpenSearch, icon = Icons.Outlined.Search, description = stringResource(R.string.search_open))
                 },
             )
         },

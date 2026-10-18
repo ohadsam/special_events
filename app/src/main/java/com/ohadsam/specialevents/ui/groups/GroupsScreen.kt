@@ -1,5 +1,7 @@
 package com.ohadsam.specialevents.ui.groups
 
+import com.ohadsam.specialevents.ui.help.HelpTopic
+import com.ohadsam.specialevents.ui.help.HelpButton
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -48,6 +50,7 @@ fun GroupsScreen(viewModel: GroupsViewModel, onBack: () -> Unit, onOpenGroup: (L
             TopAppBar(
                 title = { Text(stringResource(R.string.groups_title)) },
                 navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Outlined.ArrowBack, contentDescription = stringResource(R.string.action_back)) } },
+                actions = { HelpButton(HelpTopic.GROUPS) },
             )
         },
         floatingActionButton = {
