@@ -30,10 +30,11 @@ class SmokeTest {
 
     @Test
     fun addEventOpensTheEditorAndBackReturns() {
-        AppRobot.click(rule, text(R.string.action_add_event))
+        // On a fresh install the list is empty, and the empty state carries the add button.
+        AppRobot.click(rule, text(R.string.action_add_first_event))
         rule.onAllNodesWithText(text(R.string.editor_title_new)).onFirst().assertIsDisplayed()
         AppRobot.back(rule)
-        rule.onAllNodesWithText(text(R.string.action_add_event)).onFirst().assertExists()
+        rule.onAllNodesWithText(text(R.string.action_add_first_event)).onFirst().assertExists()
     }
 
     @Test
