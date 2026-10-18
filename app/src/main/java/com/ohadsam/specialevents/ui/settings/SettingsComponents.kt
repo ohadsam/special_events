@@ -91,3 +91,34 @@ fun ResetRow(onReset: () -> Unit) {
 }
 
 private val MAX_DIALOG_HEIGHT = 420.dp
+
+/** A row showing a text setting; tapping opens a one-line editor. */
+@Composable
+fun TextRow(title: String, value: String, placeholder: String, onChange: (String) -> Unit, description: String? = null) {
+    var open by remember { mutableStateOf(false) }
+    ListItem(
+        modifier = Modifier.clickable { open = true },
+        headlineContent = { Text(title) },
+        supportingContent = { Text(value.ifBlank { placeholder }) },
+    )
+    if (open) {
+        var draft by remember { mutableStateOf(value) }
+        AlertDialog(
+            onDismissRequest = { open = false },
+            title = { Text(title) },
+            text = {
+                Column {
+                    description?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(bottom = 8.dp)) }
+                    androidx.compose.material3.OutlinedTextField(value = draft, onValueChange = { draft = it }, singleLine = true, modifier = Modifier.fillMaxWidth())
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    onChange(draft.trim())
+                    open = false
+                }) { Text(stringResource(R.string.action_save)) }
+            },
+            dismissButton = { TextButton(onClick = { open = false }) { Text(stringResource(R.string.action_cancel)) } },
+        )
+    }
+}

@@ -30,6 +30,8 @@ class SettingsViewModel(private val container: AppContainer) : ViewModel() {
 
     fun resetReminders() = update { it.copy(remindersEnabled = DEFAULTS.remindersEnabled, placeId = DEFAULTS.placeId, tzeit = DEFAULTS.tzeit) }
 
+    fun resetGreetings() = update { it.copy(selfPhone = DEFAULTS.selfPhone, selfEmail = DEFAULTS.selfEmail, countryCode = DEFAULTS.countryCode) }
+
     fun resetAll() {
         viewModelScope.launch { container.settings.reset() }
     }

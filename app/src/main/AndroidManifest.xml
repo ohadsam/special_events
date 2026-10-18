@@ -10,6 +10,12 @@
     <!-- Contacts (batch 7): only asked for when the user imports birthdays from the address book; linking one contact uses the system picker and needs no permission. -->
     <uses-permission android:name="android.permission.READ_CONTACTS" />
 
+    <!-- Lets the app see whether WhatsApp is installed (Android 11+ package visibility) when handing it a greeting. -->
+    <queries>
+        <package android:name="com.whatsapp" />
+        <package android:name="com.whatsapp.w4b" />
+    </queries>
+
     <application
         android:name=".SpecialEventsApp"
         android:allowBackup="false"

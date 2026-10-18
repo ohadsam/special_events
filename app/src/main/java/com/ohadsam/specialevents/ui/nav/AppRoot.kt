@@ -29,6 +29,8 @@ import com.ohadsam.specialevents.ui.upcoming.UpcomingScreen
 import com.ohadsam.specialevents.ui.contacts.ImportContactsScreen
 import com.ohadsam.specialevents.ui.contacts.ImportContactsViewModel
 import com.ohadsam.specialevents.ui.detail.DetailScreen
+import com.ohadsam.specialevents.ui.greetings.GreetingScreen
+import com.ohadsam.specialevents.ui.greetings.GreetingViewModel
 import com.ohadsam.specialevents.ui.detail.DetailViewModel
 import com.ohadsam.specialevents.ui.editor.EditorScreen
 import com.ohadsam.specialevents.ui.editor.EditorViewModel
@@ -110,7 +112,7 @@ fun AppRoot(container: AppContainer, pendingRoute: String? = null, onRouteHandle
             composable(Routes.DETAIL, arguments = listOf(navArgument("id") { type = NavType.LongType })) { entry ->
                 val id = entry.arguments?.getLong("id") ?: 0L
                 val vm: DetailViewModel = viewModel(key = "detail-$id", factory = DetailViewModel.Factory(container, id))
-                DetailScreen(vm, onBack = { nav.popBackStack() }, onEdit = { nav.navigate(Routes.editor(id)) }, onEditReminders = { nav.navigate(Routes.eventReminders(id)) })
+                DetailScreen(vm, onBack = { nav.popBackStack() }, onEdit = { nav.navigate(Routes.editor(id)) }, onEditReminders = { nav.navigate(Routes.eventReminders(id)) }, onGreet = { nav.navigate(Routes.greeting(id)) })
             }
             composable(
                 Routes.EDITOR,
@@ -135,6 +137,21 @@ fun AppRoot(container: AppContainer, pendingRoute: String? = null, onRouteHandle
                 val id = entry.arguments?.getLong("id") ?: 0L
                 val vm: EventRemindersViewModel = viewModel(key = "reminders-$id", factory = EventRemindersViewModel.Factory(container, id))
                 EventRemindersScreen(vm, onBack = { nav.popBackStack() })
+            }
+            composable(
+                Routes.GREETING,
+                arguments = listOf(
+                    navArgument("id") { type = NavType.LongType },
+                    navArgument("day") {
+                        type = NavType.LongType
+                        defaultValue = -1L
+                    },
+                ),
+            ) { entry ->
+                val id = entry.arguments?.getLong("id") ?: 0L
+                val day = entry.arguments?.getLong("day")?.takeIf { it >= 0 }
+                val vm: GreetingViewModel = viewModel(key = "greeting-$id-$day", factory = GreetingViewModel.Factory(container, id, day))
+                GreetingScreen(vm, onBack = { nav.popBackStack() })
             }
             composable(Routes.IMPORT_CONTACTS) {
                 val vm: ImportContactsViewModel = viewModel(factory = factory)

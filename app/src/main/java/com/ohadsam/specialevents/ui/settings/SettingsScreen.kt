@@ -132,6 +132,29 @@ fun SettingsScreen(viewModel: SettingsViewModel, onOpenLogs: () -> Unit, onOpenR
             AboutRow(Icons.Outlined.HealthAndSafety, R.string.settings_reminder_health, R.string.settings_reminder_health_desc, onOpenReminderHealth)
             ResetRow(viewModel::resetReminders)
 
+            SectionHeader(stringResource(R.string.settings_section_greetings))
+            TextRow(
+                title = stringResource(R.string.settings_self_phone),
+                value = settings.selfPhone,
+                placeholder = stringResource(R.string.settings_not_set),
+                description = stringResource(R.string.settings_self_desc),
+                onChange = { v -> viewModel.update { it.copy(selfPhone = v) } },
+            )
+            TextRow(
+                title = stringResource(R.string.settings_self_email),
+                value = settings.selfEmail,
+                placeholder = stringResource(R.string.settings_not_set),
+                onChange = { v -> viewModel.update { it.copy(selfEmail = v) } },
+            )
+            TextRow(
+                title = stringResource(R.string.settings_country_code),
+                value = settings.countryCode,
+                placeholder = "972",
+                description = stringResource(R.string.settings_country_code_desc),
+                onChange = { v -> viewModel.update { it.copy(countryCode = v.filter(Char::isDigit).ifEmpty { "972" }) } },
+            )
+            ResetRow(viewModel::resetGreetings)
+
             SectionHeader(stringResource(R.string.settings_section_general))
             AboutRow(Icons.Outlined.Contacts, R.string.settings_import_contacts, R.string.settings_import_contacts_desc, onImportContacts)
             AboutRow(Icons.Outlined.NewReleases, R.string.settings_whats_new, null) { showWhatsNew = true }

@@ -22,6 +22,7 @@ import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.MoreVert
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.AssistChip
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
@@ -70,7 +71,7 @@ import com.ohadsam.specialevents.ui.upcoming.milestoneLabel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DetailScreen(viewModel: DetailViewModel, onBack: () -> Unit, onEdit: () -> Unit, onEditReminders: () -> Unit) {
+fun DetailScreen(viewModel: DetailViewModel, onBack: () -> Unit, onEdit: () -> Unit, onEditReminders: () -> Unit, onGreet: () -> Unit) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     var menuOpen by remember { mutableStateOf(false) }
     var confirmDelete by remember { mutableStateOf(false) }
@@ -142,6 +143,7 @@ fun DetailScreen(viewModel: DetailViewModel, onBack: () -> Unit, onEdit: () -> U
                     Text("$shabbat · ${gregorianLong(m.shabbat)}", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
+            Button(onClick = onGreet, modifier = Modifier.fillMaxWidth()) { Text(stringResource(R.string.detail_send_greeting)) }
             if (event.contactPhone != null || event.contactLookupUri != null) {
                 val context = androidx.compose.ui.platform.LocalContext.current
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {

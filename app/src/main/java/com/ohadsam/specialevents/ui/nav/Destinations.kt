@@ -20,6 +20,10 @@ object Routes {
     const val SEARCH = "search"
     const val REMINDER_HEALTH = "reminder_health"
     const val IMPORT_CONTACTS = "import_contacts"
+    const val GREETING = "greeting/{id}?day={day}"
+
+    /** [day] is the occurrence day (epoch day) to greet for; -1 = the next one. */
+    fun greeting(id: Long, day: Long = -1L) = "greeting/$id?day=$day"
     const val EVENT_REMINDERS = "reminders/{id}"
 
     fun eventReminders(id: Long) = "reminders/$id"
