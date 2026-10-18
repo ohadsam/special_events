@@ -1,5 +1,5 @@
 # Special Events – Agent Memory
-**Last updated:** v0.20.0 (batches 0–12, V1, G1, E1, H1, T1, T2 done; S1 (multi-share + person card) next)
+**Last updated:** v0.21.0 (batches 0–12, V1, G1, E1, H1, T1, T2, S1 done; P1 (print) next)
 Read order: CLAUDE.md → docs/PLAN.md → STRUCTURE.md → the batch's section in docs/SPEC.md.
 
 ## Recently done
@@ -48,6 +48,8 @@ Read order: CLAUDE.md → docs/PLAN.md → STRUCTURE.md → the batch's section 
 - v0.19.0: batch T1: greeting templates v2. Not done: formatting of text typed by hand in the message (only placeholder styles), SMS stays plain by nature, sharing one template as its own file (backup covers it), template reorder. Unverified on device: EXTRA_HTML_TEXT in different mail apps, WhatsApp markers around RTL text.
 
 - v0.20.0: batch T2: multi-recipient sending. Honest limits: WhatsApp and e-mail still need one tap per recipient (no silent API) - only SMS is automatic; WhatsApp Business Cloud API / SMTP remain an owner decision (SPEC S18.7). Unverified on device: SMS to many numbers (carrier throttling), recipient list at 200% font.
+
+- v0.21.0: batch S1: sharing. Not done: person card as an IMAGE (comes with P1 print/visuals), sender name in the file, QR code/link sharing, in-app sharing history. Unverified on device: ACTION_SEND with application/octet-stream to WhatsApp and file managers keeping the .sevents name; VIEW intent for received files.
 
 ## Known issues / open items (need the owner)
 - Feature spec for "אירועים מיוחדים" not yet provided → fill `docs/SPEC.md`, then define batches in `docs/PLAN.md`.
@@ -102,6 +104,9 @@ Notification timing, permission flows, visuals, TalkBack.
 
 ## Ideas (v0.20.0)
 - WhatsApp Business Cloud API / SMTP behind a settings opt-in (owner decision); schedule a send time spread to avoid carrier limits; delivery receipts (sentIntent) to show failed numbers; per-recipient nickname stored on the person; skip recipients who already greeted via another channel.
+
+## Ideas (v0.21.0)
+- Person card as a picture (P1); show sender name and message in the receive dialog; QR code for a single event; share to a family group chat with a recurring update; link a received event to its sender for later updates.
 
 ## Ideas (from batch 5)
 - Yahrzeit candle reminder anchored to sunset (rule time = "N minutes before sunset") instead of a fixed 16:00; per-rule custom sound picker (profile `sound:<uri>` is already supported); quiet hours; "mark as greeted" action (batch 8); a daily digest notification option; reminders inheriting from tags.

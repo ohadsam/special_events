@@ -28,7 +28,7 @@ Order is by dependency: pure logic first (cheap to test), then data, UI, engines
 | H1 | עזרה: כפתור ? לפי הקשר, חלונות עזרה, tooltips, מדריך משתמש בתוך האפליקציה | S18.5 | 0.18.0 | [x] |
 | T1 | תבניות ברכה v2: תיקיות/תגיות/שיוך לקבוצות, טרנספורמציות placeholder ועיצוב לפי יעד | S18.6 | 0.19.0 | [x] |
 | T2 | נמענים מרובים ורשימות תפוצה בכלל תזכורת, תור שליחה, SMS אוטומטי לקבוצה (וואטסאפ/מייל – ממתין להחלטה) | S18.7 | 0.20.0 | [x] |
-| S1 | שיתוף מרובה (.sevents) + הצעת שמירה אצל המקבל + כרטיס אדם | S18.3,8 | 0.21.0 | [ ] |
+| S1 | שיתוף מרובה (.sevents) + הצעת שמירה אצל המקבל + כרטיס אדם | S18.3,8 | 0.21.0 | [x] |
 | P1 | הדפסה (מחליף את 13): כרטיס ברכה, לוח חודשי, רשימות עם סינון, PDF | S18.9,S13 | 0.22.0 | [ ] |
 | 14 | Security & privacy hardening: app lock, FLAG_SECURE, Keystore secrets, threat model, permission audit, dependency scan | S14 | 0.16.0 | [ ] |
 | 15 | Polish: a11y pass, onboarding, help/ⓘ, Baseline Profile, emulator UI tests + screenshots, signing, README | S15,S16 | 0.17.0 → 1.0.0 | [ ] |
