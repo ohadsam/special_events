@@ -47,6 +47,7 @@ class SettingsRepository(private val store: DataStore<Preferences>) {
             upcomingSortBy = p[UPCOMING_SORT].toEnum(d.upcomingSortBy),
             upcomingAscending = p[UPCOMING_ASC] ?: d.upcomingAscending,
             groupsSeeded = p[GROUPS_SEEDED] ?: d.groupsSeeded,
+            onboardingDone = p[ONBOARDING_DONE] ?: d.onboardingDone,
             appLockEnabled = p[APP_LOCK] ?: d.appLockEnabled,
             appLockTimeoutSeconds = p[APP_LOCK_TIMEOUT] ?: d.appLockTimeoutSeconds,
             hideContent = p[HIDE_CONTENT] ?: d.hideContent,
@@ -78,6 +79,7 @@ class SettingsRepository(private val store: DataStore<Preferences>) {
         p[UPCOMING_SORT] = s.upcomingSortBy.name
         p[UPCOMING_ASC] = s.upcomingAscending
         p[GROUPS_SEEDED] = s.groupsSeeded
+        p[ONBOARDING_DONE] = s.onboardingDone
         p[APP_LOCK] = s.appLockEnabled
         p[APP_LOCK_TIMEOUT] = s.appLockTimeoutSeconds
         p[HIDE_CONTENT] = s.hideContent
@@ -110,6 +112,7 @@ class SettingsRepository(private val store: DataStore<Preferences>) {
         val UPCOMING_SORT = stringPreferencesKey("upcoming_sort")
         val UPCOMING_ASC = booleanPreferencesKey("upcoming_ascending")
         val GROUPS_SEEDED = booleanPreferencesKey("groups_seeded")
+        val ONBOARDING_DONE = booleanPreferencesKey("onboarding_done")
         val APP_LOCK = booleanPreferencesKey("app_lock")
         val APP_LOCK_TIMEOUT = intPreferencesKey("app_lock_timeout")
         val HIDE_CONTENT = booleanPreferencesKey("hide_content")

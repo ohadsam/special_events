@@ -526,6 +526,9 @@
     <string name="datetext_e_month">לא מצאתי חודש — למשל ״17 באוקטובר״ או ״כ׳ בחשוון״.</string>
     <string name="datetext_e_day">לא מצאתי את היום בחודש.</string>
     <string name="datetext_e_invalid">התאריך הזה לא קיים בלוח.</string>
+    <string name="onboarding_title">ברוכים הבאים</string>
+    <string name="onboarding_start">בואו נתחיל</string>
+    <string name="onboarding_guide">למדריך המלא</string>
     <string name="help_start_title">איך מתחילים</string>
     <string name="help_start_body">האפליקציה עוזרת לא לפספס ימי הולדת, ימי נישואין, אזכרות ואירועים מיוחדים — ולברך בזמן.\n• הוסיפו אירוע בכפתור ״הוסף אירוע״ — אפשר פשוט לכתוב את התאריך בחופשיות.\n• כל אירוע מקבל תזכורות מוכנות לפי הסוג שלו; אפשר לשנות אותן בכל רגע.\n• ״קבוצות״ (בהגדרות) מאפשרות להגדיר בבת אחת תזכורות, ברכה ורשימת תפוצה למשפחה, לחברים ולעבודה.\n• ממקום קיים: ייבוא מאנשי הקשר או מיומני הטלפון (בהגדרות).\n• כפתור ? בכל מסך מסביר אותו, ולחיצה ארוכה על אייקון מסבירה מה הוא עושה.</string>
     <string name="help_upcoming_title">אירועים קרובים</string>

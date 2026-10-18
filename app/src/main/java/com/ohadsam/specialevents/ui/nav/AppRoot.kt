@@ -11,10 +11,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import kotlinx.coroutines.launch
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -59,6 +62,7 @@ import com.ohadsam.specialevents.ui.share.ShareScreen
 import com.ohadsam.specialevents.ui.share.ShareViewModel
 import com.ohadsam.specialevents.ui.settings.ReminderHealthScreen
 import com.ohadsam.specialevents.ui.settings.LogsScreen
+import com.ohadsam.specialevents.ui.settings.OnboardingDialog
 import com.ohadsam.specialevents.ui.settings.SettingsScreen
 
 @Composable
@@ -76,6 +80,18 @@ private fun AppScaffold(container: AppContainer, nav: NavHostController, pending
             nav.navigate(it) { launchSingleTop = true }
             onRouteHandled()
         }
+    }
+    val settings by container.settings.settings.collectAsState(initial = null)
+    val scope = rememberCoroutineScope()
+    val finishOnboarding = { scope.launch { container.settings.update { it.copy(onboardingDone = true) } }; Unit }
+    if (settings?.onboardingDone == false) {
+        OnboardingDialog(
+            onOpenGuide = {
+                finishOnboarding()
+                nav.navigate(Routes.guide(HelpTopic.START.key)) { launchSingleTop = true }
+            },
+            onDismiss = { finishOnboarding() },
+        )
     }
     val backStack by nav.currentBackStackEntryAsState()
     val currentRoute = backStack?.destination?.route
