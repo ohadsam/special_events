@@ -23,6 +23,8 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.ohadsam.specialevents.AppContainer
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.ohadsam.specialevents.ui.backup.BackupScreen
+import com.ohadsam.specialevents.ui.backup.BackupViewModel
 import com.ohadsam.specialevents.ui.calendar.CalendarScreen
 import com.ohadsam.specialevents.ui.checklist.ChecklistScreen
 import com.ohadsam.specialevents.ui.checklist.ChecklistViewModel
@@ -111,6 +113,7 @@ fun AppRoot(container: AppContainer, pendingRoute: String? = null, onRouteHandle
                     onOpenReminderHealth = { nav.navigate(Routes.REMINDER_HEALTH) },
                     onImportContacts = { nav.navigate(Routes.IMPORT_CONTACTS) },
                     onOpenTemplates = { nav.navigate(Routes.TEMPLATES) },
+                    onOpenBackup = { nav.navigate(Routes.BACKUP) },
                 )
             }
             composable(Routes.DETAIL, arguments = listOf(navArgument("id") { type = NavType.LongType })) { entry ->
@@ -161,6 +164,10 @@ fun AppRoot(container: AppContainer, pendingRoute: String? = null, onRouteHandle
                 val id = entry.arguments?.getLong("id") ?: 0L
                 val vm: ChecklistViewModel = viewModel(key = "checklist-$id", factory = ChecklistViewModel.Factory(container, id))
                 ChecklistScreen(vm, onBack = { nav.popBackStack() })
+            }
+            composable(Routes.BACKUP) {
+                val vm: BackupViewModel = viewModel(factory = BackupViewModel.Factory(container))
+                BackupScreen(vm, onBack = { nav.popBackStack() })
             }
             composable(Routes.TEMPLATES) {
                 TemplatesScreen(viewModel(factory = factory), onBack = { nav.popBackStack() })

@@ -21,6 +21,7 @@ object Routes {
     const val REMINDER_HEALTH = "reminder_health"
     const val IMPORT_CONTACTS = "import_contacts"
     const val TEMPLATES = "templates"
+    const val BACKUP = "backup"
     const val GREETING = "greeting/{id}?day={day}"
 
     /** [day] is the occurrence day (epoch day) to greet for; -1 = the next one. */

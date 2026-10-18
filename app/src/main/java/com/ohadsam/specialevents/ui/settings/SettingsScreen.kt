@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Backup
 import androidx.compose.material.icons.outlined.BugReport
 import androidx.compose.material.icons.outlined.Contacts
 import androidx.compose.material.icons.outlined.HealthAndSafety
@@ -43,7 +44,7 @@ import com.ohadsam.specialevents.ui.common.labelRes
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsScreen(viewModel: SettingsViewModel, onOpenLogs: () -> Unit, onOpenReminderHealth: () -> Unit, onImportContacts: () -> Unit, onOpenTemplates: () -> Unit) {
+fun SettingsScreen(viewModel: SettingsViewModel, onOpenLogs: () -> Unit, onOpenReminderHealth: () -> Unit, onImportContacts: () -> Unit, onOpenTemplates: () -> Unit, onOpenBackup: () -> Unit) {
     val settings by viewModel.settings.collectAsStateWithLifecycle()
     var showWhatsNew by remember { mutableStateOf(false) }
     var confirmResetAll by remember { mutableStateOf(false) }
@@ -156,6 +157,9 @@ fun SettingsScreen(viewModel: SettingsViewModel, onOpenLogs: () -> Unit, onOpenR
                 onChange = { v -> viewModel.update { it.copy(countryCode = v.filter(Char::isDigit).ifEmpty { "972" }) } },
             )
             ResetRow(viewModel::resetGreetings)
+
+            SectionHeader(stringResource(R.string.settings_section_backup))
+            AboutRow(Icons.Outlined.Backup, R.string.settings_backup, R.string.settings_backup_desc, onOpenBackup)
 
             SectionHeader(stringResource(R.string.settings_section_general))
             AboutRow(Icons.Outlined.Contacts, R.string.settings_import_contacts, R.string.settings_import_contacts_desc, onImportContacts)

@@ -2,4 +2,7 @@
 <paths>
     <!-- Voice greetings are recorded here and shared by content:// URI, so no storage permission is needed. -->
     <cache-path name="voice" path="voice/" />
+    <!-- Backups and the shared APK are copied here for the share sheet and replaced on the next share. -->
+    <cache-path name="backup" path="backup/" />
+    <cache-path name="share" path="share/" />
 </paths>
