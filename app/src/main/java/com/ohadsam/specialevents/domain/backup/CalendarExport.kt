@@ -39,7 +39,7 @@ object IcsExport {
     private fun description(d: ExportedDay): String = listOfNotNull(HebrewCalendar.fromLocalDate(d.date).format(), d.event.notes).joinToString("\n")
 
     /** RFC 5545 text escaping: backslash, semicolon, comma and line breaks. */
-    fun escape(text: String): String = text.replace("\\", "\\\\").replace(";", "\;").replace(",", "\\,").replace("\r\n", "\n").replace("\n", "\\n")
+    fun escape(text: String): String = text.replace("\\", "\\\\").replace(";", "\\;").replace(",", "\\,").replace("\r\n", "\n").replace("\n", "\\n")
 
     /** Lines longer than 75 octets continue on the next line after a space. Cuts on characters, never inside a surrogate pair or multi-byte letter. */
     fun fold(line: String): String {
