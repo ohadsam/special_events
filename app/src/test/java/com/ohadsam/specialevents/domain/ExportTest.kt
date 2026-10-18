@@ -53,7 +53,7 @@ class ExportTest {
         assertTrue(ics.contains("DTEND;VALUE=DATE:20261018\r\n"))
         assertTrue(ics.contains("UID:event-7-2026-10-17@special-events"))
         val unfolded = ics.replace("\r\n ", "")
-        assertTrue(unfolded.contains("SUMMARY:דנה\\, לוי\;  (46)"))
+        assertTrue(unfolded.contains("SUMMARY:דנה\\, לוי\\;  (46)"))
         assertTrue(unfolded.contains("\\nשורה1\\nשורה2"))
     }
 
