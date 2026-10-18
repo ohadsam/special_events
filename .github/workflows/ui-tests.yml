@@ -36,13 +36,6 @@ jobs:
             adb logcat -d | grep -E "AppTest|AndroidRuntime|FATAL" | tail -300 || true
             adb logcat -d -v raw -s AppShot > shots.txt || true
             echo "SHOTS_BEGIN"; cat shots.txt; echo "SHOTS_END"
-      - name: Test results summary (a failing test must be visible without opening artifacts)
-        if: always()
-        run: |
-          echo "=== UI RESULTS BEGIN ==="
-          grep -rhoE 'tests="[0-9]+"|failures="[0-9]+"|errors="[0-9]+"' app/build/outputs/androidTest-results --include=*.xml | sort | uniq -c || true
-          grep -rhE -A3 '<failure|<error' app/build/outputs/androidTest-results --include=*.xml | cut -c1-300 | head -40 || true
-          echo "=== UI RESULTS END ==="
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -51,3 +44,10 @@ jobs:
             app/build/reports/androidTests
             app/build/outputs/androidTest-results
             final.png
+      - name: Test results summary (a failing test must be visible without opening artifacts)
+        if: always()
+        run: |
+          echo "=== UI RESULTS BEGIN ==="
+          grep -rhoE 'tests="[0-9]+"|failures="[0-9]+"|errors="[0-9]+"' app/build/outputs/androidTest-results --include=*.xml | sort | uniq -c || true
+          grep -rhE -A3 '<failure|<error' app/build/outputs/androidTest-results --include=*.xml | cut -c1-300 | head -40 || true
+          echo "=== UI RESULTS END ==="
