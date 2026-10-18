@@ -1,5 +1,5 @@
 # Special Events – Agent Memory
-**Last updated:** v0.7.0 (batches 0–6 done; batch 7 next)
+**Last updated:** v0.8.0 (batches 0–7 done; batch 8a next)
 Read order: CLAUDE.md → docs/PLAN.md → STRUCTURE.md → the batch's section in docs/SPEC.md.
 
 ## Recently done
@@ -23,6 +23,8 @@ Read order: CLAUDE.md → docs/PLAN.md → STRUCTURE.md → the batch's section 
 
 - v0.7.0: reminder editor + suggestions. Global editable defaults per type are NOT built (reset uses `ReminderDefaults`); suggestions cannot be dismissed permanently yet. Not verifiable here: system tone picker result handling, TimePicker look in RTL.
 
+- v0.8.0: contacts + photos. Contact picker copies name/phone/email/photo once (no permission); import needs READ_CONTACTS at runtime. Photos are copied into files/photos (512px JPEG) and removed when replaced/deleted. Not verifiable here (device): picker/permission flows, photo EXIF rotation, import with real address books (date formats vary by account).
+
 ## Known issues / open items (need the owner)
 - Feature spec for "אירועים מיוחדים" not yet provided → fill `docs/SPEC.md`, then define batches in `docs/PLAN.md`.
 - **Signing key:** `app/sideload.jks` (password in app/build.gradle.kts) is committed on purpose so every CI build updates in place; NOT a store key. Never change it after users installed the app.
@@ -37,6 +39,9 @@ Notification timing, permission flows, visuals, TalkBack.
 
 ## Ideas (v0.7.0)
 - Dismiss a suggestion for good (remember its id); edit the per-type default rule sets in Settings; duplicate a rule to other events; bulk-apply a rule to all birthdays.
+
+## Ideas (v0.8.0)
+- Re-sync a linked contact (name/photo changed) on demand; import via vCard/CSV files; crop UI for photos; show contact photo in month cells; WhatsApp-style initials avatar when no photo.
 
 ## Ideas (from batch 5)
 - Yahrzeit candle reminder anchored to sunset (rule time = "N minutes before sunset") instead of a fixed 16:00; per-rule custom sound picker (profile `sound:<uri>` is already supported); quiet hours; "mark as greeted" action (batch 8); a daily digest notification option; reminders inheriting from tags.

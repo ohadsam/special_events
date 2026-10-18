@@ -3,6 +3,7 @@ package com.ohadsam.specialevents.data
 import com.ohadsam.specialevents.data.db.Migrations
 import java.io.File
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Assume.assumeTrue
 import org.junit.Test
 
@@ -32,5 +33,15 @@ class MigrationSchemaTest {
         assumeTrue("schemas/.../2.json not committed yet", schema != null)
         assertEquals(schema!!.first, Migrations.CREATE_REMINDER_RULES)
         assertEquals(listOf(Migrations.CREATE_REMINDER_RULES_INDEX), schema.second)
+    }
+
+    @Test
+    fun eventsGainTheContactColumnsInVersion3() {
+        val v2 = createSqlOf(2, "events")
+        val v3 = createSqlOf(3, "events")
+        assumeTrue("schemas/.../3.json not committed yet", v2 != null && v3 != null)
+        val expected = v2!!.first.removeSuffix(")") + ", `contactPhone` TEXT, `contactEmail` TEXT)"
+        assertEquals(expected, v3!!.first)
+        assertTrue(Migrations.ADD_CONTACT_PHONE.endsWith("`contactPhone` TEXT") && Migrations.ADD_CONTACT_EMAIL.endsWith("`contactEmail` TEXT"))
     }
 }

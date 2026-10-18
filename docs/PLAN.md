@@ -13,7 +13,7 @@ Order is by dependency: pure logic first (cheap to test), then data, UI, engines
 | 4b | חיפוש מתקדם: טקסט + תאריכים/טווחים עבריים ולועזיים + פילטרים משולבים + חיפוש בתוך חיפוש (refine) + חיפוש טבעי בעברית + הצעות/חיפושים שמורים | S17 | 0.5.5 | [x] |
 | 5 | Reminder engine: planner (pure) + Shabbat/Yom-Tov shifting, AlarmManager, receivers, boot/TZ repair, channels per sound/vibration profile, notification actions, permission health | S5 | 0.6.0 | [x] |
 | 6 | Reminders UI + smart milestone suggestions + per-type defaults/reset | S6 | 0.7.0 | [x] |
-| 7 | Contacts & photos: link contact, import birthdays, photo picker, avatar | S7 | 0.8.0 | [ ] |
+| 7 | Contacts & photos: link contact, import birthdays, photo picker, avatar | S7 | 0.8.0 | [x] |
 | 8a | Greetings: templates (built-in + custom, variables), recipients ("me"/contact/manual), one-tap WhatsApp/email/SMS, timing rules (tzeit/midnight/morning/evening), sent-history | S8 | 0.9.0 | [ ] |
 | 8b | Greetings extras: voice message recording + share, song suggestion links; true auto-send (SMS; email/WhatsApp-API gated on owner decision) | S8 | 0.10.0 | [ ] |
 | 9 | Per-event checklist + gift tracker + templates | S9 | 0.11.0 | [ ] |
