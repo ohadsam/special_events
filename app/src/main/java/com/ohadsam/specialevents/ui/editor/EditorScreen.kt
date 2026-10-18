@@ -51,6 +51,7 @@ import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -77,6 +78,10 @@ import com.ohadsam.specialevents.ui.common.gregorianNoYear
 import com.ohadsam.specialevents.ui.common.labelRes
 import com.ohadsam.specialevents.ui.common.weekdayName
 import java.time.Instant
+import com.ohadsam.specialevents.domain.datetext.DateParse
+import com.ohadsam.specialevents.domain.datetext.DateParseError
+import com.ohadsam.specialevents.domain.datetext.ParseWarning
+import com.ohadsam.specialevents.domain.datetext.ParsedDate
 import java.time.LocalDate
 import java.time.ZoneOffset
 
@@ -128,6 +133,7 @@ fun EditorScreen(viewModel: EditorViewModel, onClose: () -> Unit, onSaved: (Long
             if (state.type == EventType.BIRTHDAY || state.type == EventType.YAHRZEIT || state.type == EventType.BAR_BAT_MITZVAH) {
                 GenderChips(state.gender, viewModel::setGender)
             }
+            DateTextField(state.dateText, state.dateParse, viewModel::setDateText, viewModel::pickParsedYear)
             DateSection(state.date, state.yearOptional, viewModel::setDate)
             MoreOptions(state, viewModel)
         }
@@ -253,6 +259,70 @@ private fun DateSection(date: EditorDate, yearOptional: Boolean, onChange: (Edit
         )
     }
 }
+
+/** One line to type the date the way people say it; the result is shown right under it and mirrored in the pickers below. */
+@Composable
+private fun DateTextField(text: String, parse: DateParse?, onText: (String) -> Unit, onPickYear: (Int) -> Unit) {
+    val today = remember { LocalDate.now() }
+    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        OutlinedTextField(
+            value = text,
+            onValueChange = onText,
+            label = { Text(stringResource(R.string.datetext_label)) },
+            placeholder = { Text(stringResource(R.string.datetext_example)) },
+            isError = parse is DateParse.Failure && text.length > MIN_ERROR_CHARS,
+            modifier = Modifier.fillMaxWidth(),
+        )
+        when (parse) {
+            null -> Text(stringResource(R.string.datetext_hint), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            is DateParse.Failure -> if (text.length > MIN_ERROR_CHARS) {
+                Text(stringResource(parse.error.messageRes()), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
+            }
+            is DateParse.Ok -> ParsedSummary(parse.date, today, onPickYear)
+        }
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun ParsedSummary(date: ParsedDate, today: LocalDate, onPickYear: (Int) -> Unit) {
+    val editorDate = date.toEditorDate(today)
+    if (date.needsYear) {
+        Text(stringResource(R.string.datetext_pick_year, date.weekday?.let { weekdayHe(it) }.orEmpty()), style = MaterialTheme.typography.bodyMedium)
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            date.candidates.forEach { y -> FilterChip(selected = false, onClick = { onPickYear(y) }, label = { Text(y.toString()) }) }
+        }
+        return
+    }
+    Text(
+        stringResource(R.string.datetext_understood, primaryLabel(editorDate), secondaryLabel(editorDate)),
+        style = MaterialTheme.typography.bodyMedium,
+        color = MaterialTheme.colorScheme.primary,
+    )
+    date.warnings.forEach { w ->
+        Text(warningText(w, date), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.tertiary)
+    }
+}
+
+@Composable
+private fun warningText(w: ParseWarning, date: ParsedDate): String = when (w) {
+    ParseWarning.WEEKDAY_MISMATCH -> stringResource(R.string.datetext_w_weekday, date.weekday?.let { weekdayHe(it) }.orEmpty(), date.actualWeekday?.let { weekdayHe(it) }.orEmpty())
+    ParseWarning.AMBIGUOUS_YEAR -> stringResource(R.string.datetext_w_ambiguous)
+    ParseWarning.TWO_DIGIT_YEAR -> stringResource(R.string.datetext_w_two_digit, date.year ?: 0)
+    ParseWarning.ADAR_READ_AS_SECOND -> stringResource(R.string.datetext_w_adar)
+    ParseWarning.AGE_UNRESOLVED -> stringResource(R.string.datetext_w_age)
+}
+
+private fun DateParseError.messageRes(): Int = when (this) {
+    DateParseError.EMPTY -> R.string.datetext_e_empty
+    DateParseError.NO_MONTH -> R.string.datetext_e_month
+    DateParseError.NO_DAY -> R.string.datetext_e_day
+    DateParseError.INVALID_DATE -> R.string.datetext_e_invalid
+}
+
+private fun weekdayHe(day: java.time.DayOfWeek): String = weekdayName(LocalDate.of(2026, 10, 18).with(java.time.temporal.TemporalAdjusters.nextOrSame(day)))
+
+private const val MIN_ERROR_CHARS = 5
 
 @Composable
 private fun primaryLabel(date: EditorDate): String = when (date.basis) {

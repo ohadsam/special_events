@@ -14,6 +14,8 @@ import com.ohadsam.specialevents.domain.Gender
 import com.ohadsam.specialevents.domain.IconSuggester
 import com.ohadsam.specialevents.domain.Recurrence
 import com.ohadsam.specialevents.domain.SpecialEvent
+import com.ohadsam.specialevents.domain.datetext.DateParse
+import com.ohadsam.specialevents.domain.datetext.DateTextParser
 import com.ohadsam.specialevents.domain.groups.EventGroup
 import com.ohadsam.specialevents.domain.groups.GroupLogic
 import com.ohadsam.specialevents.domain.Tag
@@ -53,6 +55,9 @@ data class EditorState(
     val contactName: String? = null,
     val contactPhone: String? = null,
     val contactEmail: String? = null,
+    /** What the user typed in the free-text date field, and what was understood from it. */
+    val dateText: String = "",
+    val dateParse: DateParse? = null,
     val allGroups: List<EventGroup> = emptyList(),
     val groupIds: Set<Long> = emptySet(),
 ) {
@@ -108,7 +113,7 @@ class EditorViewModel(private val container: AppContainer, private val eventId: 
     /** True when the user changed something that would be lost by leaving the editor. */
     fun isDirty(): Boolean = !_state.value.loading && _state.value.savedId == null && normalized(_state.value) != baseline
 
-    private fun normalized(s: EditorState) = s.copy(newTag = "", titleError = false, saving = false, savedId = null, knownTags = emptyList(), allGroups = emptyList(), basisUserSet = false, contactName = null)
+    private fun normalized(s: EditorState) = s.copy(newTag = "", titleError = false, saving = false, savedId = null, knownTags = emptyList(), allGroups = emptyList(), dateText = "", dateParse = null, basisUserSet = false, contactName = null)
 
     fun setType(type: EventType) = _state.update { s ->
         val basisChanged = s.isNew && !s.basisUserSet && s.date.basis != type.defaultBasis
@@ -124,6 +129,22 @@ class EditorViewModel(private val container: AppContainer, private val eventId: 
     fun setGender(value: Gender?) = _state.update { it.copy(gender = value) }
 
     fun setDate(date: EditorDate) = _state.update { it.copy(date = date, basisUserSet = true) }
+
+    /** Reads a date written in plain Hebrew; a clear result is applied at once, an unclear one waits for the user to choose a year. */
+    fun setDateText(text: String) {
+        val today = LocalDate.now()
+        val parse = if (text.isBlank()) null else DateTextParser.parse(text, today)
+        val found = (parse as? DateParse.Ok)?.date?.takeIf { !it.needsYear }
+        _state.update { s ->
+            s.copy(dateText = text, dateParse = parse, date = found?.toEditorDate(today) ?: s.date, basisUserSet = s.basisUserSet || found != null)
+        }
+    }
+
+    fun pickParsedYear(year: Int) {
+        val ok = _state.value.dateParse as? DateParse.Ok ?: return
+        val chosen = ok.date.withYear(year)
+        _state.update { it.copy(dateParse = DateParse.Ok(chosen), date = chosen.toEditorDate(LocalDate.now()), basisUserSet = true) }
+    }
 
     fun setRelation(value: String) = _state.update { it.copy(relation = value) }
 
