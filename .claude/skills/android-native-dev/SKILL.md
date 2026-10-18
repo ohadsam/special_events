@@ -51,6 +51,7 @@ Package layout (grow by batch; don't pre-create empty packages):
 - Room: any schema change = `version` bump + `Migrations` entry in the same commit (release never wipes data). Debug may wipe.
 - Background work in WorkManager/AlarmManager, never raw threads. Navigation/lifecycle calls after a `suspend` call run on `Dispatchers.Main`.
 - Glance widgets: never capture data once in `provideGlance`; collect flows / read state inside `provideContent`.
+- Room schema export + parallel Gradle: `kspDebugKotlin` and `kspReleaseKotlin` both write `app/schemas/.../N.json` and can read a half-written file (`JsonDecodingException ... database.entities[0]`). Add `tasks.matching { it.name == "kspReleaseKotlin" }.configureEach { mustRunAfter("kspDebugKotlin") }`.
 - Never write `/*` inside a KDoc/comment (globs like `schemas/*.json`): Kotlin block comments nest and the file fails to parse.
 - Sealed-class additions must be handled in every `when` — grep before pushing.
 

@@ -72,6 +72,10 @@ android {
 // Room writes its schema JSON here; commit it, it is the base for migration tests.
 ksp { arg("room.schemaLocation", "$projectDir/schemas") }
 
+// The debug and release KSP tasks write the same schema JSON; run in parallel they can read a half-written file
+// ("JsonDecodingException ... database.entities[0]"). Serialise them.
+tasks.matching { it.name == "kspReleaseKotlin" }.configureEach { mustRunAfter("kspDebugKotlin") }
+
 // Lint is advisory until the code base settles (see docs/PLAN.md); flip to false to enforce.
 ktlint { ignoreFailures.set(true) }
 detekt {
