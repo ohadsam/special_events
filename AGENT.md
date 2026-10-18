@@ -57,6 +57,8 @@ Read order: CLAUDE.md → docs/PLAN.md → STRUCTURE.md → the batch's section 
 
 - v0.24.0: auto-backup to SAF folder (WorkManager, retention, status) and CSV import with column mapping (11c). Unverified on device: SAF folder write/prune, periodic worker.
 
+- v0.25.0: polish part 1 (search help button, first-run welcome). Remaining in batch 15: a11y pass, Baseline Profile, emulator UI tests, signing/README.
+
 ## Known issues / open items (need the owner)
 - Feature spec for "אירועים מיוחדים" not yet provided → fill `docs/SPEC.md`, then define batches in `docs/PLAN.md`.
 - **Signing key:** `app/sideload.jks` (password in app/build.gradle.kts) is committed on purpose so every CI build updates in place; NOT a store key. Never change it after users installed the app.
