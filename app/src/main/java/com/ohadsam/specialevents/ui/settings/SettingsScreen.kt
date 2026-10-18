@@ -35,6 +35,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ohadsam.specialevents.BuildConfig
@@ -46,12 +47,15 @@ import com.ohadsam.specialevents.calendar.TzeitMethod
 import com.ohadsam.specialevents.location.Places
 import com.ohadsam.specialevents.data.prefs.CalendarMode
 import com.ohadsam.specialevents.data.prefs.ThemeMode
+import com.ohadsam.specialevents.security.AppLockPolicy
+import com.ohadsam.specialevents.security.DeviceAuth
 import com.ohadsam.specialevents.ui.common.labelRes
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(viewModel: SettingsViewModel, onOpenLogs: () -> Unit, onOpenReminderHealth: () -> Unit, onImportContacts: () -> Unit, onOpenTemplates: () -> Unit, onOpenBackup: () -> Unit, onOpenCalendarSync: () -> Unit, onOpenGroups: () -> Unit, onOpenGuide: () -> Unit, onOpenPrint: () -> Unit) {
     val settings by viewModel.settings.collectAsStateWithLifecycle()
+    val context = LocalContext.current
     var showWhatsNew by remember { mutableStateOf(false) }
     var confirmResetAll by remember { mutableStateOf(false) }
 
@@ -165,6 +169,31 @@ fun SettingsScreen(viewModel: SettingsViewModel, onOpenLogs: () -> Unit, onOpenR
             )
             ResetRow(viewModel::resetGreetings)
 
+            SectionHeader(stringResource(R.string.settings_section_security))
+            val deviceSecure = remember { DeviceAuth.isSecure(context) }
+            SwitchRow(
+                title = stringResource(R.string.settings_app_lock),
+                checked = settings.appLockEnabled && deviceSecure,
+                onChange = { v -> viewModel.update { it.copy(appLockEnabled = v) } },
+                description = stringResource(if (deviceSecure) R.string.settings_app_lock_desc else R.string.settings_app_lock_no_device_lock),
+                enabled = deviceSecure,
+            )
+            if (settings.appLockEnabled && deviceSecure) {
+                ChoiceRow(
+                    title = stringResource(R.string.settings_app_lock_timeout),
+                    options = AppLockPolicy.TIMEOUTS_SECONDS.map { it to stringResource(timeoutLabel(it)) },
+                    selected = settings.appLockTimeoutSeconds,
+                    onSelect = { v -> viewModel.update { it.copy(appLockTimeoutSeconds = v) } },
+                )
+            }
+            SwitchRow(
+                title = stringResource(R.string.settings_hide_content),
+                checked = settings.hideContent,
+                onChange = { v -> viewModel.update { it.copy(hideContent = v) } },
+                description = stringResource(R.string.settings_hide_content_desc),
+            )
+            Text(stringResource(R.string.settings_privacy_note), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp))
+
             SectionHeader(stringResource(R.string.settings_section_backup))
             AboutRow(Icons.Outlined.Print, R.string.settings_print, R.string.settings_print_desc, onOpenPrint)
             AboutRow(Icons.Outlined.Backup, R.string.settings_backup, R.string.settings_backup_desc, onOpenBackup)
@@ -212,4 +241,11 @@ private fun AboutRow(icon: androidx.compose.ui.graphics.vector.ImageVector, titl
             null
         },
     )
+}
+
+private fun timeoutLabel(seconds: Int): Int = when (seconds) {
+    0 -> R.string.lock_timeout_now
+    30 -> R.string.lock_timeout_30
+    60 -> R.string.lock_timeout_60
+    else -> R.string.lock_timeout_300
 }

@@ -107,7 +107,8 @@
 
         <receiver android:name=".reminders.ReminderReceiver" android:exported="false" />
         <receiver android:name=".reminders.ReminderActionReceiver" android:exported="false" />
-        <receiver android:name=".reminders.BootReceiver" android:exported="true">
+        <!-- Only the system sends these broadcasts, so nothing else needs to reach this receiver. -->
+        <receiver android:name=".reminders.BootReceiver" android:exported="false">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />

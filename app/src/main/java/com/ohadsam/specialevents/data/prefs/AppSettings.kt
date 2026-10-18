@@ -34,4 +34,9 @@ data class AppSettings(
     val upcomingAscending: Boolean = true,
     /** The starting groups were added once; deleting one later must not bring it back. */
     val groupsSeeded: Boolean = false,
+    /** Ask for the phone's lock before showing the app; after how many seconds out of sight (0 = every time). */
+    val appLockEnabled: Boolean = false,
+    val appLockTimeoutSeconds: Int = 60,
+    /** Blank the app in the recent-apps list and block screenshots. */
+    val hideContent: Boolean = false,
 )
