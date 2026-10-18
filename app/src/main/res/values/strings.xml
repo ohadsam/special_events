@@ -626,6 +626,9 @@
     <string name="detail_menu_share">שתף</string>
     <string name="backup_share_events">שתף אירועים נבחרים</string>
     <string name="group_share">שתף את הקבוצה</string>
+    <string name="share_import_title">קיבלתם אירועים</string>
+    <string name="share_import_summary">מישהו שיתף איתכם %1$d אירועים. בחרו מה לשמור באפליקציה — מה שכבר קיים אצלכם לא מסומן.</string>
+    <string name="share_import_action">שמור באפליקציה</string>
     <string name="action_undo">בטל</string>
     <string name="action_delete">מחק</string>
     <string name="checklist_title">צ׳קליסט ומתנות</string>

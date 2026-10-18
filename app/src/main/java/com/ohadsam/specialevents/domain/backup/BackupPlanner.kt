@@ -23,4 +23,24 @@ object BackupPlanner {
             existingEvents = existing.size,
         )
     }
+
+    /** The part of [data] that belongs to the chosen events: their reminders, checklists and group memberships, and the groups still in use. */
+    fun restrict(data: BackupData, eventIds: Set<Long>): BackupData {
+        val members = data.members.filter { (e, _) -> e in eventIds }
+        val usedGroups = members.map { it.second }.toSet()
+        return data.copy(
+            events = data.events.filter { it.id in eventIds },
+            rules = data.rules.filter { it.eventId in eventIds },
+            checklist = data.checklist.filter { it.eventId in eventIds },
+            members = members,
+            groups = data.groups.filter { it.id in usedGroups },
+        )
+    }
+
+    /** Events a restore would add rather than duplicate (every event, when replacing). */
+    fun defaultSelection(existing: List<SpecialEvent>, incoming: List<SpecialEvent>, mode: ImportMode): Set<Long> {
+        if (mode == ImportMode.REPLACE) return incoming.map { it.id }.toSet()
+        val known = existing.map(::key).toHashSet()
+        return incoming.filter { known.add(key(it)) }.map { it.id }.toSet()
+    }
 }

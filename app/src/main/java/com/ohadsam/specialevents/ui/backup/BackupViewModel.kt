@@ -18,6 +18,7 @@ import com.ohadsam.specialevents.domain.backup.ExportDays
 import com.ohadsam.specialevents.domain.backup.IcsExport
 import com.ohadsam.specialevents.domain.backup.BackupData
 import com.ohadsam.specialevents.domain.backup.BackupError
+import com.ohadsam.specialevents.domain.backup.BackupPlanner
 import com.ohadsam.specialevents.domain.backup.DecodeResult
 import com.ohadsam.specialevents.domain.backup.ImportMode
 import com.ohadsam.specialevents.domain.backup.ImportPreview
@@ -35,7 +36,18 @@ import kotlinx.coroutines.withContext
 data class UiMessage(@StringRes val res: Int, val args: List<Any> = emptyList())
 
 /** A file the user picked, read and checked, waiting for a decision about how to import it. */
-data class PendingImport(val data: BackupData, val skipped: Int, val mode: ImportMode, val preview: ImportPreview)
+data class PendingImport(
+    val data: BackupData,
+    val skipped: Int,
+    val mode: ImportMode,
+    val preview: ImportPreview,
+    /** "backup" (my own file) or "share" (events someone sent me): the dialog words itself accordingly. */
+    val kind: String = BackupCodec.KIND_BACKUP,
+    /** Events of the file the user wants to take in (ids as numbered in the file). */
+    val selected: Set<Long> = emptySet(),
+    /** Events of the file that already exist here. */
+    val existing: Set<Long> = emptySet(),
+)
 
 /** What the user is saving to a file. */
 enum class ExportKind(val extension: String, val mime: String) {
@@ -140,8 +152,16 @@ class BackupViewModel(private val container: AppContainer) : ViewModel() {
     private suspend fun showPreview(text: String?) {
         when (val result = text?.let(BackupCodec::decode) ?: DecodeResult.Failure(BackupError.TOO_BIG)) {
             is DecodeResult.Failure -> _state.update { it.copy(message = UiMessage(errorText(result.error))) }
-            is DecodeResult.Ok -> _state.update {
-                it.copy(pending = PendingImport(result.data, result.skipped, ImportMode.MERGE, container.backups.preview(result.data, ImportMode.MERGE)))
+            is DecodeResult.Ok -> {
+                val here = container.events.allEvents.first()
+                val known = here.map(BackupPlanner::key).toSet()
+                val preview = container.backups.preview(result.data, ImportMode.MERGE)
+                val pending = PendingImport(
+                    result.data, result.skipped, ImportMode.MERGE, preview, result.kind,
+                    selected = BackupPlanner.defaultSelection(here, result.data.events, ImportMode.MERGE),
+                    existing = result.data.events.filter { BackupPlanner.key(it) in known }.map { it.id }.toSet(),
+                )
+                _state.update { it.copy(pending = pending) }
             }
         }
     }
@@ -150,17 +170,22 @@ class BackupViewModel(private val container: AppContainer) : ViewModel() {
         val pending = _state.value.pending ?: return
         viewModelScope.launch {
             val preview = container.backups.preview(pending.data, mode)
-            _state.update { s -> s.copy(pending = s.pending?.copy(mode = mode, preview = preview)) }
+            val selected = BackupPlanner.defaultSelection(container.events.allEvents.first(), pending.data.events, mode)
+            _state.update { s -> s.copy(pending = s.pending?.copy(mode = mode, preview = preview, selected = selected)) }
         }
     }
 
     fun cancelImport() = _state.update { it.copy(pending = null) }
 
+    fun toggleImportEvent(id: Long) = _state.update { s ->
+        s.copy(pending = s.pending?.let { p -> p.copy(selected = if (id in p.selected) p.selected - id else p.selected + id) })
+    }
+
     fun confirmImport() {
         val pending = _state.value.pending ?: return
         _state.update { it.copy(pending = null) }
         launchBusy {
-            val added = container.backups.import(pending.data, pending.mode)
+            val added = container.backups.import(BackupPlanner.restrict(pending.data, pending.selected), pending.mode)
             container.logger.i("Backup", "imported $added events (${pending.mode})")
             _state.update { it.copy(message = UiMessage(R.string.backup_imported, listOf(added))) }
         }

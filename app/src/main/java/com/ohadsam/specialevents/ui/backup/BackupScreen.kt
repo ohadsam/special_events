@@ -20,6 +20,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -51,7 +52,9 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ohadsam.specialevents.R
+import com.ohadsam.specialevents.ui.common.defaultEmoji
 import com.ohadsam.specialevents.backup.BackupFiles
+import com.ohadsam.specialevents.domain.backup.BackupCodec
 import com.ohadsam.specialevents.domain.backup.BackupCrypto
 import com.ohadsam.specialevents.domain.backup.ImportMode
 
@@ -159,26 +162,52 @@ fun BackupScreen(viewModel: BackupViewModel, onBack: () -> Unit, openUri: String
     if (state.needPassword) PasswordDialog(onSubmit = viewModel::submitPassword, onCancel = viewModel::cancelPassword)
 
     state.pending?.let { pending ->
+        val shared = pending.kind == BackupCodec.KIND_SHARE
         AlertDialog(
             onDismissRequest = viewModel::cancelImport,
-            title = { Text(stringResource(R.string.backup_import_title)) },
+            title = { Text(stringResource(if (shared) R.string.share_import_title else R.string.backup_import_title)) },
             text = {
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text(stringResource(R.string.backup_import_summary, pending.preview.newEvents, pending.preview.duplicateEvents, pending.preview.newTemplates))
+                Column(Modifier.heightIn(max = IMPORT_DIALOG_MAX_HEIGHT.dp).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text(
+                        if (shared) {
+                            stringResource(R.string.share_import_summary, pending.data.events.size)
+                        } else {
+                            stringResource(R.string.backup_import_summary, pending.preview.newEvents, pending.preview.duplicateEvents, pending.preview.newTemplates)
+                        },
+                    )
                     if (pending.skipped > 0) Text(stringResource(R.string.backup_import_skipped, pending.skipped), color = MaterialTheme.colorScheme.error)
-                    ModeRow(ImportMode.MERGE, R.string.backup_mode_merge, pending.mode == ImportMode.MERGE, viewModel::setMode)
-                    ModeRow(ImportMode.REPLACE, R.string.backup_mode_replace, pending.mode == ImportMode.REPLACE, viewModel::setMode)
-                    if (pending.mode == ImportMode.REPLACE) {
-                        Text(stringResource(R.string.backup_replace_warning, pending.preview.existingEvents), color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
+                    pending.data.events.forEach { e ->
+                        Row(
+                            Modifier.fillMaxWidth().heightIn(min = 48.dp).selectable(selected = e.id in pending.selected, role = Role.Checkbox, onClick = { viewModel.toggleImportEvent(e.id) }),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        ) {
+                            Checkbox(checked = e.id in pending.selected, onCheckedChange = null)
+                            Text((e.iconKey ?: e.type.defaultEmoji()) + " " + e.title, Modifier.weight(1f), style = MaterialTheme.typography.bodyLarge)
+                            if (e.id in pending.existing) Text(stringResource(R.string.import_exists), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.tertiary)
+                        }
+                    }
+                    if (!shared) {
+                        ModeRow(ImportMode.MERGE, R.string.backup_mode_merge, pending.mode == ImportMode.MERGE, viewModel::setMode)
+                        ModeRow(ImportMode.REPLACE, R.string.backup_mode_replace, pending.mode == ImportMode.REPLACE, viewModel::setMode)
+                        if (pending.mode == ImportMode.REPLACE) {
+                            Text(stringResource(R.string.backup_replace_warning, pending.preview.existingEvents), color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
+                        }
                     }
                     Text(stringResource(R.string.backup_import_note), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             },
-            confirmButton = { TextButton(onClick = viewModel::confirmImport) { Text(stringResource(R.string.backup_import_action)) } },
+            confirmButton = {
+                TextButton(onClick = viewModel::confirmImport, enabled = pending.selected.isNotEmpty() || pending.mode == ImportMode.REPLACE) {
+                    Text(stringResource(if (shared) R.string.share_import_action else R.string.backup_import_action))
+                }
+            },
             dismissButton = { TextButton(onClick = viewModel::cancelImport) { Text(stringResource(R.string.action_cancel)) } },
         )
     }
 }
+
+private const val IMPORT_DIALOG_MAX_HEIGHT = 440
 
 @Composable
 private fun PasswordDialog(onSubmit: (CharArray) -> Unit, onCancel: () -> Unit) {

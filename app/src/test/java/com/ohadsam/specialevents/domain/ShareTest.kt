@@ -113,3 +113,33 @@ class ShareTest {
         assertEquals("תאריכים", RichText.plain(PersonCard.build(null, emptyList(), emptyMap(), emptySet(), labels)))
     }
 }
+
+class ImportSelectionTest {
+    private fun ev(id: Long, title: String) = SpecialEvent(id = id, type = EventType.BIRTHDAY, title = title, origin = OriginDate(CalendarBasis.GREGORIAN, 1990, 1, id.toInt()))
+
+    @Test
+    fun defaultSelectionSkipsWhatExistsAndRepeatsInTheFile() {
+        val here = listOf(ev(10, "א").copy(origin = OriginDate(CalendarBasis.GREGORIAN, 1990, 1, 1)))
+        val incoming = listOf(ev(1, "א"), ev(2, "ב"), ev(3, "ב").copy(origin = ev(2, "ב").origin))
+        assertEquals(setOf(2L), com.ohadsam.specialevents.domain.backup.BackupPlanner.defaultSelection(here, incoming, com.ohadsam.specialevents.domain.backup.ImportMode.MERGE))
+        assertEquals(setOf(1L, 2L, 3L), com.ohadsam.specialevents.domain.backup.BackupPlanner.defaultSelection(here, incoming, com.ohadsam.specialevents.domain.backup.ImportMode.REPLACE))
+    }
+
+    @Test
+    fun restrictKeepsOnlyTheChosenEventsAndWhatBelongsToThem() {
+        val data = BackupData(
+            events = listOf(ev(1, "א"), ev(2, "ב")),
+            rules = listOf(ReminderRule(eventId = 1), ReminderRule(eventId = 2)),
+            checklist = listOf(ChecklistItem(eventId = 2, title = "x")),
+            templates = emptyList(),
+            groups = listOf(EventGroup(id = 5, name = "g"), EventGroup(id = 6, name = "h")),
+            members = listOf(1L to 5L, 2L to 6L),
+        )
+        val r = com.ohadsam.specialevents.domain.backup.BackupPlanner.restrict(data, setOf(1))
+        assertEquals(listOf(1L), r.events.map { it.id })
+        assertEquals(1, r.rules.size)
+        assertTrue(r.checklist.isEmpty())
+        assertEquals(listOf(5L), r.groups.map { it.id })
+        assertEquals(listOf(1L to 5L), r.members)
+    }
+}
