@@ -19,10 +19,10 @@ Order is by dependency: pure logic first (cheap to test), then data, UI, engines
 | 9 | Per-event checklist + gift tracker + templates | S9 | 0.11.0 | [x] |
 | 10 | Widgets (Glance): upcoming, single event + interactive checklist, countdown, Hebrew date, mini-month; config screens | S10 | 0.12.0 | [x] |
 | 11 | Backup/export/import/share: JSON (versioned), scheduled folder backup, encrypted backup, CSV/ICS, `.sevents` open-with, share-APK | S11 | 0.13.0 | [x] |
-| 11c | Scheduled folder backup (SAF + WorkManager), keep N copies, backup-age reminder; CSV import with column mapping | S11 | 0.13.5 | [ ] |
+| 11c | Scheduled folder backup (SAF + WorkManager), keep N copies, backup-age reminder; CSV import with column mapping | S11 | 0.24.0 | [ ] |
 | 12 | Calendar sync: CalendarContract import/export (Google + others), dedupe, dedicated calendar | S12 | 0.14.0 | [x] |
-| 13 | (מוחלף ב-P1 + חבילת אימוג'י/סטיקרים) Print & rich visuals: WebView/JS print layouts, PDF, greeting-card image, emoji/sticker pack | S13 | 0.15.0 | [x] |
-| V1 | תצוגות: מחליף יום/שבוע/חודש/קרובים, דפדוף והחלקה, קפיצה (תאריך/אירוע/״הצג בלוח שנה״), סינון משולב + group by + order, תצוגות שמורות, זיכרון העדפות | S19 | 0.15.0 | [ ] |
+| 13 | (מוחלף ב-P1 + חבילת אימוג'י/סטיקרים) Print & rich visuals: WebView/JS print layouts, PDF, greeting-card image, emoji/sticker pack | S13 | 0.22.0 | [~] |
+| V1 | תצוגות: מחליף יום/שבוע/חודש/קרובים, דפדוף והחלקה, קפיצה (תאריך/אירוע/״הצג בלוח שנה״), סינון משולב + group by + order, תצוגות שמורות, זיכרון העדפות | S19 | 0.15.0 | [x] |
 | G1 | קבוצות: קבוצות מובנות + מותאמות, מאפיינים (צבע/אימוג'י/תמונה/גופן/תגיות), תבנית תזכורות וברכות לקבוצה, רשימת תפוצה, ירושה, DB v8 | S18.2 | 0.16.0 | [x] |
 | E1 | הוספת אירוע בטקסט חופשי (עברית) + שדות + בורר מערכת מסונכרנים, אישור עם שני הלוחות ויום בשבוע | S18.4 | 0.17.0 | [x] |
 | H1 | עזרה: כפתור ? לפי הקשר, חלונות עזרה, tooltips, מדריך משתמש בתוך האפליקציה | S18.5 | 0.18.0 | [x] |
@@ -30,8 +30,8 @@ Order is by dependency: pure logic first (cheap to test), then data, UI, engines
 | T2 | נמענים מרובים ורשימות תפוצה בכלל תזכורת, תור שליחה, SMS אוטומטי לקבוצה (וואטסאפ/מייל – ממתין להחלטה) | S18.7 | 0.20.0 | [x] |
 | S1 | שיתוף מרובה (.sevents) + הצעת שמירה אצל המקבל + כרטיס אדם | S18.3,8 | 0.21.0 | [x] |
 | P1 | הדפסה (מחליף את 13): כרטיס ברכה, לוח חודשי, רשימות עם סינון, PDF | S18.9,S13 | 0.22.0 | [x] |
-| 14 | Security & privacy hardening: app lock, FLAG_SECURE, Keystore secrets, threat model, permission audit, dependency scan | S14 | 0.16.0 | [ ] |
-| 15 | Polish: a11y pass, onboarding, help/ⓘ, Baseline Profile, emulator UI tests + screenshots, signing, README | S15,S16 | 0.17.0 → 1.0.0 | [ ] |
+| 14 | Security & privacy hardening: app lock, FLAG_SECURE, Keystore secrets, threat model, permission audit, dependency scan | S14 | 0.23.0 | [ ] |
+| 15 | Polish: a11y pass, onboarding, help/ⓘ, Baseline Profile, emulator UI tests + screenshots, signing, README | S15,S16 | 0.25.0 → 1.0.0 | [ ] |
 
 ## Per-batch routine (skill `android-native-dev` + `release-checklist`)
 1) read spec slice 2) implement + unit tests 3) push, CI green (`gh run watch`) 4) 4-persona review 5) version + What's New + docs 6) merge to `main` (release `latest` APK is built).
