@@ -1,5 +1,5 @@
 # Special Events – Agent Memory
-**Last updated:** v0.11.0 (batches 0–9 done; batch 10 (widgets) next)
+**Last updated:** v0.12.0 (batches 0–10 done; batch 11 (backup/export/import/share) next)
 Read order: CLAUDE.md → docs/PLAN.md → STRUCTURE.md → the batch's section in docs/SPEC.md.
 
 ## Recently done
@@ -31,6 +31,8 @@ Read order: CLAUDE.md → docs/PLAN.md → STRUCTURE.md → the batch's section 
 
 - v0.11.0: batch 9: checklist + gift tracker. Unverified on device: layout at 200% font, Undo snackbar. Widget checkbox interaction comes with batch 10 (reuse ChecklistRepository.setDone).
 
+- v0.12.0: batch 10: widgets. Unverified on device (Glance cannot be previewed here): look at min/max sizes, dark mode, RTL in the month grid, config activity flow, tick-box tap latency. Hebrew date does not roll at sunset.
+
 ## Known issues / open items (need the owner)
 - Feature spec for "אירועים מיוחדים" not yet provided → fill `docs/SPEC.md`, then define batches in `docs/PLAN.md`.
 - **Signing key:** `app/sideload.jks` (password in app/build.gradle.kts) is committed on purpose so every CI build updates in place; NOT a store key. Never change it after users installed the app.
@@ -57,6 +59,9 @@ Notification timing, permission flows, visuals, TalkBack.
 
 ## Ideas (v0.11.0)
 - Reorder items by drag; link a gift to a contact wish-list; remember last year's gift per person (avoid repeating); checklist items as reminders; shared checklist export with the event; gift ideas by relation/age/budget (from the backlog).
+
+## Ideas (v0.12.0)
+- Widget style options (transparency, theme, font size) like Tehilim Daily; widget filtered by tag/type; Hebrew date after sunset; birthdays-with-photo widget; lock-screen/Wear glance; resize-aware layouts (fewer rows when small); week-strip widget.
 
 ## Ideas (from batch 5)
 - Yahrzeit candle reminder anchored to sunset (rule time = "N minutes before sunset") instead of a fixed 16:00; per-rule custom sound picker (profile `sound:<uri>` is already supported); quiet hours; "mark as greeted" action (batch 8); a daily digest notification option; reminders inheriting from tags.
