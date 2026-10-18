@@ -21,6 +21,7 @@
 - `domain/datetext/` — `DateTextParser` (free-text Hebrew/Gregorian date -> `ParsedDate` with warnings and candidate years), `ParsedDate.toEditorDate`. Used by the editor's free-text field.
 - `ui/help/` — `HelpTopic` (16 topics, texts in strings.xml), `HelpButton`/`HelpDialog`/`TooltipIconButton`, `GuideScreen`; `LocalOpenGuide` is provided by `AppRoot`.
 - `domain/greetings/RichText.kt` — `Span`/`SpanStyle`, `RichText` (plain/WhatsApp/HTML), `PlaceholderStyles` (spread, bold, italic, underline, strike, colour; token builder). Templates carry folder/tags/groupIds (DB v9).
+- `domain/groups/` also `Recipient`, `RecipientResolver` (rule -> deduped recipients, max 30). `ui/greetings/RecipientQueue` (per-recipient send + SMS-to-all). `AutoGreetingSender` now fans out per recipient and records `greetings_sent.recipient`. Rules gained toPerson/toSelf/toGroupIds/toExtra.
 - `log/` — `AppLogger` (ring buffer + file), `LogBuffer`, `LogModel` (ported from Tehilim_Daily).
 - `ui/theme/Theme.kt` — brand light/dark schemes (dynamic color optional). `ui/nav/` — `TopLevel` tabs, `Routes`, `AppRoot` (NavHost + bottom bar).
 - `ui/common/PlaceholderScreen` — empty state for features landing later. `ui/settings/` — `SettingsScreen`, `LogsScreen`, `WhatsNewDialog`.
