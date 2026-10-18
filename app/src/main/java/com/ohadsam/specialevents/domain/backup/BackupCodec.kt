@@ -73,7 +73,7 @@ object BackupCodec {
         var skipped = 0
         fun <T> read(key: String, parse: (JsonObject) -> T?): List<T> {
             val array = (root[key] as? JsonArray) ?: return emptyList()
-            if (array.size > MAX_ENTRIES) return emptyList().also { skipped += array.size }
+            if (array.size > MAX_ENTRIES) return emptyList<T>().also { skipped += array.size }
             return array.mapNotNull { el -> runCatching { parse(el.jsonObject) }.getOrNull().also { if (it == null) skipped++ } }
         }
         val data = BackupData(
