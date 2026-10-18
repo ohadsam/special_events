@@ -1,5 +1,5 @@
 # Special Events – Agent Memory
-**Last updated:** v0.12.0 (batches 0–10 done; batch 11 (backup/export/import/share) next)
+**Last updated:** v0.13.0 (batches 0–11 done; batch 12 (calendar sync) next)
 Read order: CLAUDE.md → docs/PLAN.md → STRUCTURE.md → the batch's section in docs/SPEC.md.
 
 ## Recently done
@@ -33,6 +33,8 @@ Read order: CLAUDE.md → docs/PLAN.md → STRUCTURE.md → the batch's section 
 
 - v0.12.0: batch 10: widgets. Unverified on device (Glance cannot be previewed here): look at min/max sizes, dark mode, RTL in the month grid, config activity flow, tick-box tap latency. Hebrew date does not roll at sunset.
 
+- v0.13.0: batch 11: backup/export/import/share. Not done: scheduled folder backup (needs WorkManager - row 11c), CSV import with column mapping, photos in backups, settings in backups. Unverified on device: SAF pickers, .sevents VIEW filter matching in different file managers, share sheet, APK share installability.
+
 ## Known issues / open items (need the owner)
 - Feature spec for "אירועים מיוחדים" not yet provided → fill `docs/SPEC.md`, then define batches in `docs/PLAN.md`.
 - **Signing key:** `app/sideload.jks` (password in app/build.gradle.kts) is committed on purpose so every CI build updates in place; NOT a store key. Never change it after users installed the app.
@@ -62,6 +64,9 @@ Notification timing, permission flows, visuals, TalkBack.
 
 ## Ideas (v0.12.0)
 - Widget style options (transparency, theme, font size) like Tehilim Daily; widget filtered by tag/type; Hebrew date after sunset; birthdays-with-photo widget; lock-screen/Wear glance; resize-aware layouts (fewer rows when small); week-strip widget.
+
+## Ideas (v0.13.0)
+- Scheduled backup to a chosen folder (SAF + WorkManager) with N copies; CSV import with column mapping; include photos in a zip; include settings; share a single event as text/ICS from its screen; Android Auto Backup rules for the DB; compare-and-merge import (update changed events); backup reminder if none in 30 days.
 
 ## Ideas (from batch 5)
 - Yahrzeit candle reminder anchored to sunset (rule time = "N minutes before sunset") instead of a fixed 16:00; per-rule custom sound picker (profile `sound:<uri>` is already supported); quiet hours; "mark as greeted" action (batch 8); a daily digest notification option; reminders inheriting from tags.

@@ -18,7 +18,8 @@ Order is by dependency: pure logic first (cheap to test), then data, UI, engines
 | 8b | Greetings extras: voice message recording + share, song suggestion links; true auto-send (SMS; email/WhatsApp-API gated on owner decision) | S8 | 0.10.0 | [x] |
 | 9 | Per-event checklist + gift tracker + templates | S9 | 0.11.0 | [x] |
 | 10 | Widgets (Glance): upcoming, single event + interactive checklist, countdown, Hebrew date, mini-month; config screens | S10 | 0.12.0 | [x] |
-| 11 | Backup/export/import/share: JSON (versioned), scheduled folder backup, encrypted backup, CSV/ICS, `.sevents` open-with, share-APK | S11 | 0.13.0 | [ ] |
+| 11 | Backup/export/import/share: JSON (versioned), scheduled folder backup, encrypted backup, CSV/ICS, `.sevents` open-with, share-APK | S11 | 0.13.0 | [x] |
+| 11c | Scheduled folder backup (SAF + WorkManager), keep N copies, backup-age reminder; CSV import with column mapping | S11 | 0.13.5 | [ ] |
 | 12 | Calendar sync: CalendarContract import/export (Google + others), dedupe, dedicated calendar | S12 | 0.14.0 | [ ] |
 | 13 | Print & rich visuals: WebView/JS print layouts, PDF, greeting-card image, emoji/sticker pack | S13 | 0.15.0 | [ ] |
 | 14 | Security & privacy hardening: app lock, FLAG_SECURE, Keystore secrets, threat model, permission audit, dependency scan | S14 | 0.16.0 | [ ] |
