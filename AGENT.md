@@ -1,5 +1,5 @@
 # Special Events – Agent Memory
-**Last updated:** v0.9.0 (batches 0–8a done; batch 8b next)
+**Last updated:** v0.10.0 (batches 0–8b done; batch 9 next)
 Read order: CLAUDE.md → docs/PLAN.md → STRUCTURE.md → the batch's section in docs/SPEC.md.
 
 ## Recently done
@@ -27,6 +27,8 @@ Read order: CLAUDE.md → docs/PLAN.md → STRUCTURE.md → the batch's section 
 
 - v0.9.0: greetings (one-tap send). WhatsApp has NO silent-send API, so greeting prompts open the message ready and the user taps Send; the greeting history is confirmed by the user on return. Not verifiable here (device): wa.me/WhatsApp Business hand-off, mail/SMS compose with Hebrew text, notification tap routing to the greeting screen. Owner decisions still open: true auto-send via WhatsApp Business API / SMTP (see SPEC Appendix A.2).
 
+- v0.10.0: batch 8b: voice greeting, song ideas, auto-SMS. Unverified on device: MediaRecorder on real mics, WhatsApp jid deep-link (undocumented extra, falls back to chooser), SMS multipart send, permission dialogs. Rule editor has no template chooser yet (uses best match).
+
 ## Known issues / open items (need the owner)
 - Feature spec for "אירועים מיוחדים" not yet provided → fill `docs/SPEC.md`, then define batches in `docs/PLAN.md`.
 - **Signing key:** `app/sideload.jks` (password in app/build.gradle.kts) is committed on purpose so every CI build updates in place; NOT a store key. Never change it after users installed the app.
@@ -47,6 +49,9 @@ Notification timing, permission flows, visuals, TalkBack.
 
 ## Ideas (v0.9.0)
 - Greeting language per recipient; attach a picture/greeting card (batch 13); schedule a greeting for later; per-recipient default channel; group greetings (several recipients); remember the last template used per event.
+
+## Ideas (v0.10.0)
+- Template chooser per auto-send rule; delivery receipts (SmsManager sentIntent) to mark failures; WhatsApp Business API / SMTP for true auto-send (owner decision); trim/waveform for voice; share voice via email/SMS MMS; remember last song opened.
 
 ## Ideas (from batch 5)
 - Yahrzeit candle reminder anchored to sunset (rule time = "N minutes before sunset") instead of a fixed 16:00; per-rule custom sound picker (profile `sound:<uri>` is already supported); quiet hours; "mark as greeted" action (batch 8); a daily digest notification option; reminders inheriting from tags.
