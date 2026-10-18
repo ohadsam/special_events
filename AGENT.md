@@ -1,5 +1,5 @@
 # Special Events – Agent Memory
-**Last updated:** v0.18.0 (batches 0–12, V1, G1, E1, H1 done; T1 (greeting templates v2) next)
+**Last updated:** v0.19.0 (batches 0–12, V1, G1, E1, H1, T1 done; T2 (multi-recipient sending) next)
 Read order: CLAUDE.md → docs/PLAN.md → STRUCTURE.md → the batch's section in docs/SPEC.md.
 
 ## Recently done
@@ -44,6 +44,8 @@ Read order: CLAUDE.md → docs/PLAN.md → STRUCTURE.md → the batch's section 
 - v0.17.0: batch E1: free-text dates. Not done: English input, relative phrases ("לפני שבועיים"), parsing names/relations out of the same sentence (e.g. "אמא של דנה נולדה ב..."), speech input. Unverified on device: field layout, RTL punctuation (maqaf/geresh typed from phone keyboards).
 
 - v0.18.0: batch H1: help system. Not done: help buttons on Search/Templates/Import/Logs screens, per-field info (i) buttons, first-run walkthrough (batch 15), English texts. Update the matching HelpTopic text whenever a screen changes (release-checklist step 5).
+
+- v0.19.0: batch T1: greeting templates v2. Not done: formatting of text typed by hand in the message (only placeholder styles), SMS stays plain by nature, sharing one template as its own file (backup covers it), template reorder. Unverified on device: EXTRA_HTML_TEXT in different mail apps, WhatsApp markers around RTL text.
 
 ## Known issues / open items (need the owner)
 - Feature spec for "אירועים מיוחדים" not yet provided → fill `docs/SPEC.md`, then define batches in `docs/PLAN.md`.
@@ -92,6 +94,9 @@ Notification timing, permission flows, visuals, TalkBack.
 
 ## Ideas (v0.18.0)
 - First-run walkthrough with coach marks; per-field info buttons (date rules, tzeit method); animated GIF/illustrations in the guide; help search from the settings screen; share a guide section; link from the notification permission banner to the right topic.
+
+## Ideas (v0.19.0)
+- Bold/italic buttons for free text in the greeting editor; per-recipient nickname placeholder ({כינוי}) stored on the event; template import from a shared .sevents; template of the day suggestion; greeting language per recipient.
 
 ## Ideas (from batch 5)
 - Yahrzeit candle reminder anchored to sunset (rule time = "N minutes before sunset") instead of a fixed 16:00; per-rule custom sound picker (profile `sound:<uri>` is already supported); quiet hours; "mark as greeted" action (batch 8); a daily digest notification option; reminders inheriting from tags.
