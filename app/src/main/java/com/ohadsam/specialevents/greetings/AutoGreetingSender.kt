@@ -57,7 +57,8 @@ class AutoGreetingSender(
         val template = pickTemplate(plan, eventGroups) ?: return false
         val cfg = settings.settings.first()
         val all = events.allEvents.first()
-        val recipients = RecipientResolver.resolve(rule, event, groups.groups.first(), { id -> membersOf(id, all) }, cfg.selfPhone, cfg.selfEmail)
+        val membership = groups.membership.first()
+        val recipients = RecipientResolver.resolve(rule, event, groups.groups.first(), { id -> all.filter { id in membership[it.id].orEmpty() } }, cfg.selfPhone, cfg.selfEmail)
         val alreadySent = greetings.sentRecipients(event.id, day)
         val base = GreetingContexts.of(event, plan.item)
         var sent = 0
@@ -81,11 +82,6 @@ class AutoGreetingSender(
             eventGroups.map { it.id }.toSet(),
         )
         return AutoSend.chooseTemplate(GroupLogic.greetingTemplateId(plan.rule.templateId, eventGroups), candidates)
-    }
-
-    private suspend fun membersOf(groupId: Long, all: List<SpecialEvent>): List<SpecialEvent> {
-        val ids = groups.memberIds(groupId)
-        return all.filter { it.id in ids }
     }
 
     private suspend fun send(r: Recipient, text: String, eventId: Long, day: Long): Boolean {
