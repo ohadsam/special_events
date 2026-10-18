@@ -2,6 +2,9 @@ package com.ohadsam.specialevents.data.prefs
 
 import com.ohadsam.specialevents.calendar.DateRules
 import com.ohadsam.specialevents.calendar.TzeitMethod
+import com.ohadsam.specialevents.domain.CalendarLevel
+import com.ohadsam.specialevents.domain.views.GroupBy
+import com.ohadsam.specialevents.domain.views.SortBy
 
 enum class CalendarMode { HEBREW, GREGORIAN, DUAL }
 
@@ -24,4 +27,9 @@ data class AppSettings(
     val selfPhone: String = "",
     val selfEmail: String = "",
     val countryCode: String = "972",
+    /** How the views open: the calendar level, and the upcoming list's grouping and order. */
+    val calendarLevel: CalendarLevel = CalendarLevel.MONTH,
+    val upcomingGroupBy: GroupBy = GroupBy.PROXIMITY,
+    val upcomingSortBy: SortBy = SortBy.DATE,
+    val upcomingAscending: Boolean = true,
 )

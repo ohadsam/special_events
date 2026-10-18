@@ -18,6 +18,7 @@ import androidx.compose.material.icons.outlined.Cake
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.SearchOff
+import androidx.compose.material.icons.outlined.Tune
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -62,8 +63,9 @@ import com.ohadsam.specialevents.calendar.OriginDate
 import com.ohadsam.specialevents.domain.EventTimeline
 import com.ohadsam.specialevents.domain.EventType
 import com.ohadsam.specialevents.domain.SpecialEvent
-import com.ohadsam.specialevents.domain.TypeFilter
-import com.ohadsam.specialevents.domain.UpcomingFilter
+import com.ohadsam.specialevents.domain.views.GroupBy
+import com.ohadsam.specialevents.domain.views.ViewEngine
+import com.ohadsam.specialevents.domain.views.ViewSpec
 import com.ohadsam.specialevents.ui.common.labelRes
 import com.ohadsam.specialevents.ui.theme.SpecialEventsTheme
 import java.time.LocalDate
@@ -76,6 +78,7 @@ fun UpcomingScreen(
     onOpenSearch: () -> Unit,
     onOpenReminderHealth: () -> Unit,
     onImportContacts: () -> Unit,
+    onOpenCalendar: () -> Unit,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
@@ -86,14 +89,31 @@ fun UpcomingScreen(
         owner.lifecycle.addObserver(observer)
         onDispose { owner.lifecycle.removeObserver(observer) }
     }
-    UpcomingContent(state, viewModel::setFilter, onAddEvent, onOpenEvent, onOpenSearch, remindersBlocked = state.settings.remindersEnabled && !health.requiredOk, onOpenReminderHealth, onImportContacts)
+    val actions = remember(viewModel) {
+        ViewActions(
+            toggleType = viewModel::toggleType,
+            toggleTag = viewModel::toggleTag,
+            setMilestonesOnly = viewModel::setMilestonesOnly,
+            setRange = viewModel::setRange,
+            clearFilters = viewModel::clearFilters,
+            setGroupBy = viewModel::setGroupBy,
+            setSortBy = viewModel::setSortBy,
+            setAscending = viewModel::setAscending,
+            resetView = viewModel::resetView,
+            showInCalendar = {
+                viewModel.showInCalendar(it)
+                onOpenCalendar()
+            },
+        )
+    }
+    UpcomingContent(state, actions, onAddEvent, onOpenEvent, onOpenSearch, remindersBlocked = state.settings.remindersEnabled && !health.requiredOk, onOpenReminderHealth, onImportContacts)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UpcomingContent(
     state: UpcomingState,
-    onFilter: (TypeFilter) -> Unit,
+    actions: ViewActions,
     onAddEvent: () -> Unit,
     onOpenEvent: (Long) -> Unit,
     onOpenSearch: () -> Unit,
@@ -101,11 +121,13 @@ fun UpcomingContent(
     onOpenReminderHealth: () -> Unit = {},
     onImportContacts: () -> Unit = {},
 ) {
+    var options by rememberSaveable { mutableStateOf(false) }
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text(stringResource(R.string.tab_upcoming)) },
                 actions = {
+                    IconButton(onClick = { options = true }) { Icon(Icons.Outlined.Tune, contentDescription = stringResource(R.string.view_options)) }
                     IconButton(onClick = onOpenSearch) { Icon(Icons.Outlined.Search, contentDescription = stringResource(R.string.search_open)) }
                 },
             )
@@ -120,10 +142,18 @@ fun UpcomingContent(
     ) { padding ->
         Column(Modifier.fillMaxSize().padding(padding)) {
             if (remindersBlocked && !state.noEvents) PermissionBanner(onOpenReminderHealth)
-            FilterRow(state.filter, onFilter)
-            Body(state, onAddEvent, onOpenEvent, onImportContacts)
+            TypeChips(state.spec.filter.types, actions.toggleType, actions.clearFilters)
+            if (state.spec.filter.isActive && !state.noEvents) {
+                val count = state.groups.sumOf { it.items.size }
+                Row(Modifier.padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Text(stringResource(R.string.view_results, count), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f))
+                    TextButton(onClick = actions.clearFilters) { Text(stringResource(R.string.view_clear_filters)) }
+                }
+            }
+            Body(state, actions, onAddEvent, onOpenEvent, onImportContacts)
         }
     }
+    if (options) ViewOptionsSheet(state, actions, onDismiss = { options = false })
 }
 
 @Composable
@@ -141,16 +171,17 @@ private fun PermissionBanner(onClick: () -> Unit) {
 }
 
 @Composable
-private fun FilterRow(selected: TypeFilter, onSelect: (TypeFilter) -> Unit) {
+private fun TypeChips(selected: Set<EventType>, onToggle: (EventType) -> Unit, onClear: () -> Unit) {
     Row(Modifier.horizontalScroll(rememberScrollState()).padding(horizontal = 16.dp, vertical = 4.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        TypeFilter.entries.forEach { f ->
-            FilterChip(selected = selected == f, onClick = { onSelect(f) }, label = { Text(stringResource(f.labelRes())) })
+        FilterChip(selected = selected.isEmpty(), onClick = onClear, label = { Text(stringResource(R.string.filter_all)) })
+        EventType.entries.forEach { t ->
+            FilterChip(selected = t in selected, onClick = { onToggle(t) }, label = { Text(stringResource(t.labelRes())) })
         }
     }
 }
 
 @Composable
-private fun Body(state: UpcomingState, onAddEvent: () -> Unit, onOpenEvent: (Long) -> Unit, onImportContacts: () -> Unit) {
+private fun Body(state: UpcomingState, actions: ViewActions, onAddEvent: () -> Unit, onOpenEvent: (Long) -> Unit, onImportContacts: () -> Unit) {
     when {
         state.loading -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
         state.noEvents -> EmptyState(Icons.Outlined.Cake, R.string.upcoming_empty_title, R.string.upcoming_empty_body, R.string.action_add_first_event, onAddEvent, R.string.import_from_contacts, onImportContacts)
@@ -162,14 +193,20 @@ private fun Body(state: UpcomingState, onAddEvent: () -> Unit, onOpenEvent: (Lon
             state.groups.forEach { (group, groupItems) ->
                 item(key = "header-$group") {
                     Text(
-                        stringResource(group.labelRes()),
+                        groupTitle(group) + if (state.spec.groupBy == GroupBy.NONE) "" else " (${groupItems.size})",
                         style = MaterialTheme.typography.titleSmall,
                         color = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.padding(top = 8.dp, bottom = 2.dp),
                     )
                 }
-                items(groupItems, key = { "${it.event.id}-${it.kind}-${it.date}" }) { item ->
-                    EventCard(item, state.settings.calendarMode, onClick = { onOpenEvent(item.event.id) }, greeted = (item.event.id to item.date.toEpochDay()) in state.greeted)
+                items(groupItems, key = { "$group-${it.event.id}-${it.kind}-${it.date}" }) { item ->
+                    EventCard(
+                        item,
+                        state.settings.calendarMode,
+                        onClick = { onOpenEvent(item.event.id) },
+                        greeted = (item.event.id to item.date.toEpochDay()) in state.greeted,
+                        onShowInCalendar = { actions.showInCalendar(item) },
+                    )
                 }
             }
         }
@@ -209,17 +246,19 @@ private fun previewState(): UpcomingState {
         SpecialEvent(type = EventType.YAHRZEIT, title = "סבא משה", origin = OriginDate(CalendarBasis.HEBREW, 5750, 8, 20)),
     )
     val items = EventTimeline.upcoming(events, today, inIsrael = true)
-    return UpcomingState(loading = false, today = today, groups = UpcomingFilter.group(items))
+    return UpcomingState(loading = false, today = today, groups = ViewEngine.apply(items, ViewSpec()))
 }
+
+private fun previewActions() = ViewActions({}, {}, {}, { _, _ -> }, {}, {}, {}, {}, {}, {})
 
 @Preview(showBackground = true)
 @Composable
 private fun UpcomingLightPreview() {
-    SpecialEventsTheme(darkTheme = false) { UpcomingContent(previewState(), {}, {}, {}, {}) }
+    SpecialEventsTheme(darkTheme = false) { UpcomingContent(previewState(), previewActions(), {}, {}, {}) }
 }
 
 @Preview(showBackground = true)
 @Composable
 private fun UpcomingDarkPreview() {
-    SpecialEventsTheme(darkTheme = true) { UpcomingContent(previewState(), {}, {}, {}, {}) }
+    SpecialEventsTheme(darkTheme = true) { UpcomingContent(previewState(), previewActions(), {}, {}, {}) }
 }

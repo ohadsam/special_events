@@ -13,6 +13,8 @@ import com.ohadsam.specialevents.data.prefs.ThemeMode
 import com.ohadsam.specialevents.domain.EventType
 import com.ohadsam.specialevents.domain.TypeFilter
 import com.ohadsam.specialevents.domain.UpcomingGroup
+import com.ohadsam.specialevents.domain.views.GroupBy
+import com.ohadsam.specialevents.domain.views.SortBy
 
 @StringRes
 fun EventType.labelRes(): Int = when (this) {
@@ -130,4 +132,27 @@ fun TzeitMethod.labelRes(): Int = when (this) {
     TzeitMethod.DEGREES_7_083 -> R.string.tzeit_7_083
     TzeitMethod.MINUTES_42 -> R.string.tzeit_42
     TzeitMethod.MINUTES_72 -> R.string.tzeit_72
+}
+
+@StringRes
+fun GroupBy.labelRes(): Int = when (this) {
+    GroupBy.PROXIMITY -> R.string.groupby_proximity
+    GroupBy.DAY -> R.string.groupby_day
+    GroupBy.WEEK -> R.string.groupby_week
+    GroupBy.MONTH -> R.string.groupby_month
+    GroupBy.HEBREW_MONTH -> R.string.groupby_hebrew_month
+    GroupBy.TYPE -> R.string.groupby_type
+    GroupBy.TAG -> R.string.groupby_tag
+    GroupBy.AGE_DECADE -> R.string.groupby_age
+    GroupBy.NONE -> R.string.groupby_none
+}
+
+@StringRes
+fun SortBy.labelRes(): Int = when (this) {
+    SortBy.DATE -> R.string.sortby_date
+    SortBy.NAME -> R.string.sortby_name
+    SortBy.TYPE -> R.string.sortby_type
+    SortBy.NUMBER -> R.string.sortby_number
+    SortBy.UPDATED -> R.string.sortby_updated
+    SortBy.CREATED -> R.string.sortby_created
 }

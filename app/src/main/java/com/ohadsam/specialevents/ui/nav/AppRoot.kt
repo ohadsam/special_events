@@ -99,6 +99,13 @@ fun AppRoot(container: AppContainer, pendingRoute: String? = null, onRouteHandle
                     onOpenSearch = { nav.navigate(Routes.SEARCH) },
                     onOpenReminderHealth = { nav.navigate(Routes.REMINDER_HEALTH) },
                     onImportContacts = { nav.navigate(Routes.IMPORT_CONTACTS) },
+                    onOpenCalendar = {
+                        nav.navigate(TopLevel.CALENDAR.route) {
+                            popUpTo(nav.graph.findStartDestination().id) { saveState = true }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    },
                 )
             }
             composable(TopLevel.CALENDAR.route) {

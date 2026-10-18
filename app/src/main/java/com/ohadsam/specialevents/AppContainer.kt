@@ -26,6 +26,9 @@ import kotlinx.coroutines.SupervisorJob
 class AppContainer(private val context: Context) {
     val appContext: Context get() = context.applicationContext
 
+    /** "Show in calendar": any screen posts a target here, the calendar opens on it (and clears it). */
+    val calendarRequests = kotlinx.coroutines.flow.MutableStateFlow<com.ohadsam.specialevents.domain.views.CalendarTarget?>(null)
+
     val logger = AppLogger(
         file = File(context.filesDir, "logs/app.log"),
         echo = { e ->

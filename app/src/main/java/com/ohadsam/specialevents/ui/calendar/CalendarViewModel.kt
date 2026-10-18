@@ -8,16 +8,21 @@ import com.ohadsam.specialevents.data.prefs.CalendarMode
 import com.ohadsam.specialevents.domain.CalendarData
 import com.ohadsam.specialevents.domain.CalendarLevel
 import com.ohadsam.specialevents.domain.EventTimeline
+import com.ohadsam.specialevents.domain.SpecialEvent
 import com.ohadsam.specialevents.domain.UpcomingItem
+import com.ohadsam.specialevents.domain.views.EventJump
 import java.time.LocalDate
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
 /** What the user chose on this screen (kept while the screen is alive). */
 data class CalendarPrefs(
@@ -34,12 +39,25 @@ data class CalendarState(
     val today: LocalDate = LocalDate.now(),
     /** Events (and bar/bat mitzvah days) of the visible range, grouped by day. */
     val byDate: Map<LocalDate, List<UpcomingItem>> = emptyMap(),
+    /** For "go to event". */
+    val allEvents: List<SpecialEvent> = emptyList(),
 ) {
     val hebrewPrimary: Boolean get() = settings.calendarMode == CalendarMode.HEBREW
 }
 
 class CalendarViewModel(private val container: AppContainer) : ViewModel() {
     private val prefs = MutableStateFlow(CalendarPrefs())
+
+    init {
+        // Open at the level used last time, and obey "show in calendar" requests from other screens.
+        viewModelScope.launch { prefs.update { it.copy(level = container.settings.settings.first().calendarLevel) } }
+        viewModelScope.launch {
+            container.calendarRequests.filterNotNull().collect { target ->
+                prefs.update { it.copy(anchor = target.date, level = target.level) }
+                container.calendarRequests.value = null
+            }
+        }
+    }
 
     val state: StateFlow<CalendarState> = combine(prefs, container.events.allEvents, container.settings.settings) { p, events, settings ->
         val today = LocalDate.now()
@@ -50,13 +68,29 @@ class CalendarViewModel(private val container: AppContainer) : ViewModel() {
         } else {
             emptyList()
         }
-        CalendarState(p, settings, today, items.groupBy { it.date })
+        CalendarState(p, settings, today, items.groupBy { it.date }, events)
     }.flowOn(Dispatchers.Default).stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), CalendarState())
 
-    fun setLevel(level: CalendarLevel) = prefs.update { it.copy(level = level) }
+    fun setLevel(level: CalendarLevel) {
+        prefs.update { it.copy(level = level) }
+        persistLevel(level)
+    }
+
+    /** Jumps to the next occurrence of [event] and opens that day. */
+    fun jumpToEvent(event: SpecialEvent) {
+        val s = state.value.settings
+        EventJump.next(event, LocalDate.now(), s.dateRules)?.let { open(EventJump.locate(it).date, CalendarLevel.DAY) }
+    }
+
+    private fun persistLevel(level: CalendarLevel) {
+        viewModelScope.launch { container.settings.update { it.copy(calendarLevel = level) } }
+    }
 
     /** Opens [date] at [level] (e.g. tapping a day in the month opens that day). */
-    fun open(date: LocalDate, level: CalendarLevel) = prefs.update { it.copy(anchor = date, level = level) }
+    fun open(date: LocalDate, level: CalendarLevel) {
+        prefs.update { it.copy(anchor = date, level = level) }
+        persistLevel(level)
+    }
 
     fun goToday() = prefs.update { it.copy(anchor = LocalDate.now()) }
 
@@ -68,7 +102,11 @@ class CalendarViewModel(private val container: AppContainer) : ViewModel() {
     }
 
     /** Pinch: spreading fingers zooms in to a finer level, pinching zooms out. */
-    fun zoom(finer: Boolean) = prefs.update { it.copy(level = CalendarData.zoom(it.level, finer)) }
+    fun zoom(finer: Boolean) {
+        val level = CalendarData.zoom(prefs.value.level, finer)
+        prefs.update { it.copy(level = level) }
+        persistLevel(level)
+    }
 
     fun toggleEvents() = prefs.update { it.copy(showEvents = !it.showEvents) }
 

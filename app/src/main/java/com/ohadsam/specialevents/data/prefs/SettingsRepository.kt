@@ -40,6 +40,10 @@ class SettingsRepository(private val store: DataStore<Preferences>) {
             selfPhone = p[SELF_PHONE] ?: d.selfPhone,
             selfEmail = p[SELF_EMAIL] ?: d.selfEmail,
             countryCode = p[COUNTRY_CODE] ?: d.countryCode,
+            calendarLevel = p[CALENDAR_LEVEL].toEnum(d.calendarLevel),
+            upcomingGroupBy = p[UPCOMING_GROUP].toEnum(d.upcomingGroupBy),
+            upcomingSortBy = p[UPCOMING_SORT].toEnum(d.upcomingSortBy),
+            upcomingAscending = p[UPCOMING_ASC] ?: d.upcomingAscending,
         )
     }
 
@@ -58,6 +62,10 @@ class SettingsRepository(private val store: DataStore<Preferences>) {
         p[SELF_PHONE] = s.selfPhone
         p[SELF_EMAIL] = s.selfEmail
         p[COUNTRY_CODE] = s.countryCode
+        p[CALENDAR_LEVEL] = s.calendarLevel.name
+        p[UPCOMING_GROUP] = s.upcomingGroupBy.name
+        p[UPCOMING_SORT] = s.upcomingSortBy.name
+        p[UPCOMING_ASC] = s.upcomingAscending
     }
 
     private inline fun <reified E : Enum<E>> String?.toEnum(default: E): E = enumValues<E>().firstOrNull { it.name == this } ?: default
@@ -77,5 +85,9 @@ class SettingsRepository(private val store: DataStore<Preferences>) {
         val SELF_PHONE = stringPreferencesKey("self_phone")
         val SELF_EMAIL = stringPreferencesKey("self_email")
         val COUNTRY_CODE = stringPreferencesKey("country_code")
+        val CALENDAR_LEVEL = stringPreferencesKey("calendar_level")
+        val UPCOMING_GROUP = stringPreferencesKey("upcoming_group")
+        val UPCOMING_SORT = stringPreferencesKey("upcoming_sort")
+        val UPCOMING_ASC = booleanPreferencesKey("upcoming_ascending")
     }
 }

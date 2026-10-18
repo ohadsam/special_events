@@ -1,6 +1,8 @@
 package com.ohadsam.specialevents.ui.upcoming
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -9,11 +11,17 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -39,32 +47,70 @@ import com.ohadsam.specialevents.ui.common.dateLabel
 import com.ohadsam.specialevents.ui.common.defaultEmoji
 import com.ohadsam.specialevents.ui.common.labelRes
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun EventCard(item: UpcomingItem, mode: CalendarMode, onClick: () -> Unit, modifier: Modifier = Modifier, greeted: Boolean = false) {
+fun EventCard(
+    item: UpcomingItem,
+    mode: CalendarMode,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    greeted: Boolean = false,
+    /** When given, a long press offers "show in calendar" (the secondary action). */
+    onShowInCalendar: (() -> Unit)? = null,
+) {
+    var menu by remember { mutableStateOf(false) }
+    val longLabel = stringResource(R.string.card_more_actions)
+    Box {
+        OutlinedCard(
+            modifier = modifier.fillMaxWidth().semantics(mergeDescendants = true) {}.combinedClickable(
+                onClick = onClick,
+                onLongClickLabel = longLabel,
+                onLongClick = onShowInCalendar?.let { { menu = true } },
+            ),
+        ) { CardBody(item, mode, greeted) }
+        DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
+            DropdownMenuItem(
+                text = { Text(stringResource(R.string.card_show_in_calendar)) },
+                onClick = {
+                    menu = false
+                    onShowInCalendar?.invoke()
+                },
+            )
+            DropdownMenuItem(
+                text = { Text(stringResource(R.string.card_open)) },
+                onClick = {
+                    menu = false
+                    onClick()
+                },
+            )
+        }
+    }
+}
+
+@Composable
+private fun CardBody(item: UpcomingItem, mode: CalendarMode, greeted: Boolean) {
     val event = item.event
     val accent = event.colorArgb?.let { Color(it) } ?: MaterialTheme.colorScheme.primaryContainer
-    OutlinedCard(onClick = onClick, modifier = modifier.fillMaxWidth().semantics(mergeDescendants = true) {}) {
-        Row(Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            EventAvatar(event.photoUri, event.iconKey ?: event.type.defaultEmoji(), accent, 52.dp)
-            Column(Modifier.weight(1f)) {
-                Text(event.title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                Text(
-                    kindLabel(item),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-                Text(
-                    dateLabel(item.date, item.hebrew, mode),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-                milestoneLabel(item)?.let { MilestoneBadge(it, item.milestone?.tier == Tier.MAJOR) }
-                if (greeted) Text(stringResource(R.string.card_greeted), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary, modifier = Modifier.padding(top = 4.dp))
-            }
-            CountdownPill(item.daysUntil)
+    Row(Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+        EventAvatar(event.photoUri, event.iconKey ?: event.type.defaultEmoji(), accent, 52.dp)
+        Column(Modifier.weight(1f)) {
+            Text(event.title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Text(
+                kindLabel(item),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+            Text(
+                dateLabel(item.date, item.hebrew, mode),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            milestoneLabel(item)?.let { MilestoneBadge(it, item.milestone?.tier == Tier.MAJOR) }
+            if (greeted) Text(stringResource(R.string.card_greeted), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary, modifier = Modifier.padding(top = 4.dp))
         }
+        CountdownPill(item.daysUntil)
     }
 }
 
