@@ -351,6 +351,11 @@
     <string name="reminders_reset_title">לחזור לברירת המחדל?</string>
     <string name="reminders_reset_body">כל התזכורות של האירוע יוחלפו בתזכורות הרגילות של סוג האירוע. שינויים שעשיתם יימחקו.</string>
     <string name="reminders_reset_action">החלף</string>
+    <string name="widget_upcoming_name">אירועים קרובים</string>
+    <string name="widget_upcoming_desc">רשימת האירועים הקרובים עם ספירה לאחור</string>
+    <string name="widget_upcoming_empty">אין אירועים. לחצו + כדי להוסיף.</string>
+    <string name="widget_hebrew_date_name">התאריך היום</string>
+    <string name="widget_hebrew_date_desc">התאריך העברי והלועזי של היום והאירוע הקרוב</string>
     <string name="action_undo">בטל</string>
     <string name="action_delete">מחק</string>
     <string name="checklist_title">צ׳קליסט ומתנות</string>

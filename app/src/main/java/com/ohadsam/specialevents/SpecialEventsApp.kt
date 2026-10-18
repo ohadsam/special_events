@@ -2,6 +2,7 @@ package com.ohadsam.specialevents
 
 import android.app.Application
 import com.ohadsam.specialevents.log.AppLogger
+import com.ohadsam.specialevents.widget.WidgetUpdater
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
@@ -24,6 +25,7 @@ class SpecialEventsApp : Application() {
         log.i("App", "start v${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})")
         container.notifications.createChannels()
         watchRemindersInputs()
+        WidgetUpdater.scheduleMidnight(this)
         val previous = Thread.getDefaultUncaughtExceptionHandler()
         Thread.setDefaultUncaughtExceptionHandler { t, e ->
             log.e("Crash", "uncaught on ${t.name}", e)
@@ -40,6 +42,12 @@ class SpecialEventsApp : Application() {
             combine(c.events.allEvents, c.reminders.allRules, c.settings.settings) { _, _, _ -> Unit }
                 .debounce(REPLAN_DEBOUNCE_MS)
                 .collect { runCatching { c.reminderScheduler.rescheduleAll() }.onFailure { c.logger.e("App", "reschedule failed", it) } }
+        }
+        // Widgets keep a live view only while their session lives; push a refresh whenever the data they show changes.
+        appScope.launch {
+            combine(c.events.allEvents, c.settings.settings, c.checklists.all) { _, _, _ -> Unit }
+                .debounce(REPLAN_DEBOUNCE_MS)
+                .collect { runCatching { WidgetUpdater.updateAll(c.appContext) } }
         }
     }
 

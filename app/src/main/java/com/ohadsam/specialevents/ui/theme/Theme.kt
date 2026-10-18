@@ -12,7 +12,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 
 // Brand: deep indigo with a warm gold accent (celebration without being loud).
-private val LightColors = lightColorScheme(
+internal val LightColors = lightColorScheme(
     primary = Color(0xFF4A3AB8),
     onPrimary = Color(0xFFFFFFFF),
     primaryContainer = Color(0xFFE4DFFF),
@@ -34,7 +34,7 @@ private val LightColors = lightColorScheme(
     outline = Color(0xFF78757F),
 )
 
-private val DarkColors = darkColorScheme(
+internal val DarkColors = darkColorScheme(
     primary = Color(0xFFC8BFFF),
     onPrimary = Color(0xFF2B1A8C),
     primaryContainer = Color(0xFF3F2FA0),
