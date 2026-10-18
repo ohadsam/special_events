@@ -86,6 +86,46 @@ object PrintHtml {
         return page(sheet.title, style, css, body)
     }
 
+    fun year(sheet: YearSheet, style: PrintStyle): String {
+        val ac = accent(style)
+        val css = """
+            h1 { text-align: center; color: $ac; margin: 0 0 1mm; font-size: 24pt; }
+            .sub { text-align: center; color: #55545c; margin-bottom: 3mm; font-size: 10pt; }
+            .grid { width: 100%; border-collapse: separate; border-spacing: 3mm 2mm; table-layout: fixed; }
+            .grid > tbody > tr > td { vertical-align: top; padding: 0; }
+            .box { page-break-inside: avoid; }
+            h2 { font-size: 11pt; margin: 0 0 1mm; color: #fff; background: $ac; text-align: center; padding: 0.8mm; border-radius: 1mm; }
+            table.m { width: 100%; border-collapse: collapse; table-layout: fixed; }
+            table.m th { font-size: 6.5pt; color: #55545c; padding: 0.3mm 0; }
+            table.m td { text-align: center; font-size: 7.5pt; height: 4.6mm; padding: 0; }
+            td.sh { background: #ecebf5; }
+            td.hol { color: $ac; font-weight: bold; }
+            td.mk span { border: 1px solid $ac; border-radius: 50%; padding: 0 1mm; font-weight: bold; }
+            .notes { font-size: 6.5pt; color: #333; margin-top: 0.8mm; min-height: 10mm; }
+            .notes div { margin: 0.2mm 0; }
+        """
+        val head = sheet.weekdays.joinToString("") { "<th>${escape(it)}</th>" }
+        fun box(m: YearMonthBox): String {
+            val rows = m.weeks.joinToString("") { week ->
+                "<tr>" + week.joinToString("") { d ->
+                    if (d == null) {
+                        "<td></td>"
+                    } else {
+                        val cls = listOfNotNull("sh".takeIf { d.shabbat }, "hol".takeIf { d.holiday }, "mk".takeIf { d.marked }).joinToString(" ")
+                        "<td class=\"$cls\"><span>${escape(d.number)}</span></td>"
+                    }
+                } + "</tr>"
+            }
+            val notes = m.notes.joinToString("") { "<div>${escape(it)}</div>" }
+            return """<div class="box"><h2>${escape(m.title)}</h2><table class="m"><thead><tr>$head</tr></thead><tbody>$rows</tbody></table><div class="notes">$notes</div></div>"""
+        }
+        val grid = sheet.months.chunked(YEAR_COLUMNS).joinToString("") { row -> "<tr>" + row.joinToString("") { "<td>${box(it)}</td>" } + "</tr>" }
+        val body = "<h1>${escape(sheet.title)}</h1>" + sheet.subtitle?.let { """<div class="sub">${escape(it)}</div>""" }.orEmpty() + """<table class="grid"><tbody>$grid</tbody></table>"""
+        return page(sheet.title, style, css, body)
+    }
+
+    private const val YEAR_COLUMNS = 3
+
     fun list(sheet: ListSheet, style: PrintStyle): String {
         val ac = accent(style)
         val css = """

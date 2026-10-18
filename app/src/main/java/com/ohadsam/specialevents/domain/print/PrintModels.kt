@@ -44,6 +44,14 @@ data class PrintDay(
 
 data class MonthSheet(val title: String, val subtitle: String?, val weekdays: List<String>, val weeks: List<List<PrintDay>>)
 
+/** One day of a year-sheet month; [marked] = something is planned, [holiday] = a Jewish holiday or fast. */
+data class YearDay(val number: String, val shabbat: Boolean, val marked: Boolean, val holiday: Boolean)
+
+/** [weeks] hold null for the blank cells before the 1st and after the last day. */
+data class YearMonthBox(val title: String, val weeks: List<List<YearDay?>>, val notes: List<String>)
+
+data class YearSheet(val title: String, val subtitle: String?, val weekdays: List<String>, val months: List<YearMonthBox>)
+
 data class PrintRow(val date: String, val title: String, val kind: String, val detail: String)
 
 data class PrintSection(val heading: String?, val rows: List<PrintRow>)

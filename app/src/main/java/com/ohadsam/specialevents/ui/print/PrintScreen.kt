@@ -126,6 +126,10 @@ fun PrintScreen(viewModel: PrintViewModel, onBack: () -> Unit) {
                     }
                     SwitchRow(R.string.print_show_marks, state.showMarks, viewModel::setShowMarks)
                 }
+                PrintKind.YEAR -> {
+                    YearStepper(state.year, viewModel::stepYear)
+                    SwitchRow(R.string.print_show_marks, state.showMarks, viewModel::setShowMarks)
+                }
                 PrintKind.LIST -> ListOptions(state, viewModel)
             }
 
@@ -202,14 +206,19 @@ private fun CardOptions(state: PrintState, vm: PrintViewModel, onPickEvent: () -
     SwitchRow(R.string.print_include_dates, state.includeDates, vm::setIncludeDates)
 }
 
+@Composable
+private fun YearStepper(year: Int, step: (Int) -> Unit) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        IconButton(onClick = { step(-1) }) { Icon(Icons.AutoMirrored.Outlined.KeyboardArrowLeft, contentDescription = stringResource(R.string.calendar_previous_year)) }
+        Text(year.toString(), Modifier.weight(1f), style = MaterialTheme.typography.titleMedium, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
+        IconButton(onClick = { step(1) }) { Icon(Icons.AutoMirrored.Outlined.KeyboardArrowRight, contentDescription = stringResource(R.string.calendar_next_year)) }
+    }
+}
+
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun ListOptions(state: PrintState, vm: PrintViewModel) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        IconButton(onClick = { vm.stepYear(-1) }) { Icon(Icons.AutoMirrored.Outlined.KeyboardArrowLeft, contentDescription = stringResource(R.string.calendar_previous_year)) }
-        Text(state.year.toString(), Modifier.weight(1f), style = MaterialTheme.typography.titleMedium, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
-        IconButton(onClick = { vm.stepYear(1) }) { Icon(Icons.AutoMirrored.Outlined.KeyboardArrowRight, contentDescription = stringResource(R.string.calendar_next_year)) }
-    }
+    YearStepper(state.year, vm::stepYear)
     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         EventType.entries.forEach { t -> FilterChip(selected = t in state.filter.types, onClick = { vm.toggleType(t) }, label = { Text(stringResource(t.labelRes())) }) }
     }
@@ -271,6 +280,7 @@ private fun EventPickerDialog(events: List<Pair<Long, String>>, onPick: (Long) -
 private fun kindLabel(k: PrintKind) = when (k) {
     PrintKind.CARD -> R.string.print_kind_card
     PrintKind.MONTH -> R.string.print_kind_month
+    PrintKind.YEAR -> R.string.print_kind_year
     PrintKind.LIST -> R.string.print_kind_list
 }
 

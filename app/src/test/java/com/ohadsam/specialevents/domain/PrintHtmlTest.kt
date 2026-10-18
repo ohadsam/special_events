@@ -13,6 +13,8 @@ import com.ohadsam.specialevents.domain.print.PrintHtml
 import com.ohadsam.specialevents.domain.print.PrintRow
 import com.ohadsam.specialevents.domain.print.PrintSection
 import com.ohadsam.specialevents.domain.print.PrintStyle
+import com.ohadsam.specialevents.domain.print.YearLabels
+import com.ohadsam.specialevents.domain.print.YearSheetBuilder
 import java.time.LocalDate
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -77,5 +79,24 @@ class PrintHtmlTest {
         assertTrue(html.contains("🎂 דנה"))
         assertTrue(html.contains("class=\"shabbat\""))
         assertTrue(html.contains("אוקטובר 2026"))
+    }
+
+    @Test
+    fun yearSheetHasTwelveMonthsWithMarkedDaysAndNotes() {
+        val dana = SpecialEvent(id = 1, type = EventType.BIRTHDAY, title = "דנה <x>", origin = OriginDate(CalendarBasis.GREGORIAN, 1980, 10, 17))
+        val items = EventTimeline.between(listOf(dana), LocalDate.of(2026, 1, 1), LocalDate.of(2026, 12, 31), LocalDate.of(2026, 1, 1), true).groupBy { it.date }
+        val labels = YearLabels(monthTitle = { "חודש $it" }, weekdays = { listOf("א", "ב", "ג", "ד", "ה", "ו", "ש") }, entry = { "🎂 ${it.event.title}" })
+        val sheet = YearSheetBuilder.build(2026, true, true, items, labels, "לוח שנה 2026", null)
+        assertEquals(12, sheet.months.size)
+        assertTrue(sheet.months.all { m -> m.weeks.all { it.size == 7 } })
+        val october = sheet.months[9]
+        assertEquals(31, october.weeks.flatten().filterNotNull().size)
+        assertTrue(october.weeks.flatten().filterNotNull().first { it.number == "17" }.marked)
+        assertEquals(listOf("17 · 🎂 דנה <x>"), october.notes)
+        assertTrue(sheet.months[0].notes.isEmpty())
+        val html = PrintHtml.year(sheet, PrintStyle())
+        assertTrue(html.contains("17 · 🎂 דנה &lt;x&gt;"))
+        assertFalse(html.contains("<x>"))
+        assertEquals(12, "<h2>".toRegex().findAll(html).count())
     }
 }

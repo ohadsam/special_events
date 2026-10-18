@@ -26,6 +26,8 @@ import com.ohadsam.specialevents.domain.print.ListSheet
 import com.ohadsam.specialevents.domain.print.MonthLabels
 import com.ohadsam.specialevents.domain.print.MonthSheetBuilder
 import com.ohadsam.specialevents.domain.print.Paper
+import com.ohadsam.specialevents.domain.print.YearLabels
+import com.ohadsam.specialevents.domain.print.YearSheetBuilder
 import com.ohadsam.specialevents.domain.print.PrintFont
 import com.ohadsam.specialevents.domain.print.PrintHtml
 import com.ohadsam.specialevents.domain.print.PrintRow
@@ -56,7 +58,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-enum class PrintKind { CARD, MONTH, LIST }
+enum class PrintKind { CARD, MONTH, YEAR, LIST }
 
 data class PrintState(
     val loading: Boolean = true,
@@ -176,6 +178,7 @@ class PrintViewModel(private val container: AppContainer, private val initialEve
                 when (s.kind) {
                     PrintKind.CARD -> cardHtml(s)
                     PrintKind.MONTH -> monthHtml(s)
+                    PrintKind.YEAR -> yearHtml(s)
                     PrintKind.LIST -> listHtml(s)
                 }
             }
@@ -218,6 +221,19 @@ class PrintViewModel(private val container: AppContainer, private val initialEve
         val subtitle = if (settings.calendarMode == CalendarMode.DUAL) hebrewSpan(first) else null
         val sheet = MonthSheetBuilder.build(first, settings.calendarMode, settings.weekStartsOnSunday, settings.inIsrael, items, labels, title, subtitle, s.showMarks)
         return PrintHtml.month(sheet, s.style) to title
+    }
+
+    private fun yearHtml(s: PrintState): Pair<String, String> {
+        val items = EventTimeline.between(s.events, LocalDate.of(s.year, 1, 1), LocalDate.of(s.year, 12, 31), LocalDate.now(), settings.inIsrael, settings.dateRules).groupBy { it.date }
+        val labels = YearLabels(
+            monthTitle = { month -> java.time.Month.of(month).getDisplayName(java.time.format.TextStyle.FULL, java.util.Locale.getDefault()) },
+            weekdays = { sundayFirst -> weekdayLetters(sundayFirst) },
+            entry = { item -> (item.event.iconKey ?: item.event.type.defaultEmoji()) + " " + item.event.title },
+        )
+        val title = context.getString(R.string.print_year_title, s.year)
+        val subtitle = if (settings.calendarMode == CalendarMode.GREGORIAN) null else HebrewCalendar.yearLabel(HebrewCalendar.fromLocalDate(LocalDate.of(s.year, 7, 1)).year)
+        val sheet = YearSheetBuilder.build(s.year, settings.weekStartsOnSunday, settings.inIsrael, items, labels, title, subtitle, s.showMarks)
+        return PrintHtml.year(sheet, s.style) to title
     }
 
     private fun hebrewSpan(first: LocalDate): String {
