@@ -84,3 +84,28 @@ data class ReminderRuleEntity(
     val enabled: Boolean,
     val origin: String,
 )
+
+/** A greeting text the user wrote (the built-in ones live in code, see `GreetingCatalog`). */
+@Entity(tableName = "greeting_templates")
+data class GreetingTemplateEntity(
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val name: String,
+    val body: String,
+    val forType: String?,
+    val createdAt: Long,
+)
+
+/** "I greeted this event on this occurrence day by this channel" - the greeting history. */
+@Entity(
+    tableName = "greetings_sent",
+    foreignKeys = [ForeignKey(entity = EventEntity::class, parentColumns = ["id"], childColumns = ["eventId"], onDelete = ForeignKey.CASCADE)],
+    indices = [Index("eventId")],
+)
+data class GreetingSentEntity(
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val eventId: Long,
+    val occurrenceDay: Long,
+    val channel: String,
+    val sentAt: Long,
+    val preview: String,
+)

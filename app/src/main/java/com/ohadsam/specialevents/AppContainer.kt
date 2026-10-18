@@ -9,6 +9,7 @@ import com.ohadsam.specialevents.reminders.ReminderScheduler
 import com.ohadsam.specialevents.reminders.ReminderState
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import com.ohadsam.specialevents.data.EventRepository
+import com.ohadsam.specialevents.data.GreetingRepository
 import com.ohadsam.specialevents.data.ReminderRepository
 import com.ohadsam.specialevents.data.db.AppDatabase
 import com.ohadsam.specialevents.data.prefs.SavedSearchRepository
@@ -40,6 +41,8 @@ class AppContainer(private val context: Context) {
     val events: EventRepository by lazy { EventRepository(database) }
 
     val reminders: ReminderRepository by lazy { ReminderRepository(database) }
+
+    val greetings: GreetingRepository by lazy { GreetingRepository(database) }
 
     val settings: SettingsRepository = SettingsRepository(
         PreferenceDataStoreFactory.create(

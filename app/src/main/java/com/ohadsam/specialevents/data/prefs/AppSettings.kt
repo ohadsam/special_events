@@ -20,4 +20,8 @@ data class AppSettings(
     /** City whose sunset/nightfall is used for Shabbat and Yom Tov timing (`Places`). */
     val placeId: String = "jerusalem",
     val tzeit: TzeitMethod = TzeitMethod.DEGREES_8_5,
+    /** "Me" for greetings and reminders sent to myself, and the country code that completes local phone numbers. */
+    val selfPhone: String = "",
+    val selfEmail: String = "",
+    val countryCode: String = "972",
 )

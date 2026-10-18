@@ -33,5 +33,24 @@ object Migrations {
         }
     }
 
-    val ALL: Array<Migration> = arrayOf(V1_TO_V2, V2_TO_V3)
+    const val CREATE_GREETING_TEMPLATES =
+        "CREATE TABLE IF NOT EXISTS `greeting_templates` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, " +
+            "`body` TEXT NOT NULL, `forType` TEXT, `createdAt` INTEGER NOT NULL)"
+
+    const val CREATE_GREETINGS_SENT =
+        "CREATE TABLE IF NOT EXISTS `greetings_sent` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `eventId` INTEGER NOT NULL, " +
+            "`occurrenceDay` INTEGER NOT NULL, `channel` TEXT NOT NULL, `sentAt` INTEGER NOT NULL, `preview` TEXT NOT NULL, " +
+            "FOREIGN KEY(`eventId`) REFERENCES `events`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )"
+
+    const val CREATE_GREETINGS_SENT_INDEX = "CREATE INDEX IF NOT EXISTS `index_greetings_sent_eventId` ON `greetings_sent` (`eventId`)"
+
+    val V3_TO_V4 = object : Migration(3, 4) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL(CREATE_GREETING_TEMPLATES)
+            db.execSQL(CREATE_GREETINGS_SENT)
+            db.execSQL(CREATE_GREETINGS_SENT_INDEX)
+        }
+    }
+
+    val ALL: Array<Migration> = arrayOf(V1_TO_V2, V2_TO_V3, V3_TO_V4)
 }

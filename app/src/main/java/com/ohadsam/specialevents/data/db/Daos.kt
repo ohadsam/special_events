@@ -75,3 +75,30 @@ interface ReminderDao {
     @Query("DELETE FROM reminder_rules WHERE eventId = :eventId")
     suspend fun deleteForEvent(eventId: Long)
 }
+
+@Dao
+interface GreetingDao {
+    @Query("SELECT * FROM greeting_templates ORDER BY createdAt DESC")
+    fun observeTemplates(): Flow<List<GreetingTemplateEntity>>
+
+    @Insert
+    suspend fun insertTemplate(t: GreetingTemplateEntity): Long
+
+    @Update
+    suspend fun updateTemplate(t: GreetingTemplateEntity)
+
+    @Query("DELETE FROM greeting_templates WHERE id = :id")
+    suspend fun deleteTemplate(id: Long)
+
+    @Query("SELECT * FROM greetings_sent WHERE eventId = :eventId ORDER BY sentAt DESC")
+    fun observeSentFor(eventId: Long): Flow<List<GreetingSentEntity>>
+
+    @Query("SELECT * FROM greetings_sent")
+    fun observeAllSent(): Flow<List<GreetingSentEntity>>
+
+    @Insert
+    suspend fun insertSent(s: GreetingSentEntity): Long
+
+    @Query("DELETE FROM greetings_sent WHERE id = :id")
+    suspend fun deleteSent(id: Long)
+}

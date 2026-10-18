@@ -37,6 +37,9 @@ class SettingsRepository(private val store: DataStore<Preferences>) {
             remindersEnabled = p[REMINDERS_ENABLED] ?: d.remindersEnabled,
             placeId = p[PLACE_ID] ?: d.placeId,
             tzeit = p[TZEIT].toEnum(d.tzeit),
+            selfPhone = p[SELF_PHONE] ?: d.selfPhone,
+            selfEmail = p[SELF_EMAIL] ?: d.selfEmail,
+            countryCode = p[COUNTRY_CODE] ?: d.countryCode,
         )
     }
 
@@ -52,6 +55,9 @@ class SettingsRepository(private val store: DataStore<Preferences>) {
         p[REMINDERS_ENABLED] = s.remindersEnabled
         p[PLACE_ID] = s.placeId
         p[TZEIT] = s.tzeit.name
+        p[SELF_PHONE] = s.selfPhone
+        p[SELF_EMAIL] = s.selfEmail
+        p[COUNTRY_CODE] = s.countryCode
     }
 
     private inline fun <reified E : Enum<E>> String?.toEnum(default: E): E = enumValues<E>().firstOrNull { it.name == this } ?: default
@@ -68,5 +74,8 @@ class SettingsRepository(private val store: DataStore<Preferences>) {
         val REMINDERS_ENABLED = booleanPreferencesKey("reminders_enabled")
         val PLACE_ID = stringPreferencesKey("place_id")
         val TZEIT = stringPreferencesKey("tzeit")
+        val SELF_PHONE = stringPreferencesKey("self_phone")
+        val SELF_EMAIL = stringPreferencesKey("self_email")
+        val COUNTRY_CODE = stringPreferencesKey("country_code")
     }
 }
