@@ -1,5 +1,5 @@
 # Special Events – Agent Memory
-**Last updated:** v0.6.0 (batches 0–5 done; batch 6 next)
+**Last updated:** v0.7.0 (batches 0–6 done; batch 7 next)
 Read order: CLAUDE.md → docs/PLAN.md → STRUCTURE.md → the batch's section in docs/SPEC.md.
 
 ## Recently done
@@ -21,6 +21,8 @@ Read order: CLAUDE.md → docs/PLAN.md → STRUCTURE.md → the batch's section 
 
 - v0.6.0 (batch 5): reminder engine. DB is v2 (migration SQL guarded by `MigrationSchemaTest` against the committed schema JSON). New events get the type defaults automatically; rule editing UI is batch 6. Reminders older than 12 h at the moment of a re-plan (device off) are dropped. NOT verifiable here (needs a device): alarm delivery in Doze, exact-alarm permission flow, channel sound/vibration, snooze across Shabbat, notification text layout.
 
+- v0.7.0: reminder editor + suggestions. Global editable defaults per type are NOT built (reset uses `ReminderDefaults`); suggestions cannot be dismissed permanently yet. Not verifiable here: system tone picker result handling, TimePicker look in RTL.
+
 ## Known issues / open items (need the owner)
 - Feature spec for "אירועים מיוחדים" not yet provided → fill `docs/SPEC.md`, then define batches in `docs/PLAN.md`.
 - **Signing key:** `app/sideload.jks` (password in app/build.gradle.kts) is committed on purpose so every CI build updates in place; NOT a store key. Never change it after users installed the app.
@@ -32,6 +34,9 @@ Notification timing, permission flows, visuals, TalkBack.
 
 ## Owner decisions needed (defaults are active until confirmed — SPEC Appendix A.1)
 - Adar in a leap year (born/yahrzeit in plain Adar): default Adar II. 30 Cheshvan/Kislev in a short month: default 29th (day before). 29 Feb in a common year: default 28 Feb.
+
+## Ideas (v0.7.0)
+- Dismiss a suggestion for good (remember its id); edit the per-type default rule sets in Settings; duplicate a rule to other events; bulk-apply a rule to all birthdays.
 
 ## Ideas (from batch 5)
 - Yahrzeit candle reminder anchored to sunset (rule time = "N minutes before sunset") instead of a fixed 16:00; per-rule custom sound picker (profile `sound:<uri>` is already supported); quiet hours; "mark as greeted" action (batch 8); a daily digest notification option; reminders inheriting from tags.
