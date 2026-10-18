@@ -76,7 +76,12 @@ object BackupCodec {
             if (array.size > MAX_ENTRIES) return emptyList().also { skipped += array.size }
             return array.mapNotNull { el -> runCatching { parse(el.jsonObject) }.getOrNull().also { if (it == null) skipped++ } }
         }
-        val data = BackupData(read("events", ::parseEvent), read("rules", ::parseRule), read("checklist", ::parseItem), read("templates", ::parseTemplate))
+        val data = BackupData(
+            read<SpecialEvent>("events") { parseEvent(it) },
+            read<ReminderRule>("rules") { parseRule(it) },
+            read<ChecklistItem>("checklist") { parseItem(it) },
+            read<GreetingTemplate>("templates") { parseTemplate(it) },
+        )
         return DecodeResult.Ok(data, root.str("exportedAt"), skipped)
     }
 
@@ -178,16 +183,19 @@ object BackupCodec {
         put("sortOrder", i.sortOrder)
     }
 
-    private fun parseItem(o: JsonObject): ChecklistItem? = ChecklistItem(
-        eventId = o.long("eventId") ?: return null,
-        kind = enumOf<ChecklistKind>(o.str("kind")) ?: ChecklistKind.TASK,
-        title = o.str("title")?.trim()?.take(MAX_TITLE)?.takeIf { it.isNotEmpty() } ?: return null,
-        note = o.str("note")?.take(MAX_TEXT),
-        amount = o.int("amount"),
-        daysBefore = o.int("daysBefore"),
-        done = o.bool("done") ?: false,
-        sortOrder = o.int("sortOrder") ?: 0,
-    )
+    private fun parseItem(o: JsonObject): ChecklistItem? {
+        val title = o.str("title")?.trim()?.take(MAX_TITLE)?.takeIf { it.isNotEmpty() } ?: return null
+        return ChecklistItem(
+            eventId = o.long("eventId") ?: return null,
+            kind = enumOf<ChecklistKind>(o.str("kind")) ?: ChecklistKind.TASK,
+            title = title,
+            note = o.str("note")?.take(MAX_TEXT),
+            amount = o.int("amount"),
+            daysBefore = o.int("daysBefore"),
+            done = o.bool("done") ?: false,
+            sortOrder = o.int("sortOrder") ?: 0,
+        )
+    }
 
     private fun templateJson(t: GreetingTemplate) = buildJsonObject {
         put("name", t.name)
