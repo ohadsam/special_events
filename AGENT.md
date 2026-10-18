@@ -1,5 +1,5 @@
 # Special Events – Agent Memory
-**Last updated:** v0.10.0 (batches 0–8b done; batch 9 next)
+**Last updated:** v0.11.0 (batches 0–9 done; batch 10 (widgets) next)
 Read order: CLAUDE.md → docs/PLAN.md → STRUCTURE.md → the batch's section in docs/SPEC.md.
 
 ## Recently done
@@ -29,6 +29,8 @@ Read order: CLAUDE.md → docs/PLAN.md → STRUCTURE.md → the batch's section 
 
 - v0.10.0: batch 8b: voice greeting, song ideas, auto-SMS. Unverified on device: MediaRecorder on real mics, WhatsApp jid deep-link (undocumented extra, falls back to chooser), SMS multipart send, permission dialogs. Rule editor has no template chooser yet (uses best match).
 
+- v0.11.0: batch 9: checklist + gift tracker. Unverified on device: layout at 200% font, Undo snackbar. Widget checkbox interaction comes with batch 10 (reuse ChecklistRepository.setDone).
+
 ## Known issues / open items (need the owner)
 - Feature spec for "אירועים מיוחדים" not yet provided → fill `docs/SPEC.md`, then define batches in `docs/PLAN.md`.
 - **Signing key:** `app/sideload.jks` (password in app/build.gradle.kts) is committed on purpose so every CI build updates in place; NOT a store key. Never change it after users installed the app.
@@ -52,6 +54,9 @@ Notification timing, permission flows, visuals, TalkBack.
 
 ## Ideas (v0.10.0)
 - Template chooser per auto-send rule; delivery receipts (SmsManager sentIntent) to mark failures; WhatsApp Business API / SMTP for true auto-send (owner decision); trim/waveform for voice; share voice via email/SMS MMS; remember last song opened.
+
+## Ideas (v0.11.0)
+- Reorder items by drag; link a gift to a contact wish-list; remember last year's gift per person (avoid repeating); checklist items as reminders; shared checklist export with the event; gift ideas by relation/age/budget (from the backlog).
 
 ## Ideas (from batch 5)
 - Yahrzeit candle reminder anchored to sunset (rule time = "N minutes before sunset") instead of a fixed 16:00; per-rule custom sound picker (profile `sound:<uri>` is already supported); quiet hours; "mark as greeted" action (batch 8); a daily digest notification option; reminders inheriting from tags.
