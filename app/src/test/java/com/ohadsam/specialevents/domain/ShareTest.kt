@@ -96,7 +96,7 @@ class ShareTest {
     fun cardShowsOnlyTheChosenDetailsAndFormatsPerTarget() {
         val item = EventTimeline.forEvent(dana, LocalDate.of(2026, 10, 18), 1).single()
         val spans = PersonCard.build(null, listOf(dana), mapOf(1L to item), setOf(CardField.TYPE, CardField.DATE_GREGORIAN, CardField.AGE), labels)
-        assertEquals("דנה לוי\n\n🎂 יום הולדת — דנה לוי\n17.10.1980\nבת 46", RichText.plain(spans).replace("בת 45", "בת 46"))
+        assertEquals("דנה לוי\n\n🎂 יום הולדת — דנה לוי\n17.10.1980\nבת ${item.number}", RichText.plain(spans))
         assertTrue(RichText.whatsApp(spans).startsWith("*דנה לוי*"))
         assertTrue(RichText.html(spans).startsWith("<b>דנה לוי</b>"))
         val bare = PersonCard.build("הכרטיס שלי", listOf(dana), emptyMap(), setOf(CardField.NOTES, CardField.CONTACT, CardField.TAGS), labels)
