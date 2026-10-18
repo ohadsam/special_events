@@ -15,7 +15,7 @@ typealias AppRule = AndroidComposeTestRule<ActivityScenarioRule<MainActivity>, M
 /** Small helpers shared by the emulator tests: the first-run welcome must not hide the screen under test. */
 object AppRobot {
     private const val WELCOME_WAIT_MS = 4_000L
-    private const val TREE_LIMIT = 1_500
+    private const val TREE_LIMIT = 7_000
 
     fun text(rule: AppRule, res: Int): String = rule.activity.getString(res)
 
