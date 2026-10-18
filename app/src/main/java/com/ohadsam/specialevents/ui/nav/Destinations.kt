@@ -24,6 +24,10 @@ object Routes {
     const val GUIDE = "guide?topic={topic}"
 
     fun guide(topic: String? = null) = "guide" + (topic?.let { "?topic=$it" } ?: "")
+    const val SHARE = "share?ids={ids}"
+
+    /** [ids] are preselected events; empty = the user picks. */
+    fun share(ids: Collection<Long> = emptyList()) = "share" + if (ids.isEmpty()) "" else "?ids=" + ids.joinToString(",")
     const val GROUPS = "groups"
     const val GROUP_EDITOR = "group/{id}"
 

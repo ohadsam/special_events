@@ -53,6 +53,8 @@ import com.ohadsam.specialevents.ui.editor.EditorViewModel
 import com.ohadsam.specialevents.ui.reminders.EventRemindersScreen
 import com.ohadsam.specialevents.ui.reminders.EventRemindersViewModel
 import com.ohadsam.specialevents.ui.search.SearchScreen
+import com.ohadsam.specialevents.ui.share.ShareScreen
+import com.ohadsam.specialevents.ui.share.ShareViewModel
 import com.ohadsam.specialevents.ui.settings.ReminderHealthScreen
 import com.ohadsam.specialevents.ui.settings.LogsScreen
 import com.ohadsam.specialevents.ui.settings.SettingsScreen
@@ -146,7 +148,7 @@ private fun AppScaffold(container: AppContainer, nav: NavHostController, pending
             composable(Routes.DETAIL, arguments = listOf(navArgument("id") { type = NavType.LongType })) { entry ->
                 val id = entry.arguments?.getLong("id") ?: 0L
                 val vm: DetailViewModel = viewModel(key = "detail-$id", factory = DetailViewModel.Factory(container, id))
-                DetailScreen(vm, onBack = { nav.popBackStack() }, onEdit = { nav.navigate(Routes.editor(id)) }, onEditReminders = { nav.navigate(Routes.eventReminders(id)) }, onGreet = { nav.navigate(Routes.greeting(id)) }, onOpenChecklist = { nav.navigate(Routes.checklist(id)) })
+                DetailScreen(vm, onBack = { nav.popBackStack() }, onEdit = { nav.navigate(Routes.editor(id)) }, onEditReminders = { nav.navigate(Routes.eventReminders(id)) }, onGreet = { nav.navigate(Routes.greeting(id)) }, onOpenChecklist = { nav.navigate(Routes.checklist(id)) }, onShare = { nav.navigate(Routes.share(listOf(id))) })
             }
             composable(
                 Routes.EDITOR,
@@ -208,7 +210,7 @@ private fun AppScaffold(container: AppContainer, nav: NavHostController, pending
                 ),
             ) { entry ->
                 val vm: BackupViewModel = viewModel(factory = BackupViewModel.Factory(container))
-                BackupScreen(vm, onBack = { nav.popBackStack() }, openUri = entry.arguments?.getString("uri"))
+                BackupScreen(vm, onBack = { nav.popBackStack() }, openUri = entry.arguments?.getString("uri"), onShareEvents = { nav.navigate(Routes.share()) })
             }
             composable(Routes.CALENDAR_SYNC) {
                 val vm: CalendarSyncViewModel = viewModel(factory = CalendarSyncViewModel.Factory(container))
@@ -226,13 +228,27 @@ private fun AppScaffold(container: AppContainer, nav: NavHostController, pending
             ) { entry ->
                 GuideScreen(HelpTopic.byKey(entry.arguments?.getString("topic")), onBack = { nav.popBackStack() })
             }
+            composable(
+                Routes.SHARE,
+                arguments = listOf(
+                    navArgument("ids") {
+                        type = NavType.StringType
+                        nullable = true
+                        defaultValue = null
+                    },
+                ),
+            ) { entry ->
+                val ids = entry.arguments?.getString("ids")?.split(',')?.mapNotNull { it.toLongOrNull() }?.toSet().orEmpty()
+                val vm: ShareViewModel = viewModel(key = "share-$ids", factory = ShareViewModel.Factory(container, ids))
+                ShareScreen(vm, onBack = { nav.popBackStack() })
+            }
             composable(Routes.GROUPS) {
                 GroupsScreen(viewModel(factory = GroupsViewModel.Factory(container)), onBack = { nav.popBackStack() }, onOpenGroup = { nav.navigate(Routes.group(it)) })
             }
             composable(Routes.GROUP_EDITOR, arguments = listOf(navArgument("id") { type = NavType.LongType })) { entry ->
                 val id = entry.arguments?.getLong("id") ?: 0L
                 val vm: GroupEditorViewModel = viewModel(key = "group-$id", factory = GroupEditorViewModel.Factory(container, id))
-                GroupEditorScreen(vm, onClose = { nav.popBackStack() })
+                GroupEditorScreen(vm, onClose = { nav.popBackStack() }, onShare = { ids -> nav.navigate(Routes.share(ids)) })
             }
             composable(Routes.TEMPLATES) {
                 TemplatesScreen(viewModel(factory = factory), onBack = { nav.popBackStack() })

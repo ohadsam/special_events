@@ -79,7 +79,7 @@ private val DUMMY_EVENT = SpecialEvent(type = EventType.CUSTOM, title = "", orig
 /** Everything about one group: look, tags, reminder template, default greeting, recipients and members. */
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
-fun GroupEditorScreen(viewModel: GroupEditorViewModel, onClose: () -> Unit) {
+fun GroupEditorScreen(viewModel: GroupEditorViewModel, onClose: () -> Unit, onShare: (Set<Long>) -> Unit = {}) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     var confirmDelete by rememberSaveable { mutableStateOf(false) }
     var confirmLeave by rememberSaveable { mutableStateOf(false) }
@@ -177,6 +177,7 @@ fun GroupEditorScreen(viewModel: GroupEditorViewModel, onClose: () -> Unit) {
             Text(stringResource(R.string.group_apply_desc), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
 
             if (!state.isNew) {
+                OutlinedButton(onClick = { onShare(state.members) }, enabled = state.members.isNotEmpty(), modifier = Modifier.fillMaxWidth()) { Text(stringResource(R.string.group_share)) }
                 HorizontalDivider(Modifier.padding(vertical = 8.dp))
                 TextButton(onClick = { confirmDelete = true }) { Text(stringResource(R.string.group_delete), color = MaterialTheme.colorScheme.error) }
             }

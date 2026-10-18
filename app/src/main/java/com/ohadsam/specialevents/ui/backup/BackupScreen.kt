@@ -58,7 +58,7 @@ import com.ohadsam.specialevents.domain.backup.ImportMode
 /** Save, restore and share: a JSON backup of everything, and the installed app itself for passing on to someone else. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BackupScreen(viewModel: BackupViewModel, onBack: () -> Unit, openUri: String? = null) {
+fun BackupScreen(viewModel: BackupViewModel, onBack: () -> Unit, openUri: String? = null, onShareEvents: () -> Unit = {}) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val snackbar = remember { SnackbarHostState() }
@@ -137,6 +137,8 @@ fun BackupScreen(viewModel: BackupViewModel, onBack: () -> Unit, openUri: String
                 OutlinedButton(onClick = { saveIcs.launch(viewModel.suggestedName(ExportKind.ICS)) }, enabled = !state.busy, modifier = Modifier.weight(1f)) { Text(stringResource(R.string.export_ics)) }
                 OutlinedButton(onClick = { saveCsv.launch(viewModel.suggestedName(ExportKind.CSV)) }, enabled = !state.busy, modifier = Modifier.weight(1f)) { Text(stringResource(R.string.export_csv)) }
             }
+
+            OutlinedButton(onClick = onShareEvents, enabled = !state.busy, modifier = Modifier.fillMaxWidth()) { Text(stringResource(R.string.backup_share_events)) }
 
             Heading(R.string.backup_section_restore)
             Text(stringResource(R.string.backup_restore_desc), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
