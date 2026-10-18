@@ -16,6 +16,10 @@ import com.ohadsam.specialevents.data.prefs.AppSettings
 import com.ohadsam.specialevents.domain.backup.BackupCodec
 import com.ohadsam.specialevents.domain.backup.BackupCrypto
 import com.ohadsam.specialevents.domain.backup.CsvExport
+import com.ohadsam.specialevents.domain.backup.CsvField
+import com.ohadsam.specialevents.domain.backup.CsvImport
+import com.ohadsam.specialevents.domain.backup.CsvMapping
+import com.ohadsam.specialevents.domain.backup.CsvParser
 import com.ohadsam.specialevents.domain.backup.DecryptResult
 import com.ohadsam.specialevents.domain.backup.ExportDays
 import com.ohadsam.specialevents.domain.backup.IcsExport
@@ -62,12 +66,16 @@ enum class ExportKind(val extension: String, val mime: String) {
     CSV("csv", "text/csv"),
 }
 
+/** A spreadsheet that was read and waits for the user to confirm which column is which. */
+data class CsvDraft(val header: List<String>, val rows: List<List<String>>, val mapping: CsvMapping)
+
 data class BackupState(
     val busy: Boolean = false,
     val message: UiMessage? = null,
     val pending: PendingImport? = null,
     /** An encrypted file was chosen and waits for its password. */
     val needPassword: Boolean = false,
+    val csv: CsvDraft? = null,
 )
 
 class BackupViewModel(private val container: AppContainer) : ViewModel() {
@@ -159,6 +167,36 @@ class BackupViewModel(private val container: AppContainer) : ViewModel() {
         }
     }
 
+    /** Reads a spreadsheet and proposes which column is the name, the date, and so on. */
+    fun loadCsv(uri: Uri) = launchBusy {
+        val rows = withContext(Dispatchers.IO) { readLimited(uri) }?.let(CsvParser::parse).orEmpty()
+        if (rows.size < 2) {
+            _state.update { it.copy(message = UiMessage(R.string.csv_err_empty)) }
+        } else {
+            _state.update { it.copy(csv = CsvDraft(rows.first(), rows.drop(1), CsvImport.guessMapping(rows.first()))) }
+        }
+    }
+
+    fun setCsvColumn(field: CsvField, column: Int?) = _state.update { s ->
+        s.copy(csv = s.csv?.let { d -> d.copy(mapping = CsvMapping(if (column == null) d.mapping.columns - field else d.mapping.columns + (field to column))) })
+    }
+
+    fun cancelCsv() = _state.update { it.copy(csv = null) }
+
+    /** Turns the rows into events (unreadable rows are counted, not guessed) and shows the usual import preview. */
+    fun confirmCsv() {
+        val draft = _state.value.csv ?: return
+        _state.update { it.copy(csv = null) }
+        launchBusy {
+            val result = withContext(Dispatchers.Default) { CsvImport.toEvents(draft.rows, draft.mapping, LocalDate.now()) }
+            if (result.events.isEmpty()) {
+                _state.update { it.copy(message = UiMessage(R.string.csv_err_none)) }
+            } else {
+                showPending(BackupData(result.events, emptyList(), emptyList(), emptyList()), result.skippedRows, BackupCodec.KIND_CSV)
+            }
+        }
+    }
+
     /** Tries the password on the waiting encrypted file; a wrong one just asks again. */
     fun submitPassword(password: CharArray) = launchBusy {
         val text = encryptedText ?: return@launchBusy
@@ -184,18 +222,19 @@ class BackupViewModel(private val container: AppContainer) : ViewModel() {
     private suspend fun showPreview(text: String?) {
         when (val result = text?.let(BackupCodec::decode) ?: DecodeResult.Failure(BackupError.TOO_BIG)) {
             is DecodeResult.Failure -> _state.update { it.copy(message = UiMessage(errorText(result.error))) }
-            is DecodeResult.Ok -> {
-                val here = container.events.allEvents.first()
-                val known = here.map(BackupPlanner::key).toSet()
-                val preview = container.backups.preview(result.data, ImportMode.MERGE)
-                val pending = PendingImport(
-                    result.data, result.skipped, ImportMode.MERGE, preview, result.kind,
-                    selected = BackupPlanner.defaultSelection(here, result.data.events, ImportMode.MERGE),
-                    existing = result.data.events.filter { BackupPlanner.key(it) in known }.map { it.id }.toSet(),
-                )
-                _state.update { it.copy(pending = pending) }
-            }
+            is DecodeResult.Ok -> showPending(result.data, result.skipped, result.kind)
         }
+    }
+
+    private suspend fun showPending(data: BackupData, skipped: Int, kind: String) {
+        val here = container.events.allEvents.first()
+        val known = here.map(BackupPlanner::key).toSet()
+        val pending = PendingImport(
+            data, skipped, ImportMode.MERGE, container.backups.preview(data, ImportMode.MERGE), kind,
+            selected = BackupPlanner.defaultSelection(here, data.events, ImportMode.MERGE),
+            existing = data.events.filter { BackupPlanner.key(it) in known }.map { it.id }.toSet(),
+        )
+        _state.update { it.copy(pending = pending) }
     }
 
     fun setMode(mode: ImportMode) {
@@ -217,7 +256,7 @@ class BackupViewModel(private val container: AppContainer) : ViewModel() {
         val pending = _state.value.pending ?: return
         _state.update { it.copy(pending = null) }
         launchBusy {
-            val added = container.backups.import(BackupPlanner.restrict(pending.data, pending.selected), pending.mode)
+            val added = container.backups.import(BackupPlanner.restrict(pending.data, pending.selected), pending.mode, defaultReminders = pending.kind != BackupCodec.KIND_BACKUP)
             container.logger.i("Backup", "imported $added events (${pending.mode})")
             _state.update { it.copy(message = UiMessage(R.string.backup_imported, listOf(added))) }
         }

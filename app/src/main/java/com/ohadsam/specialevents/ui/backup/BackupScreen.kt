@@ -60,6 +60,8 @@ import com.ohadsam.specialevents.backup.BackupFiles
 import com.ohadsam.specialevents.domain.backup.BackupCodec
 import com.ohadsam.specialevents.domain.backup.BackupCrypto
 import com.ohadsam.specialevents.domain.backup.BackupRetention
+import com.ohadsam.specialevents.domain.backup.CsvField
+import com.ohadsam.specialevents.domain.backup.CsvImport
 import com.ohadsam.specialevents.domain.backup.ImportMode
 
 /** Save, restore and share: a JSON backup of everything, and the installed app itself for passing on to someone else. */
@@ -68,6 +70,7 @@ import com.ohadsam.specialevents.domain.backup.ImportMode
 fun BackupScreen(viewModel: BackupViewModel, onBack: () -> Unit, openUri: String? = null, onShareEvents: () -> Unit = {}) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val settings by viewModel.settings.collectAsStateWithLifecycle()
+    val openCsv = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri -> if (uri != null) viewModel.loadCsv(uri) }
     val pickFolder = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri -> if (uri != null) viewModel.setFolder(uri) }
     val context = LocalContext.current
     val snackbar = remember { SnackbarHostState() }
@@ -172,6 +175,11 @@ fun BackupScreen(viewModel: BackupViewModel, onBack: () -> Unit, openUri: String
 
             Heading(R.string.backup_section_restore)
             Text(stringResource(R.string.backup_restore_desc), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            OutlinedButton(
+                onClick = { openCsv.launch(arrayOf("text/csv", "text/comma-separated-values", "text/plain", "application/vnd.ms-excel")) },
+                enabled = !state.busy,
+                modifier = Modifier.fillMaxWidth(),
+            ) { Text(stringResource(R.string.csv_import_action)) }
             OutlinedButton(onClick = { open.launch(arrayOf("application/json", "text/plain", "application/octet-stream")) }, enabled = !state.busy, modifier = Modifier.fillMaxWidth()) {
                 Text(stringResource(R.string.backup_restore_file))
             }
@@ -188,15 +196,22 @@ fun BackupScreen(viewModel: BackupViewModel, onBack: () -> Unit, openUri: String
 
     if (state.needPassword) PasswordDialog(onSubmit = viewModel::submitPassword, onCancel = viewModel::cancelPassword)
 
+    state.csv?.let { draft ->
+        CsvMappingDialog(draft, onPick = viewModel::setCsvColumn, onConfirm = viewModel::confirmCsv, onCancel = viewModel::cancelCsv)
+    }
+
     state.pending?.let { pending ->
-        val shared = pending.kind == BackupCodec.KIND_SHARE
+        val shared = pending.kind != BackupCodec.KIND_BACKUP
+        val fromCsv = pending.kind == BackupCodec.KIND_CSV
         AlertDialog(
             onDismissRequest = viewModel::cancelImport,
-            title = { Text(stringResource(if (shared) R.string.share_import_title else R.string.backup_import_title)) },
+            title = { Text(stringResource(if (fromCsv) R.string.csv_import_title else if (shared) R.string.share_import_title else R.string.backup_import_title)) },
             text = {
                 Column(Modifier.heightIn(max = IMPORT_DIALOG_MAX_HEIGHT.dp).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text(
-                        if (shared) {
+                        if (fromCsv) {
+                            stringResource(R.string.csv_import_summary, pending.data.events.size)
+                        } else if (shared) {
                             stringResource(R.string.share_import_summary, pending.data.events.size)
                         } else {
                             stringResource(R.string.backup_import_summary, pending.preview.newEvents, pending.preview.duplicateEvents, pending.preview.newTemplates)
@@ -255,6 +270,49 @@ private fun lastBackupText(at: Long, error: String): String = when {
 }
 
 private val LAST_FORMAT: java.time.format.DateTimeFormatter = java.time.format.DateTimeFormatter.ofPattern("d.M.yyyy HH:mm")
+
+/** Says which column of the spreadsheet is the name, the date and so on; the first row's values are shown so it is easy to tell. */
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun CsvMappingDialog(draft: CsvDraft, onPick: (CsvField, Int?) -> Unit, onConfirm: () -> Unit, onCancel: () -> Unit) {
+    val sample = draft.rows.first()
+    AlertDialog(
+        onDismissRequest = onCancel,
+        title = { Text(stringResource(R.string.csv_map_title, draft.rows.size)) },
+        text = {
+            Column(Modifier.heightIn(max = IMPORT_DIALOG_MAX_HEIGHT.dp).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                Text(stringResource(R.string.csv_map_hint), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                CsvField.entries.forEach { field ->
+                    val chosen = draft.mapping.columns[field]
+                    Text(stringResource(csvFieldLabel(field)), style = MaterialTheme.typography.labelLarge)
+                    FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                        FilterChip(selected = chosen == null, onClick = { onPick(field, null) }, label = { Text(stringResource(R.string.csv_map_none)) })
+                        draft.header.take(CSV_MAX_COLUMNS).forEachIndexed { i, name -> FilterChip(selected = chosen == i, onClick = { onPick(field, i) }, label = { Text(name.ifBlank { "#${i + 1}" }) }) }
+                    }
+                    if (chosen != null) Text(stringResource(R.string.csv_map_sample, sample.getOrNull(chosen).orEmpty()), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+            }
+        },
+        confirmButton = { TextButton(onClick = onConfirm, enabled = CsvImport.isUsable(draft.mapping)) { Text(stringResource(R.string.csv_map_continue)) } },
+        dismissButton = { TextButton(onClick = onCancel) { Text(stringResource(R.string.action_cancel)) } },
+    )
+}
+
+private const val CSV_MAX_COLUMNS = 30
+
+private fun csvFieldLabel(f: CsvField) = when (f) {
+    CsvField.TITLE -> R.string.csvfield_title
+    CsvField.DATE -> R.string.csvfield_date
+    CsvField.TYPE -> R.string.csvfield_type
+    CsvField.PHONE -> R.string.sharefield_contact
+    CsvField.EMAIL -> R.string.csvfield_email
+    CsvField.NOTES -> R.string.sharefield_notes
+    CsvField.TAGS -> R.string.sharefield_tags
+    CsvField.BASIS -> R.string.csvfield_basis
+    CsvField.YEAR -> R.string.csvfield_year
+    CsvField.MONTH -> R.string.csvfield_month
+    CsvField.DAY -> R.string.csvfield_day
+}
 
 @Composable
 private fun PasswordDialog(onSubmit: (CharArray) -> Unit, onCancel: () -> Unit) {

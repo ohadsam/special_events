@@ -48,7 +48,9 @@ object CsvParser {
                     cell.append('"')
                     i++
                 }
-                c == '"' -> quoted = !quoted
+                // A quote only opens a quoted cell at its very start; inside a plain cell it is just a character (e.g. תשמ"ז).
+                c == '"' && quoted -> quoted = false
+                c == '"' && cell.isEmpty() -> quoted = true
                 !quoted && c == sep -> endCell()
                 !quoted && (c == '\n' || c == '\r') -> {
                     if (c == '\r' && text.getOrNull(i + 1) == '\n') i++

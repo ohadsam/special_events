@@ -31,8 +31,8 @@ class BackupRepository(
     suspend fun preview(incoming: BackupData, mode: ImportMode): ImportPreview =
         BackupPlanner.preview(events.allEvents.first(), greetings.customTemplates.first(), incoming, mode)
 
-    /** Returns how many events were added. In [ImportMode.REPLACE] the current events (and their reminders and checklists) are removed first. */
-    suspend fun import(incoming: BackupData, mode: ImportMode): Int = db.withTransaction {
+    /** Returns how many events were added ([defaultReminders]: give events that came without any the standard reminders of their type). In [ImportMode.REPLACE] the current events (and their reminders and checklists) are removed first. */
+    suspend fun import(incoming: BackupData, mode: ImportMode, defaultReminders: Boolean = false): Int = db.withTransaction {
         val current = events.allEvents.first()
         if (mode == ImportMode.REPLACE) {
             current.forEach {
@@ -45,7 +45,10 @@ class BackupRepository(
         var added = 0
         for (event in incoming.events) {
             if (!known.add(BackupPlanner.key(event))) continue
-            idMap[event.id] = events.save(event.copy(id = 0, photoUri = null, contactLookupUri = null))
+            val newId = events.save(event.copy(id = 0, photoUri = null, contactLookupUri = null))
+            idMap[event.id] = newId
+            // Events that arrive without reminders (a spreadsheet, or a share without them) start with the usual ones for their type.
+            if (defaultReminders && incoming.rules.none { it.eventId == event.id }) reminders.addDefaults(newId, event.type)
             added++
         }
         val groupIds = importGroups(incoming, idMap)

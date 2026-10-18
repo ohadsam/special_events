@@ -46,6 +46,9 @@ object BackupCodec {
 
     /** A file made to hand a few events to someone else (see `SharePlanner`). */
     const val KIND_SHARE = "share"
+
+    /** Events read from a spreadsheet; never stored in a file, only used to word the import dialog. */
+    const val KIND_CSV = "csv"
     const val MAX_CHARS = 5_000_000
     private const val MAX_ENTRIES = 50_000
     private const val MAX_TITLE = 200
