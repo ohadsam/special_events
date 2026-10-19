@@ -17,6 +17,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.mapLatest
@@ -68,6 +69,9 @@ class SearchViewModel(private val container: AppContainer) : ViewModel() {
         }
         .flowOn(Dispatchers.Default)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), SearchState())
+
+    /** The text field binds to this directly: going through [state] (a different dispatcher) can drop or reorder fast keystrokes. */
+    val typed: StateFlow<String> = input.asStateFlow()
 
     fun onInput(text: String) {
         input.value = text

@@ -12,6 +12,7 @@ import com.ohadsam.specialevents.calendar.ParshaNames
 import com.ohadsam.specialevents.data.prefs.AppSettings
 import com.ohadsam.specialevents.data.prefs.CalendarMode
 import com.ohadsam.specialevents.domain.CalendarData
+import com.ohadsam.specialevents.domain.CalendarLevel
 import com.ohadsam.specialevents.domain.EventTimeline
 import com.ohadsam.specialevents.domain.EventType
 import com.ohadsam.specialevents.domain.SpecialEvent
@@ -54,6 +55,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -108,6 +110,7 @@ class PrintViewModel(private val container: AppContainer, private val initialEve
                 it.copy(
                     loading = false,
                     kind = if (initialEventId != null) PrintKind.CARD else PrintKind.MONTH,
+                    month = CalendarData.monthSpan(LocalDate.now(), settings.calendarMode == CalendarMode.HEBREW).first,
                     events = events,
                     groups = groups,
                     allTags = events.flatMap { e -> e.tags.map { t -> t.name } }.distinct().sorted(),
@@ -140,7 +143,7 @@ class PrintViewModel(private val container: AppContainer, private val initialEve
 
     fun setIncludeDates(on: Boolean) = change { it.copy(includeDates = on) }
 
-    fun stepMonth(delta: Int) = change { it.copy(month = it.month.plusMonths(delta.toLong())) }
+    fun stepMonth(delta: Int) = change { it.copy(month = CalendarData.step(CalendarLevel.MONTH, it.month, delta, settings.calendarMode == CalendarMode.HEBREW)) }
 
     fun setShowMarks(on: Boolean) = change { it.copy(showMarks = on) }
 
@@ -170,10 +173,14 @@ class PrintViewModel(private val container: AppContainer, private val initialEve
         rebuild()
     }
 
+    private var building: Job? = null
+
     private fun rebuild() {
         val s = _state.value
         if (s.loading) return
-        viewModelScope.launch {
+        // A newer option change replaces the build in flight, so a slow old page can never overwrite a newer one.
+        building?.cancel()
+        building = viewModelScope.launch {
             val (html, job) = withContext(Dispatchers.Default) {
                 when (s.kind) {
                     PrintKind.CARD -> cardHtml(s)
@@ -217,7 +224,7 @@ class PrintViewModel(private val container: AppContainer, private val initialEve
             entry = { item -> (item.event.iconKey ?: item.event.type.defaultEmoji()) + " " + item.event.title + (item.number?.let { " ($it)" } ?: "") },
             parsha = { date -> Parsha.ofShabbat(date, settings.inIsrael)?.let { context.getString(R.string.calendar_parsha, ParshaNames.label(it)) } },
         )
-        val title = if (settings.calendarMode == CalendarMode.HEBREW) hebrewMonthYear(HebrewCalendar.fromLocalDate(first.plusDays(MID_MONTH))) else gregorianMonthYear(first)
+        val title = if (settings.calendarMode == CalendarMode.HEBREW) hebrewMonthYear(HebrewCalendar.fromLocalDate(first)) else gregorianMonthYear(first)
         val subtitle = if (settings.calendarMode == CalendarMode.DUAL) hebrewSpan(first) else null
         val sheet = MonthSheetBuilder.build(first, settings.calendarMode, settings.weekStartsOnSunday, settings.inIsrael, items, labels, title, subtitle, s.showMarks)
         return PrintHtml.month(sheet, s.style) to title
@@ -277,7 +284,6 @@ class PrintViewModel(private val container: AppContainer, private val initialEve
     }
 
     private companion object {
-        const val MID_MONTH = 14L
         const val DAYS_IN_WEEK = 7
     }
 }

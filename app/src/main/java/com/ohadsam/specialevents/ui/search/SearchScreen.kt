@@ -77,6 +77,7 @@ import java.time.LocalDate
 @Composable
 fun SearchScreen(viewModel: SearchViewModel, onBack: () -> Unit, onOpenEvent: (Long) -> Unit) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val typed by viewModel.typed.collectAsStateWithLifecycle()
     val focus = remember { FocusRequester() }
     var filtersOpen by rememberSaveable { mutableStateOf(false) }
     var saving by rememberSaveable { mutableStateOf(false) }
@@ -88,7 +89,7 @@ fun SearchScreen(viewModel: SearchViewModel, onBack: () -> Unit, onOpenEvent: (L
                 navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Outlined.ArrowBack, contentDescription = stringResource(R.string.action_back)) } },
                 title = {
                     TextField(
-                        value = state.input,
+                        value = typed,
                         onValueChange = viewModel::onInput,
                         placeholder = { Text(stringResource(R.string.search_hint_smart)) },
                         singleLine = true,

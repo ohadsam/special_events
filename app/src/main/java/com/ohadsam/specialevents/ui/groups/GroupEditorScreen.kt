@@ -4,6 +4,7 @@ import com.ohadsam.specialevents.ui.help.HelpTopic
 import com.ohadsam.specialevents.ui.help.HelpButton
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -97,6 +98,7 @@ fun GroupEditorScreen(viewModel: GroupEditorViewModel, onClose: () -> Unit, onSh
         }
     }
     val back = { if (viewModel.isDirty()) confirmLeave = true else onClose() }
+    BackHandler(onBack = back)
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackbar) },

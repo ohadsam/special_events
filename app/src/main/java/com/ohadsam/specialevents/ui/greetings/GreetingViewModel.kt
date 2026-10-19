@@ -200,20 +200,30 @@ class GreetingViewModel(private val container: AppContainer, private val eventId
 
     fun askSmsAll(on: Boolean) = local.update { it.copy(list = it.list.copy(confirmSmsAll = on)) }
 
+    private var smsRunning = false
+
     /** Sends the text by SMS to everyone on the list who has a number and was not greeted yet. Only runs after the user confirmed. */
     fun sendSmsToAll() {
         val s = state.value
         val item = s.item ?: return
+        // A second tap while messages are going out must not send (and charge for) them again.
+        if (smsRunning) return
+        smsRunning = true
         local.update { it.copy(list = it.list.copy(confirmSmsAll = false)) }
         viewModelScope.launch {
-            var sent = 0
-            for (r in s.list.recipients.filter { it.phone != null && it.key !in s.list.done }) {
-                if (container.autoGreetings.sendNow(eventId, item.date.toEpochDay(), r, textFor(r))) {
-                    sent++
-                    local.update { it.copy(list = it.list.copy(done = it.list.done + r.key)) }
+            try {
+                var sent = 0
+                for (r in s.list.recipients.filter { it.phone != null }) {
+                    if (r.key in local.value.list.done) continue
+                    if (container.autoGreetings.sendNow(eventId, item.date.toEpochDay(), r, textFor(r))) {
+                        sent++
+                        local.update { it.copy(list = it.list.copy(done = it.list.done + r.key)) }
+                    }
                 }
+                local.update { it.copy(list = it.list.copy(smsSent = sent)) }
+            } finally {
+                smsRunning = false
             }
-            local.update { it.copy(list = it.list.copy(smsSent = sent)) }
         }
     }
 

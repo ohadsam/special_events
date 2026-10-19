@@ -47,12 +47,18 @@ data class CalendarState(
 
 class CalendarViewModel(private val container: AppContainer) : ViewModel() {
     private val prefs = MutableStateFlow(CalendarPrefs())
+    private var requested = false
 
     init {
         // Open at the level used last time, and obey "show in calendar" requests from other screens.
-        viewModelScope.launch { prefs.update { it.copy(level = container.settings.settings.first().calendarLevel) } }
+        viewModelScope.launch {
+            val saved = container.settings.settings.first().calendarLevel
+            // A "show in calendar" request that arrived first already chose the level; the saved one must not undo it.
+            if (!requested) prefs.update { it.copy(level = saved) }
+        }
         viewModelScope.launch {
             container.calendarRequests.filterNotNull().collect { target ->
+                requested = true
                 prefs.update { it.copy(anchor = target.date, level = target.level) }
                 container.calendarRequests.value = null
             }

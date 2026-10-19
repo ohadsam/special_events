@@ -121,7 +121,7 @@ fun PrintScreen(viewModel: PrintViewModel, onBack: () -> Unit) {
                 PrintKind.MONTH -> {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         IconButton(onClick = { viewModel.stepMonth(-1) }) { Icon(Icons.AutoMirrored.Outlined.KeyboardArrowLeft, contentDescription = stringResource(R.string.calendar_previous)) }
-                        Text(gregorianMonthYear(state.month), Modifier.weight(1f), style = MaterialTheme.typography.titleMedium, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
+                        Text(state.jobName.ifBlank { gregorianMonthYear(state.month) }, Modifier.weight(1f), style = MaterialTheme.typography.titleMedium, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
                         IconButton(onClick = { viewModel.stepMonth(1) }) { Icon(Icons.AutoMirrored.Outlined.KeyboardArrowRight, contentDescription = stringResource(R.string.calendar_next)) }
                     }
                     SwitchRow(R.string.print_show_marks, state.showMarks, viewModel::setShowMarks)

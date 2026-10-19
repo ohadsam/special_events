@@ -45,7 +45,8 @@ fun HebrewDatePickerDialog(initial: HebrewDate, hasYear: Boolean, onDismiss: () 
     val year = yearText.toIntOrNull()?.takeIf { it in MIN_YEAR..MAX_YEAR }
     val layoutYear = if (hasYear) (year ?: initial.year) else DEFAULT_LEAP_YEAR
     val months = HebrewCalendar.monthsInOrder(layoutYear)
-    if (month !in months) month = months.first()
+    // Adar II does not exist in a common year: it becomes Adar, not Tishrei.
+    if (month !in months) month = if (month == ADAR_II && ADAR in months) ADAR else months.first()
     val daysInMonth = HebrewCalendar.daysInMonth(layoutYear, month)
     if (day > daysInMonth) day = daysInMonth
 
@@ -99,6 +100,7 @@ private fun monthLabel(year: Int, month: Int, hasYear: Boolean): String =
     if (!hasYear && month == ADAR) "אדר / אדר א׳" else HebrewCalendar.monthName(year, month)
 
 private const val ADAR = 12
+private const val ADAR_II = 13
 
 @Composable
 private fun Menu(label: String, items: List<Pair<Int, String>>, onPick: (Int) -> Unit, modifier: Modifier = Modifier) {
