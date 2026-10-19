@@ -67,6 +67,8 @@ Read order: CLAUDE.md → docs/PLAN.md → STRUCTURE.md → the batch's section 
 
 - v0.28.0: full audit (3 read-only reviews) and fixes. Unverified on device: widget layouts after the Month exact-size change and CheckBox rows, app lock across rotation, reminders after the per-item error isolation. Deliberately not done: Undo for event delete, persisted snooze across reboot, settings split into sub-screens, 200%-font reflow of many button rows (FlowRow), lazy member lists.
 
+- v0.29.0: snoozes persisted in ReminderState (re-armed in replan), widget midnight alarm re-armed from BootReceiver, FlowRow for button rows in editor/detail/recipients/voice. Still not done: Undo for event delete, settings sub-screens, remaining FlowRow spots (dialogs), lazy member lists, mail auto-send (owner: keep as is).
+
 ## Known issues / open items (need the owner)
 - Feature spec for "אירועים מיוחדים" not yet provided → fill `docs/SPEC.md`, then define batches in `docs/PLAN.md`.
 - **Signing key:** `app/sideload.jks` (password in app/build.gradle.kts) is committed on purpose so every CI build updates in place; NOT a store key. Never change it after users installed the app.
