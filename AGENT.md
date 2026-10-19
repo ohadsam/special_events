@@ -69,6 +69,8 @@ Read order: CLAUDE.md → docs/PLAN.md → STRUCTURE.md → the batch's section 
 
 - v0.29.0: snoozes persisted in ReminderState (re-armed in replan), widget midnight alarm re-armed from BootReceiver, FlowRow for button rows in editor/detail/recipients/voice. Still not done: Undo for event delete, settings sub-screens, remaining FlowRow spots (dialogs), lazy member lists, mail auto-send (owner: keep as is).
 
+- v0.30.0: widget shortcuts (tap a day in the month widget = new event on that date; "greeting" link on today's rows of the upcoming widget). Unverified on device: tap targets of 42 day cells, PendingIntent uniqueness of per-day routes.
+
 ## Known issues / open items (need the owner)
 - Feature spec for "אירועים מיוחדים" not yet provided → fill `docs/SPEC.md`, then define batches in `docs/PLAN.md`.
 - **Signing key:** `app/sideload.jks` (password in app/build.gradle.kts) is committed on purpose so every CI build updates in place; NOT a store key. Never change it after users installed the app.

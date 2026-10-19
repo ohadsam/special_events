@@ -23,6 +23,8 @@ import androidx.glance.layout.Row
 import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.padding
+import androidx.glance.semantics.contentDescription
+import androidx.glance.semantics.semantics
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
@@ -87,6 +89,15 @@ class UpcomingWidget : GlanceAppWidget() {
             Column(GlanceModifier.defaultWeight()) {
                 Text(widgetText(context, settings.hideWidgetDetails, event.title), maxLines = 1, style = TextStyle(color = GlanceTheme.colors.onSurface, fontSize = 14.sp, fontWeight = FontWeight.Medium))
                 Text(dateLabel(item.date, item.hebrew, settings.calendarMode), maxLines = 1, style = TextStyle(color = GlanceTheme.colors.onSurfaceVariant, fontSize = 11.sp))
+            }
+            if (item.daysUntil == 0L) {
+                // Today's event: one tap to the greeting screen, the most common next step.
+                val greet = context.getString(R.string.widget_greet)
+                Text(
+                    greet,
+                    modifier = GlanceModifier.padding(horizontal = 10.dp, vertical = 6.dp).clickable(openApp(context, Routes.greeting(event.id))).semantics { contentDescription = greet },
+                    style = TextStyle(color = GlanceTheme.colors.primary, fontSize = 12.sp, fontWeight = FontWeight.Bold),
+                )
             }
             Text(
                 countdownLabel(context, item.daysUntil),

@@ -35,6 +35,7 @@ import com.ohadsam.specialevents.data.prefs.AppSettings
 import com.ohadsam.specialevents.data.prefs.CalendarMode
 import com.ohadsam.specialevents.domain.CalendarData
 import com.ohadsam.specialevents.domain.EventTimeline
+import com.ohadsam.specialevents.ui.nav.Routes
 import com.ohadsam.specialevents.ui.common.gregorianMonthYear
 import com.ohadsam.specialevents.ui.common.hebrewMonthYear
 import java.time.LocalDate
@@ -85,7 +86,8 @@ class MonthWidget : GlanceAppWidget() {
                                 val isToday = cell.date == today
                                 val hasEvent = cell.date in marked
                                 Box(
-                                    GlanceModifier.defaultWeight().height(rowHeight.dp).padding(1.dp),
+                                    // Tapping a day starts a new event on that date; the rest of the widget opens the calendar.
+                                    GlanceModifier.defaultWeight().height(rowHeight.dp).padding(1.dp).clickable(openApp(context, Routes.editor(0, cell.date))),
                                     contentAlignment = Alignment.Center,
                                 ) {
                                     val bg = when {
