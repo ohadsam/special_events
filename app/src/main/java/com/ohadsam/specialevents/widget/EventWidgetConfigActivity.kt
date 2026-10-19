@@ -52,13 +52,14 @@ class EventWidgetConfigActivity : ComponentActivity() {
         setContent {
             CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
                 SpecialEventsTheme(darkTheme = androidx.compose.foundation.isSystemInDarkTheme()) {
-                    val events by container.events.allEvents.collectAsStateWithLifecycle(initialValue = emptyList())
+                    val all by container.events.allEvents.collectAsStateWithLifecycle(initialValue = emptyList())
+                    val events = all.filter { !it.archived }
                     Scaffold(topBar = { TopAppBar(title = { Text(stringResource(R.string.widget_event_pick)) }) }) { padding ->
                         if (events.isEmpty()) {
                             Text(stringResource(R.string.widget_event_none), Modifier.padding(padding).padding(16.dp))
                         }
                         LazyColumn(Modifier.fillMaxSize().padding(padding)) {
-                            items(events.filter { !it.archived }, key = { it.id }) { event ->
+                            items(events, key = { it.id }) { event ->
                                 Row(
                                     Modifier.fillMaxWidth().heightIn(min = 56.dp).clickable { choose(widgetId, event.id) }.padding(horizontal = 16.dp),
                                     horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -79,10 +80,15 @@ class EventWidgetConfigActivity : ComponentActivity() {
 
     private fun choose(widgetId: Int, eventId: Long) {
         lifecycleScope.launch {
-            val glanceId = GlanceAppWidgetManager(this@EventWidgetConfigActivity).getGlanceIdBy(widgetId)
-            updateAppWidgetState(this@EventWidgetConfigActivity, glanceId) { it[EventIdKey] = eventId }
-            EventWidget().update(this@EventWidgetConfigActivity, glanceId)
-            setResult(RESULT_OK, Intent().putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId))
+            try {
+                val glanceId = GlanceAppWidgetManager(this@EventWidgetConfigActivity).getGlanceIdBy(widgetId)
+                updateAppWidgetState(this@EventWidgetConfigActivity, glanceId) { it[EventIdKey] = eventId }
+                EventWidget().update(this@EventWidgetConfigActivity, glanceId)
+                setResult(RESULT_OK, Intent().putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId))
+            } catch (e: IllegalArgumentException) {
+                // The launcher removed the widget while the picker was open: nothing to configure any more.
+                appContainer.logger.w("Widgets", "configure: widget $widgetId is gone", e)
+            }
             finish()
         }
     }

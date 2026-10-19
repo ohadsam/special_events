@@ -3,6 +3,7 @@ package com.ohadsam.specialevents.widget
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.glance.GlanceModifier
@@ -13,6 +14,8 @@ import androidx.glance.appwidget.action.actionStartActivity
 import androidx.glance.appwidget.cornerRadius
 import androidx.glance.background
 import androidx.glance.layout.padding
+import androidx.glance.semantics.contentDescription
+import androidx.glance.semantics.semantics
 import androidx.glance.material3.ColorProviders
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
@@ -27,8 +30,14 @@ import com.ohadsam.specialevents.ui.theme.LightColors
 
 val Context.container: AppContainer get() = (applicationContext as SpecialEventsApp).container
 
-/** Widgets use the app's own palette (light/dark follow the system); Android 12+ dynamic colour is left to Glance's default theme. */
+/** The app's own palette (light/dark follow the system). */
 fun widgetColors() = ColorProviders(light = LightColors, dark = DarkColors)
+
+/** Follows the app's "dynamic colour" setting so a widget never looks like a different app from the screens it opens. */
+@Composable
+fun WidgetTheme(dynamic: Boolean, content: @Composable () -> Unit) {
+    if (dynamic && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) GlanceTheme(content = content) else GlanceTheme(colors = widgetColors(), content = content)
+}
 
 /** Opens the app on [route]; the unique data URI keeps the PendingIntents of different rows from colliding. */
 fun openApp(context: Context, route: String): Action = actionStartActivity(
@@ -48,10 +57,11 @@ fun countdownLabel(context: Context, days: Long): String = when (days) {
 
 /** A small tappable label (the + button and the like); the padding around the text keeps the touch target at least 48dp. */
 @Composable
-fun Pill(text: String, action: Action, modifier: GlanceModifier = GlanceModifier) {
+fun Pill(text: String, description: String, action: Action, modifier: GlanceModifier = GlanceModifier) {
     Text(
         text,
-        modifier = modifier.cornerRadius(16.dp).background(GlanceTheme.colors.secondaryContainer).padding(horizontal = 14.dp, vertical = 10.dp).clickable(action),
+        modifier = modifier.cornerRadius(16.dp).background(GlanceTheme.colors.secondaryContainer).padding(horizontal = 14.dp, vertical = 10.dp).clickable(action)
+            .semantics { contentDescription = description },
         style = TextStyle(color = GlanceTheme.colors.onSecondaryContainer, fontSize = 14.sp, fontWeight = FontWeight.Bold),
     )
 }

@@ -3,6 +3,7 @@ package com.ohadsam.specialevents.widget
 import android.content.Context
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.glance.GlanceId
@@ -29,18 +30,21 @@ import com.ohadsam.specialevents.domain.EventTimeline
 import com.ohadsam.specialevents.ui.common.gregorianLong
 import com.ohadsam.specialevents.ui.common.weekdayName
 import java.time.LocalDate
+import kotlinx.coroutines.flow.first
 
 /** Today in both calendars and the next event. Tap opens the calendar. */
 class HebrewDateWidget : GlanceAppWidget() {
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         val c = context.container
+        val events0 = c.events.allEvents.first()
+        val settings0 = c.settings.settings.first()
         provideContent {
-            val events by c.events.allEvents.collectAsState(initial = emptyList())
-            val settings by c.settings.settings.collectAsState(initial = AppSettings())
+            val events by c.events.allEvents.collectAsState(initial = events0)
+            val settings by c.settings.settings.collectAsState(initial = settings0)
             val today = LocalDate.now()
             val hebrew = HebrewCalendar.fromLocalDate(today)
-            val next = EventTimeline.upcoming(events.filter { !it.archived }, today, settings.inIsrael, settings.dateRules).firstOrNull()
-            GlanceTheme(colors = widgetColors()) {
+            val next = remember(events, settings, today) { EventTimeline.upcoming(events.filter { !it.archived }, today, settings.inIsrael, settings.dateRules).firstOrNull() }
+            WidgetTheme(settings.dynamicColor) {
                 Column(
                     GlanceModifier.fillMaxSize().cornerRadius(20.dp).background(GlanceTheme.colors.surface).padding(10.dp).clickable(openApp(context, "calendar")),
                     verticalAlignment = Alignment.CenterVertically,
@@ -50,9 +54,10 @@ class HebrewDateWidget : GlanceAppWidget() {
                     Text(HebrewNumerals.toHebrew(hebrew.day), style = TextStyle(color = GlanceTheme.colors.primary, fontSize = 30.sp, fontWeight = FontWeight.Bold))
                     Text(
                         "${hebrew.monthName} ${HebrewCalendar.yearLabel(hebrew.year)}",
+                        maxLines = 1,
                         style = TextStyle(color = GlanceTheme.colors.onSurface, fontSize = 14.sp, textAlign = TextAlign.Center),
                     )
-                    Text(gregorianLong(today), style = TextStyle(color = GlanceTheme.colors.onSurfaceVariant, fontSize = 11.sp, textAlign = TextAlign.Center))
+                    Text(gregorianLong(today), maxLines = 1, style = TextStyle(color = GlanceTheme.colors.onSurfaceVariant, fontSize = 11.sp, textAlign = TextAlign.Center))
                     if (next != null) {
                         Text(
                             "${next.event.title} · ${countdownLabel(context, next.daysUntil)}",

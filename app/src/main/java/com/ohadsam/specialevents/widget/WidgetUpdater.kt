@@ -9,18 +9,36 @@ import androidx.glance.appwidget.updateAll
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
 object WidgetUpdater {
     /** Redraws every placed widget; one failing widget must not stop the others. */
-    suspend fun updateAll(context: Context) {
-        runCatching { UpcomingWidget().updateAll(context) }
-        runCatching { HebrewDateWidget().updateAll(context) }
-        runCatching { EventWidget().updateAll(context) }
-        runCatching { MonthWidget().updateAll(context) }
+    suspend fun updateAll(context: Context) = coroutineScope {
+        val logger = context.container.logger
+        listOf<suspend () -> Unit>(
+            { UpcomingWidget().updateAll(context) },
+            { HebrewDateWidget().updateAll(context) },
+            { EventWidget().updateAll(context) },
+            { MonthWidget().updateAll(context) },
+        ).map { update ->
+            async {
+                try {
+                    update()
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    logger.w("Widgets", "widget refresh failed", e)
+                }
+            }
+        }.awaitAll()
+        Unit
     }
 
     /** One alarm shortly after local midnight, so date-based widgets roll over even if the system broadcast is missed. */

@@ -535,6 +535,8 @@
     <string name="greeting_photo_remove">הסר תמונה</string>
     <string name="print_kind_year">לוח שנה שנתי</string>
     <string name="print_year_title">לוח שנה %1$d</string>
+    <string name="widget_event_passed">עבר</string>
+    <string name="widget_event_more">ועוד %1$d…</string>
     <string name="onboarding_title">ברוכים הבאים</string>
     <string name="onboarding_start">בואו נתחיל</string>
     <string name="onboarding_guide">למדריך המלא</string>

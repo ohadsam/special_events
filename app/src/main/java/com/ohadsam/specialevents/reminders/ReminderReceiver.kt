@@ -20,6 +20,9 @@ class ReminderReceiver : BroadcastReceiver() {
                     ReminderActionReceiver.read(intent)?.let { container.notifications.show(it) }
                 } else {
                     container.reminderScheduler.rescheduleAll()
+                // The midnight widget alarm does not survive a reboot or an app update either.
+                com.ohadsam.specialevents.widget.WidgetUpdater.scheduleMidnight(context.applicationContext)
+                com.ohadsam.specialevents.widget.WidgetUpdater.updateAll(context.applicationContext)
                 }
             } catch (e: Exception) {
                 container.logger.e("ReminderReceiver", "failed to handle ${intent.action}", e)

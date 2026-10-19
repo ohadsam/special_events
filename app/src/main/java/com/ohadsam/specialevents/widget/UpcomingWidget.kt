@@ -3,6 +3,7 @@ package com.ohadsam.specialevents.widget
 import android.content.Context
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.glance.GlanceId
@@ -33,6 +34,7 @@ import com.ohadsam.specialevents.ui.common.dateLabel
 import com.ohadsam.specialevents.ui.common.defaultEmoji
 import com.ohadsam.specialevents.ui.nav.Routes
 import java.time.LocalDate
+import kotlinx.coroutines.flow.first
 
 /**
  * The next events as a list. Tap a row to open the event, + to add one. Built from live data inside the composition, so edits made in
@@ -41,11 +43,15 @@ import java.time.LocalDate
 class UpcomingWidget : GlanceAppWidget() {
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         val c = context.container
+        // Read once up front (off the main thread) so the first draw already has real data instead of flashing "no events".
+        val events0 = c.events.allEvents.first()
+        val settings0 = c.settings.settings.first()
         provideContent {
-            val events by c.events.allEvents.collectAsState(initial = emptyList())
-            val settings by c.settings.settings.collectAsState(initial = AppSettings())
-            val rows = EventTimeline.upcoming(events.filter { !it.archived }, LocalDate.now(), settings.inIsrael, settings.dateRules).take(MAX_ROWS)
-            GlanceTheme(colors = widgetColors()) {
+            val events by c.events.allEvents.collectAsState(initial = events0)
+            val settings by c.settings.settings.collectAsState(initial = settings0)
+            val today = LocalDate.now()
+            val rows = remember(events, settings, today) { EventTimeline.upcoming(events.filter { !it.archived }, today, settings.inIsrael, settings.dateRules).take(MAX_ROWS) }
+            WidgetTheme(settings.dynamicColor) {
                 Column(GlanceModifier.fillMaxSize().cornerRadius(20.dp).background(GlanceTheme.colors.surface).padding(10.dp)) {
                     Row(GlanceModifier.fillMaxWidth().padding(bottom = 6.dp), verticalAlignment = Alignment.CenterVertically) {
                         Text(
@@ -53,12 +59,16 @@ class UpcomingWidget : GlanceAppWidget() {
                             modifier = GlanceModifier.defaultWeight().clickable(openApp(context, "upcoming")),
                             style = TextStyle(color = GlanceTheme.colors.primary, fontSize = 15.sp, fontWeight = FontWeight.Bold),
                         )
-                        Pill("+", openApp(context, Routes.editor(0)))
+                        Pill("+", context.getString(R.string.action_add_event), openApp(context, Routes.editor(0)))
                     }
                     if (rows.isEmpty()) {
-                        Text(context.getString(R.string.widget_upcoming_empty), style = TextStyle(color = GlanceTheme.colors.onSurfaceVariant, fontSize = 13.sp))
+                        Text(
+                            context.getString(R.string.widget_upcoming_empty),
+                            modifier = GlanceModifier.fillMaxWidth().clickable(openApp(context, Routes.editor(0))),
+                            style = TextStyle(color = GlanceTheme.colors.onSurfaceVariant, fontSize = 13.sp),
+                        )
                     }
-                    LazyColumn {
+                    LazyColumn(GlanceModifier.fillMaxWidth().defaultWeight()) {
                         items(rows, itemId = { it.event.id * ID_SPREAD + it.date.toEpochDay() }) { item -> EventRow(context, item, settings) }
                     }
                 }
@@ -80,6 +90,7 @@ class UpcomingWidget : GlanceAppWidget() {
             }
             Text(
                 countdownLabel(context, item.daysUntil),
+                maxLines = 1,
                 style = TextStyle(color = if (item.daysUntil == 0L) GlanceTheme.colors.tertiary else GlanceTheme.colors.secondary, fontSize = 12.sp, fontWeight = FontWeight.Bold),
             )
         }
