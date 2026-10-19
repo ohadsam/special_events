@@ -39,6 +39,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.ohadsam.specialevents.BuildConfig
 import com.ohadsam.specialevents.R
@@ -154,12 +155,14 @@ fun SettingsScreen(viewModel: SettingsViewModel, onOpenLogs: () -> Unit, onOpenR
                 value = settings.selfPhone,
                 placeholder = stringResource(R.string.settings_not_set),
                 description = stringResource(R.string.settings_self_desc),
+                keyboardType = KeyboardType.Phone,
                 onChange = { v -> viewModel.update { it.copy(selfPhone = v) } },
             )
             TextRow(
                 title = stringResource(R.string.settings_self_email),
                 value = settings.selfEmail,
                 placeholder = stringResource(R.string.settings_not_set),
+                keyboardType = KeyboardType.Email,
                 onChange = { v -> viewModel.update { it.copy(selfEmail = v) } },
             )
             TextRow(
@@ -167,6 +170,7 @@ fun SettingsScreen(viewModel: SettingsViewModel, onOpenLogs: () -> Unit, onOpenR
                 value = settings.countryCode,
                 placeholder = "972",
                 description = stringResource(R.string.settings_country_code_desc),
+                keyboardType = KeyboardType.Number,
                 onChange = { v -> viewModel.update { it.copy(countryCode = v.filter(Char::isDigit).ifEmpty { "972" }) } },
             )
             ResetRow(viewModel::resetGreetings)

@@ -10,6 +10,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.toggleable
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
@@ -26,6 +27,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.ohadsam.specialevents.R
 
@@ -94,7 +96,14 @@ private val MAX_DIALOG_HEIGHT = 420.dp
 
 /** A row showing a text setting; tapping opens a one-line editor. */
 @Composable
-fun TextRow(title: String, value: String, placeholder: String, onChange: (String) -> Unit, description: String? = null) {
+fun TextRow(
+    title: String,
+    value: String,
+    placeholder: String,
+    onChange: (String) -> Unit,
+    description: String? = null,
+    keyboardType: KeyboardType = KeyboardType.Text,
+) {
     var open by remember { mutableStateOf(false) }
     ListItem(
         modifier = Modifier.clickable { open = true },
@@ -109,7 +118,7 @@ fun TextRow(title: String, value: String, placeholder: String, onChange: (String
             text = {
                 Column {
                     description?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(bottom = 8.dp)) }
-                    androidx.compose.material3.OutlinedTextField(value = draft, onValueChange = { draft = it }, singleLine = true, modifier = Modifier.fillMaxWidth())
+                    androidx.compose.material3.OutlinedTextField(value = draft, onValueChange = { draft = it }, singleLine = true, keyboardOptions = KeyboardOptions(keyboardType = keyboardType), modifier = Modifier.fillMaxWidth())
                 }
             },
             confirmButton = {

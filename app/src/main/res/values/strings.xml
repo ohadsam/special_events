@@ -169,7 +169,6 @@
     <string name="editor_icon_auto">אוטומטי %1$s</string>
     <string name="editor_color">צבע</string>
     <string name="editor_color_none">ללא צבע</string>
-    <string name="editor_color_pick">צבע</string>
     <string name="editor_tags">תגיות</string>
     <string name="editor_tag_new">תגית חדשה</string>
     <string name="editor_tag_add">הוסף תגית</string>
@@ -391,6 +390,7 @@
     <string name="backup_err_format">זה לא קובץ גיבוי של האפליקציה</string>
     <string name="backup_err_new">הקובץ נוצר בגרסה חדשה יותר של האפליקציה — עדכנו ונסו שוב</string>
     <string name="backup_err_big">הקובץ גדול מדי</string>
+    <string name="color_pick_numbered">צבע %1$d מתוך %2$d</string>
     <string name="save_failed">הפעולה נכשלה — נסו שוב</string>
     <string name="backup_err_need_password">הסיסמה אבדה כשהמסך נסגר — הגדירו אותה שוב ונסו שוב</string>
     <string name="backup_err_io">הפעולה נכשלה — בדקו את המקום בזיכרון ונסו שוב</string>
@@ -483,7 +483,6 @@
     <string name="group_name_required">צריך שם לקבוצה</string>
     <string name="group_look">מראה</string>
     <string name="group_emoji">אימוג׳י</string>
-    <string name="group_color_pick">בחר צבע</string>
     <string name="group_tags">תגיות לחברי הקבוצה</string>
     <string name="group_tags_hint">תגית בכל שורה — מתווספות למי שמצטרף</string>
     <string name="group_greeting">ברכה</string>

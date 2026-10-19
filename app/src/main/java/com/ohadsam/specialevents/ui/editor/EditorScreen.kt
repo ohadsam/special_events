@@ -386,17 +386,17 @@ private fun MoreOptions(state: EditorState, vm: EditorViewModel) {
             FilterChip(selected = state.chosenEmoji == null, onClick = { vm.setEmoji(null) }, label = { Text(stringResource(R.string.editor_icon_auto, state.emoji)) })
             state.emojiOptions.forEach { e ->
                 Box(
-                    Modifier.size(44.dp).clip(CircleShape)
+                    Modifier.size(48.dp).clip(CircleShape)
                         .background(if (state.chosenEmoji == e) MaterialTheme.colorScheme.primaryContainer else Color.Transparent)
-                        .clickable { vm.setEmoji(e) },
+                        .selectable(selected = state.chosenEmoji == e, role = Role.RadioButton) { vm.setEmoji(e) },
                     contentAlignment = Alignment.Center,
                 ) { Text(e, fontSize = 24.sp) }
             }
         }
         Text(stringResource(R.string.editor_color), style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.primary)
         Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            ColorSwatch(null, state.colorArgb == null) { vm.setColor(null) }
-            PALETTE.forEach { c -> ColorSwatch(c, state.colorArgb == c) { vm.setColor(c) } }
+            ColorSwatch(0, 0, null, state.colorArgb == null) { vm.setColor(null) }
+            PALETTE.forEachIndexed { i, c -> ColorSwatch(i + 1, PALETTE.size, c, state.colorArgb == c) { vm.setColor(c) } }
         }
         Text(stringResource(R.string.editor_tags), style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.primary)
         FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -437,8 +437,8 @@ private fun MoreOptions(state: EditorState, vm: EditorViewModel) {
 }
 
 @Composable
-private fun ColorSwatch(color: Int?, selected: Boolean, onClick: () -> Unit) {
-    val description = stringResource(if (color == null) R.string.editor_color_none else R.string.editor_color_pick)
+private fun ColorSwatch(number: Int, total: Int, color: Int?, selected: Boolean, onClick: () -> Unit) {
+    val description = if (color == null) stringResource(R.string.editor_color_none) else stringResource(R.string.color_pick_numbered, number, total)
     Box(
         Modifier.minimumInteractiveComponentSize().size(40.dp).clip(CircleShape)
             .background(color?.let { Color(it) } ?: MaterialTheme.colorScheme.surfaceVariant)

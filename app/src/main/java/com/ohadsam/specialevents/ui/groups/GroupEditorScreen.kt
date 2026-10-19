@@ -131,7 +131,7 @@ fun GroupEditorScreen(viewModel: GroupEditorViewModel, onClose: () -> Unit, onSh
                 EMOJI_SUGGESTIONS.forEach { e -> FilterChip(selected = state.emoji == e, onClick = { viewModel.setEmoji(e) }, label = { Text(e) }) }
             }
             FlowRow(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                PALETTE.forEach { c -> ColorDot(c, selected = state.color == c, onClick = { viewModel.setColor(if (state.color == c) null else c) }) }
+                PALETTE.forEachIndexed { i, c -> ColorDot(i + 1, PALETTE.size, c, selected = state.color == c, onClick = { viewModel.setColor(if (state.color == c) null else c) }) }
             }
 
             Heading(R.string.group_tags)
@@ -232,8 +232,8 @@ fun GroupEditorScreen(viewModel: GroupEditorViewModel, onClose: () -> Unit, onSh
 private fun Heading(res: Int) = Text(stringResource(res), style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.primary, modifier = Modifier.padding(top = 10.dp))
 
 @Composable
-private fun ColorDot(argb: Int, selected: Boolean, onClick: () -> Unit) {
-    val description = stringResource(R.string.group_color_pick)
+private fun ColorDot(number: Int, total: Int, argb: Int, selected: Boolean, onClick: () -> Unit) {
+    val description = stringResource(R.string.color_pick_numbered, number, total)
     Box(
         Modifier.minimumInteractiveComponentSize().size(44.dp).clip(CircleShape).background(Color(argb)).then(if (selected) Modifier.border(3.dp, MaterialTheme.colorScheme.onSurface, CircleShape) else Modifier)
             .selectable(selected = selected, role = Role.RadioButton, onClick = onClick).semantics { contentDescription = description },

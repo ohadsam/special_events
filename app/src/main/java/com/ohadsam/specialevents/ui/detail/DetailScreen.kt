@@ -165,7 +165,7 @@ fun DetailScreen(viewModel: DetailViewModel, onBack: () -> Unit, onEdit: () -> U
                 val context = androidx.compose.ui.platform.LocalContext.current
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     event.contactPhone?.let { phone ->
-                        OutlinedButton(onClick = { context.startActivity(Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + Uri.encode(phone))).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) }) {
+                        OutlinedButton(onClick = { runCatching { context.startActivity(Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + Uri.encode(phone))).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) } }) {
                             Text(stringResource(R.string.detail_call))
                         }
                     }

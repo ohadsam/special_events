@@ -82,7 +82,7 @@ fun ReminderHealthScreen(container: AppContainer, onBack: () -> Unit) {
             }
             HealthRow(R.string.health_exact, R.string.health_exact_desc, health.exactAlarms) { openExactAlarmSettings(context) }
             HealthRow(R.string.health_battery, R.string.health_battery_desc, health.batteryUnrestricted) {
-                context.startActivity(Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+                openSettings(context, Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS))
             }
             if (health.requiredOk) Text(stringResource(R.string.health_all_good), color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.titleSmall)
             OutlinedButton(onClick = { openNotificationSettings(context) }, modifier = Modifier.fillMaxWidth()) { Text(stringResource(R.string.health_open_settings)) }
@@ -111,9 +111,18 @@ private fun HealthRow(title: Int, description: Int, ok: Boolean, onFix: () -> Un
 }
 
 private fun openNotificationSettings(context: Context) {
-    context.startActivity(
-        Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
-    )
+    openSettings(context, Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName))
+}
+
+/** Some phone makers ship without one of these system screens; fall back to this app's own settings page instead of crashing. */
+private fun openSettings(context: Context, intent: Intent) {
+    try {
+        context.startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+    } catch (e: android.content.ActivityNotFoundException) {
+        runCatching {
+            context.startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:${context.packageName}")).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+        }
+    }
 }
 
 private fun openExactAlarmSettings(context: Context) {
@@ -122,5 +131,5 @@ private fun openExactAlarmSettings(context: Context) {
     } else {
         Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:${context.packageName}"))
     }
-    context.startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+    openSettings(context, intent)
 }
