@@ -59,7 +59,7 @@ class MonthWidget : GlanceAppWidget() {
                 EventTimeline.between(events.filter { !it.archived }, grid.first().first().date, grid.last().last().date, today, settings.inIsrael, settings.dateRules)
                     .map { it.date }.toSet()
             }
-            val cell = ((LocalSize.current.height.value - CHROME_HEIGHT) / (grid.size + 1)).coerceIn(MIN_CELL, MAX_CELL)
+            val rowHeight = ((LocalSize.current.height.value - CHROME_HEIGHT) / (grid.size + 1)).coerceIn(MIN_CELL, MAX_CELL)
             val letters = remember(settings.weekStartsOnSunday) {
                 (1..DAYS_IN_WEEK).map { HebrewNumerals.toHebrew(it, punctuation = false) }.let { if (settings.weekStartsOnSunday) it else it.drop(1) + it.first() }
             }
@@ -70,7 +70,7 @@ class MonthWidget : GlanceAppWidget() {
                         modifier = GlanceModifier.fillMaxWidth().padding(bottom = 4.dp),
                         style = TextStyle(color = GlanceTheme.colors.primary, fontSize = 14.sp, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center),
                     )
-                    Row(GlanceModifier.fillMaxWidth().height(cell.dp)) {
+                    Row(GlanceModifier.fillMaxWidth().height(rowHeight.dp)) {
                         letters.forEach { letter ->
                             Text(
                                 letter,
@@ -85,7 +85,7 @@ class MonthWidget : GlanceAppWidget() {
                                 val isToday = cell.date == today
                                 val hasEvent = cell.date in marked
                                 Box(
-                                    GlanceModifier.defaultWeight().height(cell.dp).padding(1.dp),
+                                    GlanceModifier.defaultWeight().height(rowHeight.dp).padding(1.dp),
                                     contentAlignment = Alignment.Center,
                                 ) {
                                     val bg = when {
@@ -95,7 +95,7 @@ class MonthWidget : GlanceAppWidget() {
                                     }
                                     Text(
                                         if (hebrewFirst) HebrewNumerals.toHebrew(HebrewCalendar.fromLocalDate(cell.date).day, punctuation = false) else cell.date.dayOfMonth.toString(),
-                                        modifier = GlanceModifier.fillMaxSize().cornerRadius(cell.dp).background(bg),
+                                        modifier = GlanceModifier.fillMaxSize().cornerRadius(rowHeight.dp).background(bg),
                                         style = TextStyle(
                                             color = when {
                                                 isToday -> GlanceTheme.colors.onPrimary
