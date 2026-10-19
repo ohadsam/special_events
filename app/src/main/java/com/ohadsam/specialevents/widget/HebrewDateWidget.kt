@@ -60,7 +60,7 @@ class HebrewDateWidget : GlanceAppWidget() {
                     Text(gregorianLong(today), maxLines = 1, style = TextStyle(color = GlanceTheme.colors.onSurfaceVariant, fontSize = 11.sp, textAlign = TextAlign.Center))
                     if (next != null) {
                         Text(
-                            "${next.event.title} · ${countdownLabel(context, next.daysUntil)}",
+                            "${widgetText(context, settings.hideWidgetDetails, next.event.title)} · ${countdownLabel(context, next.daysUntil)}",
                             maxLines = 1,
                             modifier = GlanceModifier.padding(top = 6.dp),
                             style = TextStyle(color = GlanceTheme.colors.secondary, fontSize = 11.sp, textAlign = TextAlign.Center),

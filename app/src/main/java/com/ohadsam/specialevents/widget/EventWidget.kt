@@ -13,6 +13,7 @@ import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
 import androidx.glance.GlanceTheme
+import androidx.glance.LocalContext
 import androidx.glance.action.Action
 import androidx.glance.action.ActionParameters
 import androidx.glance.action.actionParametersOf
@@ -92,7 +93,7 @@ class EventWidget : GlanceAppWidget() {
                     Row(GlanceModifier.fillMaxWidth().clickable(openApp(context, Routes.detail(event.id))), verticalAlignment = Alignment.CenterVertically) {
                         Text(event.iconKey ?: event.type.defaultEmoji(), style = TextStyle(fontSize = 22.sp), modifier = GlanceModifier.padding(end = 8.dp))
                         Column(GlanceModifier.defaultWeight()) {
-                            Text(event.title, maxLines = 1, style = TextStyle(color = GlanceTheme.colors.onSurface, fontSize = 15.sp, fontWeight = FontWeight.Bold))
+                            Text(widgetText(context, settings.hideWidgetDetails, event.title), maxLines = 1, style = TextStyle(color = GlanceTheme.colors.onSurface, fontSize = 15.sp, fontWeight = FontWeight.Bold))
                             if (next != null) {
                                 Text(dateLabel(next.date, next.hebrew, settings.calendarMode), maxLines = 1, style = TextStyle(color = GlanceTheme.colors.onSurfaceVariant, fontSize = 11.sp))
                             }
@@ -110,7 +111,7 @@ class EventWidget : GlanceAppWidget() {
                             modifier = GlanceModifier.padding(top = 6.dp, bottom = 2.dp),
                             style = TextStyle(color = GlanceTheme.colors.secondary, fontSize = 11.sp, fontWeight = FontWeight.Medium),
                         )
-                        mine.take(MAX_ROWS).forEach { ChecklistRow(it) }
+                        mine.take(MAX_ROWS).forEach { ChecklistRow(it, settings.hideWidgetDetails) }
                         if (mine.size > MAX_ROWS) {
                             Text(
                                 context.getString(R.string.widget_event_more, mine.size - MAX_ROWS),
@@ -126,11 +127,12 @@ class EventWidget : GlanceAppWidget() {
 
     /** A real check box: one touch target for the whole row and a proper checked state for screen readers. */
     @androidx.compose.runtime.Composable
-    private fun ChecklistRow(item: ChecklistItem) {
+    private fun ChecklistRow(item: ChecklistItem, hide: Boolean) {
+        val context = LocalContext.current
         CheckBox(
             checked = item.done,
             onCheckedChange = actionRunCallback<ToggleChecklistItem>(actionParametersOf(ItemIdKey to item.id)),
-            text = (if (item.kind == ChecklistKind.GIFT) "\uD83C\uDF81 " else "") + item.title,
+            text = (if (item.kind == ChecklistKind.GIFT) "\uD83C\uDF81 " else "") + widgetText(context, hide, item.title),
             modifier = GlanceModifier.fillMaxWidth().padding(vertical = 4.dp),
             maxLines = 1,
             style = TextStyle(

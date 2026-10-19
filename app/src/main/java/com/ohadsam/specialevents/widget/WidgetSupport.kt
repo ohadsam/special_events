@@ -47,6 +47,9 @@ fun openApp(context: Context, route: String): Action = actionStartActivity(
         .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP),
 )
 
+/** A name or checklist item as a widget may show it: hidden when the user asked for privacy on the home screen. */
+fun widgetText(context: Context, hide: Boolean, text: String): String = if (hide) context.getString(R.string.widget_hidden_title) else text
+
 /** The same words as the app's countdown pill. */
 fun countdownLabel(context: Context, days: Long): String = when (days) {
     0L -> context.getString(R.string.countdown_today)

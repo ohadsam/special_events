@@ -198,6 +198,12 @@ fun SettingsScreen(viewModel: SettingsViewModel, onOpenLogs: () -> Unit, onOpenR
                 onChange = { v -> viewModel.update { it.copy(hideContent = v) } },
                 description = stringResource(R.string.settings_hide_content_desc),
             )
+            SwitchRow(
+                title = stringResource(R.string.settings_hide_widget_details),
+                checked = settings.hideWidgetDetails,
+                onChange = { v -> viewModel.update { it.copy(hideWidgetDetails = v) } },
+                description = stringResource(R.string.settings_hide_widget_details_desc),
+            )
             Text(stringResource(R.string.settings_privacy_note), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp))
 
             SectionHeader(stringResource(R.string.settings_section_backup))

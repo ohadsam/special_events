@@ -41,6 +41,8 @@ data class AppSettings(
     val appLockTimeoutSeconds: Int = 60,
     /** Blank the app in the recent-apps list and block screenshots. */
     val hideContent: Boolean = false,
+    /** Home-screen widgets show "an event" instead of names and checklist items, so nothing private is readable on a locked phone. */
+    val hideWidgetDetails: Boolean = false,
     /** Automatic backup: the folder the user picked (a persisted SAF tree URI, empty = none), how often in days (0 = off), copies to keep. */
     val autoBackupFolder: String = "",
     val autoBackupDays: Int = 0,

@@ -85,7 +85,7 @@ class UpcomingWidget : GlanceAppWidget() {
         ) {
             Text(event.iconKey ?: event.type.defaultEmoji(), style = TextStyle(fontSize = 20.sp), modifier = GlanceModifier.padding(end = 8.dp))
             Column(GlanceModifier.defaultWeight()) {
-                Text(event.title, maxLines = 1, style = TextStyle(color = GlanceTheme.colors.onSurface, fontSize = 14.sp, fontWeight = FontWeight.Medium))
+                Text(widgetText(context, settings.hideWidgetDetails, event.title), maxLines = 1, style = TextStyle(color = GlanceTheme.colors.onSurface, fontSize = 14.sp, fontWeight = FontWeight.Medium))
                 Text(dateLabel(item.date, item.hebrew, settings.calendarMode), maxLines = 1, style = TextStyle(color = GlanceTheme.colors.onSurfaceVariant, fontSize = 11.sp))
             }
             Text(

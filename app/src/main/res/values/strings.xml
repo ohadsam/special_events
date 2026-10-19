@@ -391,6 +391,9 @@
     <string name="backup_err_new">הקובץ נוצר בגרסה חדשה יותר של האפליקציה — עדכנו ונסו שוב</string>
     <string name="backup_err_big">הקובץ גדול מדי</string>
     <string name="color_pick_numbered">צבע %1$d מתוך %2$d</string>
+    <string name="settings_hide_widget_details">הסתרת פרטים בווידג׳טים</string>
+    <string name="settings_hide_widget_details_desc">הווידג׳טים יציגו ״אירוע״ במקום שמות ופריטי רשימה, כך שלא יהיה אפשר לקרוא אותם במסך הבית כשהטלפון נעול</string>
+    <string name="widget_hidden_title">אירוע</string>
     <string name="save_failed">הפעולה נכשלה — נסו שוב</string>
     <string name="backup_err_need_password">הסיסמה אבדה כשהמסך נסגר — הגדירו אותה שוב ונסו שוב</string>
     <string name="backup_err_io">הפעולה נכשלה — בדקו את המקום בזיכרון ונסו שוב</string>

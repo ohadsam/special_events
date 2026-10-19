@@ -51,6 +51,7 @@ class SettingsRepository(private val store: DataStore<Preferences>) {
             appLockEnabled = p[APP_LOCK] ?: d.appLockEnabled,
             appLockTimeoutSeconds = p[APP_LOCK_TIMEOUT] ?: d.appLockTimeoutSeconds,
             hideContent = p[HIDE_CONTENT] ?: d.hideContent,
+            hideWidgetDetails = p[HIDE_WIDGET_DETAILS] ?: d.hideWidgetDetails,
             autoBackupFolder = p[AUTO_FOLDER] ?: d.autoBackupFolder,
             autoBackupDays = p[AUTO_DAYS] ?: d.autoBackupDays,
             autoBackupKeep = p[AUTO_KEEP] ?: d.autoBackupKeep,
@@ -83,6 +84,7 @@ class SettingsRepository(private val store: DataStore<Preferences>) {
         p[APP_LOCK] = s.appLockEnabled
         p[APP_LOCK_TIMEOUT] = s.appLockTimeoutSeconds
         p[HIDE_CONTENT] = s.hideContent
+        p[HIDE_WIDGET_DETAILS] = s.hideWidgetDetails
         p[AUTO_FOLDER] = s.autoBackupFolder
         p[AUTO_DAYS] = s.autoBackupDays
         p[AUTO_KEEP] = s.autoBackupKeep
@@ -116,6 +118,7 @@ class SettingsRepository(private val store: DataStore<Preferences>) {
         val APP_LOCK = booleanPreferencesKey("app_lock")
         val APP_LOCK_TIMEOUT = intPreferencesKey("app_lock_timeout")
         val HIDE_CONTENT = booleanPreferencesKey("hide_content")
+        val HIDE_WIDGET_DETAILS = booleanPreferencesKey("hide_widget_details")
         val AUTO_FOLDER = stringPreferencesKey("auto_backup_folder")
         val AUTO_DAYS = intPreferencesKey("auto_backup_days")
         val AUTO_KEEP = intPreferencesKey("auto_backup_keep")
