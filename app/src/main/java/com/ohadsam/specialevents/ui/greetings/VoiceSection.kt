@@ -5,7 +5,8 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -19,13 +20,13 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.ohadsam.specialevents.R
 
 /** Record a voice greeting, listen to it and hand it to WhatsApp. The microphone is only asked for when the user taps record. */
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun VoiceSection(state: GreetingState, viewModel: GreetingViewModel, onSend: () -> Unit) {
     val permission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted -> if (granted) viewModel.startRecording() }
@@ -44,12 +45,12 @@ fun VoiceSection(state: GreetingState, viewModel: GreetingViewModel, onSend: () 
         }
         if (state.voiceError) Text(stringResource(R.string.greeting_voice_error), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
         if (state.voice != null && !state.recording) {
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-                OutlinedButton(onClick = viewModel::togglePlayback, modifier = Modifier.weight(1f)) {
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
+                OutlinedButton(onClick = viewModel::togglePlayback) {
                     Icon(if (state.playing) Icons.Outlined.Stop else Icons.Outlined.PlayArrow, contentDescription = null)
                     Text(stringResource(if (state.playing) R.string.greeting_voice_stop_play else R.string.greeting_voice_play), Modifier.padding(start = 8.dp))
                 }
-                Button(onClick = onSend, modifier = Modifier.weight(1f)) { Text(stringResource(R.string.greeting_voice_send)) }
+                Button(onClick = onSend) { Text(stringResource(R.string.greeting_voice_send)) }
                 TextButton(onClick = viewModel::discardVoice) { Text(stringResource(R.string.greeting_voice_discard)) }
             }
         }

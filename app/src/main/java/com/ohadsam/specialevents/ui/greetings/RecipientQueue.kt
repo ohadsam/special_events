@@ -72,7 +72,7 @@ fun RecipientQueue(state: GreetingState, viewModel: GreetingViewModel, subject: 
                         Text(listOfNotNull(r.phone, r.email).joinToString(" · "), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
-                Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                     if (r.phone != null) {
                         TextButton(onClick = { send(r, SendChannel.WHATSAPP) }, modifier = Modifier.heightIn(min = 48.dp)) { Text(stringResource(R.string.greeting_send_whatsapp_short)) }
                         TextButton(onClick = { send(r, SendChannel.SMS) }, modifier = Modifier.heightIn(min = 48.dp)) { Text(stringResource(R.string.greeting_send_sms)) }

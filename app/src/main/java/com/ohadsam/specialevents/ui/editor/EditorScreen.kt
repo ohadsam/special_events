@@ -159,6 +159,7 @@ fun EditorScreen(viewModel: EditorViewModel, onClose: () -> Unit, onSaved: (Long
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun PersonSection(state: EditorState, vm: EditorViewModel) {
     val pickPhoto = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri -> uri?.let(vm::onPhotoPicked) }
@@ -167,7 +168,7 @@ private fun PersonSection(state: EditorState, vm: EditorViewModel) {
     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
         EventAvatar(state.photoUri, state.emoji, accent, 72.dp)
         Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedButton(onClick = { pickPhoto.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) }) {
                     Text(stringResource(if (state.photoUri == null) R.string.editor_photo_add else R.string.editor_photo_change))
                 }
@@ -204,9 +205,10 @@ private fun TypeChips(selected: EventType, onSelect: (EventType) -> Unit) {
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun GenderChips(selected: Gender?, onSelect: (Gender?) -> Unit) {
-    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         Text(stringResource(R.string.editor_gender), style = MaterialTheme.typography.labelLarge)
         FilterChip(selected = selected == Gender.MALE, onClick = { onSelect(if (selected == Gender.MALE) null else Gender.MALE) }, label = { Text(stringResource(R.string.gender_male)) })
         FilterChip(selected = selected == Gender.FEMALE, onClick = { onSelect(if (selected == Gender.FEMALE) null else Gender.FEMALE) }, label = { Text(stringResource(R.string.gender_female)) })

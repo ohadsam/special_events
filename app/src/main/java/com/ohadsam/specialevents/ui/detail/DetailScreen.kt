@@ -71,7 +71,7 @@ import com.ohadsam.specialevents.ui.upcoming.countdownText
 import com.ohadsam.specialevents.ui.upcoming.kindLabel
 import com.ohadsam.specialevents.ui.upcoming.milestoneLabel
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun DetailScreen(viewModel: DetailViewModel, onBack: () -> Unit, onEdit: () -> Unit, onEditReminders: () -> Unit, onGreet: () -> Unit, onOpenChecklist: () -> Unit, onShare: () -> Unit, onPrintCard: () -> Unit) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -163,7 +163,7 @@ fun DetailScreen(viewModel: DetailViewModel, onBack: () -> Unit, onEdit: () -> U
             Button(onClick = onGreet, modifier = Modifier.fillMaxWidth()) { Text(stringResource(R.string.detail_send_greeting)) }
             if (event.contactPhone != null || event.contactLookupUri != null) {
                 val context = androidx.compose.ui.platform.LocalContext.current
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     event.contactPhone?.let { phone ->
                         OutlinedButton(onClick = { runCatching { context.startActivity(Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + Uri.encode(phone))).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) } }) {
                             Text(stringResource(R.string.detail_call))
