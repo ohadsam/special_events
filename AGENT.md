@@ -65,6 +65,8 @@ Read order: CLAUDE.md → docs/PLAN.md → STRUCTURE.md → the batch's section 
 
 - v0.27.0: yearly wall-calendar print (PrintKind.YEAR), emulator tests (AppRobot + SmokeTest, run via ui-tests.yml), help texts for print/greetings updated. Not generated: Baseline Profile (needs device/emulator generator).
 
+- v0.28.0: full audit (3 read-only reviews) and fixes. Unverified on device: widget layouts after the Month exact-size change and CheckBox rows, app lock across rotation, reminders after the per-item error isolation. Deliberately not done: Undo for event delete, persisted snooze across reboot, settings split into sub-screens, 200%-font reflow of many button rows (FlowRow), lazy member lists.
+
 ## Known issues / open items (need the owner)
 - Feature spec for "אירועים מיוחדים" not yet provided → fill `docs/SPEC.md`, then define batches in `docs/PLAN.md`.
 - **Signing key:** `app/sideload.jks` (password in app/build.gradle.kts) is committed on purpose so every CI build updates in place; NOT a store key. Never change it after users installed the app.
