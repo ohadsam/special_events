@@ -17,12 +17,9 @@ class ReminderReceiver : BroadcastReceiver() {
         CoroutineScope(SupervisorJob() + Dispatchers.Default).launch {
             try {
                 if (intent.action == ACTION_SNOOZE_FIRE) {
-                    ReminderActionReceiver.read(intent)?.let { container.notifications.show(it) }
+                    ReminderActionReceiver.read(intent)?.let { container.reminderScheduler.deliverSnoozed(it) }
                 } else {
                     container.reminderScheduler.rescheduleAll()
-                // The midnight widget alarm does not survive a reboot or an app update either.
-                com.ohadsam.specialevents.widget.WidgetUpdater.scheduleMidnight(context.applicationContext)
-                com.ohadsam.specialevents.widget.WidgetUpdater.updateAll(context.applicationContext)
                 }
             } catch (e: Exception) {
                 container.logger.e("ReminderReceiver", "failed to handle ${intent.action}", e)
@@ -47,6 +44,9 @@ class BootReceiver : BroadcastReceiver() {
             try {
                 container.logger.i("BootReceiver", "reschedule after ${intent.action}")
                 container.reminderScheduler.rescheduleAll()
+                // The midnight widget alarm does not survive a reboot or an app update either.
+                com.ohadsam.specialevents.widget.WidgetUpdater.scheduleMidnight(context.applicationContext)
+                com.ohadsam.specialevents.widget.WidgetUpdater.updateAll(context.applicationContext)
             } catch (e: Exception) {
                 container.logger.e("BootReceiver", "reschedule failed", e)
             } finally {

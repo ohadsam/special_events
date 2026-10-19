@@ -53,6 +53,7 @@ class ReminderScheduler(
             logger.i(TAG, "reminders are switched off")
             return
         }
+        restoreSnoozes(now)
         val plan = ReminderEngine.plan(events.allEvents.first(), reminders.snapshot(), cfg, now)
         val zone = ReminderEngine.zoneOf(cfg)
         // First run: nothing to catch up on. A clock set backwards must not hide reminders.
@@ -83,10 +84,32 @@ class ReminderScheduler(
         val place = Places.byId(cfg.placeId) ?: Places.JERUSALEM
         val wanted = Instant.now().plus(Duration.ofMinutes(minutes.toLong()))
         val at = ReminderPlanner.withHolyRule(wanted, ShabbatPolicy.AFTER, ZmanimHolyTimes(place, cfg.tzeit)).first().first
-        val intent = Intent(context, ReminderReceiver::class.java).setAction(ReminderReceiver.ACTION_SNOOZE_FIRE).also { ReminderActionReceiver.put(it, content) }
-        val pi = PendingIntent.getBroadcast(context, content.notificationId * 2 + 1, intent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
-        setAlarm(pi, at.toEpochMilli())
+        state.addSnooze(PendingSnooze(at.toEpochMilli(), content))
+        setAlarm(snoozeIntent(content), at.toEpochMilli())
         logger.i(TAG, "snoozed ${content.notificationId} until $at")
+    }
+
+    private fun snoozeIntent(content: NotificationContent): PendingIntent {
+        val intent = Intent(context, ReminderReceiver::class.java).setAction(ReminderReceiver.ACTION_SNOOZE_FIRE).also { ReminderActionReceiver.put(it, content) }
+        return PendingIntent.getBroadcast(context, content.notificationId * 2 + 1, intent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
+    }
+
+    /** A snoozed reminder rang: show it and forget it. */
+    fun deliverSnoozed(content: NotificationContent) {
+        notifications.show(content)
+        state.removeSnooze(content.notificationId)
+    }
+
+    /** Arms the alarms of snoozes that survived a reboot; one that came due while the phone was off is shown now unless it is long stale. */
+    private fun restoreSnoozes(now: Instant) {
+        state.snoozes.forEach { s ->
+            if (s.atMillis > now.toEpochMilli()) {
+                setAlarm(snoozeIntent(s.content), s.atMillis)
+            } else {
+                if (now.toEpochMilli() - s.atMillis < STALE_SNOOZE_MILLIS) notifications.show(s.content)
+                state.removeSnooze(s.content.notificationId)
+            }
+        }
     }
 
     private fun pendingNext(): PendingIntent =
@@ -112,5 +135,6 @@ class ReminderScheduler(
         const val REQUEST_NEXT = 1
         const val MAX_PER_PASS = 30
         const val SNOOZE_MINUTES = 60
+        const val STALE_SNOOZE_MILLIS = 12L * 60 * 60 * 1000
     }
 }
