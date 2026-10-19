@@ -36,7 +36,7 @@ class MainActivity : ComponentActivity() {
     private var authInProgress = false
     private val unlock = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         authInProgress = false
-        if (result.resultCode == RESULT_OK) locked.value = false
+        if (result.resultCode == RESULT_OK) setLocked(false)
     }
     /** A screen to open, requested by a notification tap (`EXTRA_ROUTE`). */
     private val pendingRoute = mutableStateOf<String?>(null)
@@ -57,7 +57,12 @@ class MainActivity : ComponentActivity() {
                 appSettings = latest
                 applyContentProtection(latest.hideContent)
                 settingsLoaded.value = true
-                if (first) relock() else if (!latest.appLockEnabled) locked.value = false
+                if (first) {
+                    // A rotation / theme / font change recreates the activity: that is not "coming back to the app".
+                    if (savedInstanceState != null && unlockedInProcess) setLocked(false) else relock()
+                } else if (!latest.appLockEnabled) {
+                    setLocked(false)
+                }
             }
         }
         setContent {
@@ -87,21 +92,26 @@ class MainActivity : ComponentActivity() {
 
     override fun onStop() {
         super.onStop()
-        if (!authInProgress) backgroundedAt = SystemClock.elapsedRealtime()
+        if (!authInProgress && !isChangingConfigurations) backgroundedAt = SystemClock.elapsedRealtime()
     }
 
     /** Locks (and asks for the phone's PIN/biometrics) when the settings and the time away say so; otherwise opens. */
     private fun relock() {
         val lock = AppLockPolicy.shouldLock(appSettings.appLockEnabled, DeviceAuth.isSecure(this), backgroundedAt, SystemClock.elapsedRealtime(), appSettings.appLockTimeoutSeconds)
-        locked.value = lock
+        setLocked(lock)
         if (lock) authenticate()
+    }
+
+    private fun setLocked(value: Boolean) {
+        locked.value = value
+        unlockedInProcess = !value
     }
 
     private fun authenticate() {
         if (authInProgress) return
         val intent = DeviceAuth.intent(this, getString(R.string.lock_prompt_title), null)
         if (intent == null) {
-            locked.value = false
+            setLocked(false)
             return
         }
         authInProgress = true
@@ -114,9 +124,16 @@ class MainActivity : ComponentActivity() {
 
     /** A notification/widget names its screen; a file opened with this app goes to the backup preview. */
     private fun routeOf(intent: Intent): String? =
-        intent.getStringExtra(EXTRA_ROUTE) ?: intent.data?.takeIf { intent.action == Intent.ACTION_VIEW }?.let { Routes.backup(it.toString()) }
+        intent.getStringExtra(EXTRA_ROUTE)?.takeIf(::isInternalRoute) ?: intent.data?.takeIf { intent.action == Intent.ACTION_VIEW }?.let { Routes.backup(it.toString()) }
+
+    /** This activity is exported, so a route sent by another app is only taken when it is short and not the import screen (which has its own VIEW path). */
+    private fun isInternalRoute(route: String) = route.length <= MAX_ROUTE_LENGTH && !route.startsWith("backup")
 
     companion object {
         const val EXTRA_ROUTE = "route"
+        private const val MAX_ROUTE_LENGTH = 200
+
+        /** Survives activity recreation within the process (the lock state itself lives in the activity). */
+        private var unlockedInProcess = false
     }
 }

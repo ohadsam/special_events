@@ -59,6 +59,8 @@ class AppContainer(private val context: Context) {
 
     val settings: SettingsRepository = SettingsRepository(
         PreferenceDataStoreFactory.create(
+            // A corrupt settings file must not break every screen: start from defaults instead.
+            corruptionHandler = androidx.datastore.core.handlers.ReplaceFileCorruptionHandler { androidx.datastore.preferences.core.emptyPreferences() },
             scope = CoroutineScope(Dispatchers.IO + SupervisorJob()),
             produceFile = { File(context.filesDir, "datastore/settings.preferences_pb") },
         ),
@@ -66,6 +68,8 @@ class AppContainer(private val context: Context) {
 
     val savedSearches: SavedSearchRepository = SavedSearchRepository(
         PreferenceDataStoreFactory.create(
+            // A corrupt settings file must not break every screen: start from defaults instead.
+            corruptionHandler = androidx.datastore.core.handlers.ReplaceFileCorruptionHandler { androidx.datastore.preferences.core.emptyPreferences() },
             scope = CoroutineScope(Dispatchers.IO + SupervisorJob()),
             produceFile = { File(context.filesDir, "datastore/searches.preferences_pb") },
         ),

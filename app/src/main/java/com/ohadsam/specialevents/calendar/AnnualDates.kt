@@ -16,6 +16,11 @@ enum class AdarInLeapYear { ADAR_II, ADAR_I }
 
 enum class ShortMonthThirtieth { DAY_BEFORE, NEXT_DAY }
 
+/** True when the day exists in that month in at least one year (29 February counts). Hebrew dates are bounded by the month tables instead. */
+fun OriginDate.hasPossibleDay(): Boolean = basis == CalendarBasis.HEBREW || java.time.YearMonth.of(LEAP_YEAR, month).isValidDay(day)
+
+private const val LEAP_YEAR = 2000
+
 enum class LeapDay { FEB_28, MAR_1 }
 
 data class DateRules(
@@ -86,7 +91,8 @@ object AnnualDates {
         if (origin.month == FEBRUARY && origin.day == LEAP_DAY && !java.time.Year.isLeap(year.toLong())) {
             return if (rules.leapDay == LeapDay.FEB_28) LocalDate.of(year, FEBRUARY, 28) else LocalDate.of(year, 3, 1)
         }
-        return LocalDate.of(year, origin.month, origin.day)
+        // A damaged or hand-made file can hold 31 April: clamp rather than take every reminder and list down with it.
+        return LocalDate.of(year, origin.month, origin.day.coerceAtMost(java.time.YearMonth.of(year, origin.month).lengthOfMonth()))
     }
 
     private fun hebrew(origin: OriginDate, year: Int, rules: DateRules): LocalDate {

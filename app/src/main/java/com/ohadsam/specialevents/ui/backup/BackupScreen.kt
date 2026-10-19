@@ -81,7 +81,7 @@ fun BackupScreen(viewModel: BackupViewModel, onBack: () -> Unit, openUri: String
     val kind = if (encrypt) ExportKind.ENCRYPTED else ExportKind.BACKUP
     fun secret(): CharArray? = if (encrypt) password.toCharArray() else null
     val saveBackup = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument(ExportKind.BACKUP.mime)) { uri -> if (uri != null) viewModel.exportTo(uri, ExportKind.BACKUP, null) }
-    val saveEncrypted = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument(ExportKind.ENCRYPTED.mime)) { uri -> if (uri != null) viewModel.exportTo(uri, ExportKind.ENCRYPTED, secret()) }
+    val saveEncrypted = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument(ExportKind.ENCRYPTED.mime)) { uri -> if (uri != null) secret()?.let { viewModel.exportTo(uri, ExportKind.ENCRYPTED, it) } ?: viewModel.passwordLost() }
     val saveIcs = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument(ExportKind.ICS.mime)) { uri -> if (uri != null) viewModel.exportTo(uri, ExportKind.ICS, null) }
     val saveCsv = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument(ExportKind.CSV.mime)) { uri -> if (uri != null) viewModel.exportTo(uri, ExportKind.CSV, null) }
     val open = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri -> if (uri != null) viewModel.load(uri) }
@@ -240,7 +240,7 @@ fun BackupScreen(viewModel: BackupViewModel, onBack: () -> Unit, openUri: String
                 }
             },
             confirmButton = {
-                TextButton(onClick = viewModel::confirmImport, enabled = pending.selected.isNotEmpty() || pending.mode == ImportMode.REPLACE) {
+                TextButton(onClick = viewModel::confirmImport, enabled = pending.selected.isNotEmpty()) {
                     Text(stringResource(if (shared) R.string.share_import_action else R.string.backup_import_action))
                 }
             },

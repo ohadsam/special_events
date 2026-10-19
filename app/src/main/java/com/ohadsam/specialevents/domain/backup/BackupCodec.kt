@@ -2,6 +2,7 @@ package com.ohadsam.specialevents.domain.backup
 
 import com.ohadsam.specialevents.calendar.CalendarBasis
 import com.ohadsam.specialevents.calendar.OriginDate
+import com.ohadsam.specialevents.calendar.hasPossibleDay
 import com.ohadsam.specialevents.calendar.Tier
 import com.ohadsam.specialevents.domain.EventType
 import com.ohadsam.specialevents.domain.Gender
@@ -127,6 +128,7 @@ object BackupCodec {
         val day = o.int("day") ?: return null
         val basis = enumOf<CalendarBasis>(o.str("basis")) ?: return null
         if (month !in 1..(if (basis == CalendarBasis.HEBREW) MAX_HEBREW_MONTH else 12) || day !in 1..MAX_DAY) return null
+        if (!OriginDate(basis, null, month, day).hasPossibleDay()) return null
         return SpecialEvent(
             id = o.long("id") ?: 0,
             type = type,

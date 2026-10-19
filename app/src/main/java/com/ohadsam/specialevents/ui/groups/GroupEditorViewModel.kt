@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.ohadsam.specialevents.AppContainer
+import com.ohadsam.specialevents.R
 import com.ohadsam.specialevents.domain.SpecialEvent
 import com.ohadsam.specialevents.domain.Tag
 import com.ohadsam.specialevents.domain.greetings.GreetingCatalog
@@ -124,27 +125,35 @@ class GroupEditorViewModel(private val container: AppContainer, private val grou
         }
         _state.update { it.copy(busy = true) }
         viewModelScope.launch {
-            val group = (original ?: EventGroup(name = s.name)).copy(
-                name = s.name.trim(),
-                emoji = s.emoji.trim().ifEmpty { null },
-                colorArgb = s.color,
-                tags = lines(s.tags),
-                defaultChannel = s.channel,
-                defaultTemplateId = s.templateId,
-                reminderRules = s.rules,
-                extraRecipients = lines(s.extra),
-            )
-            val id = container.groups.save(group)
-            val before = container.groups.memberIds(id)
-            container.groups.setMembers(id, s.members)
-            giveTags(group, s.members - before)
-            val applied = if (thenApply) applyTemplate(group.copy(id = id), s.members) else null
-            if (thenApply) {
-                _state.update { it.copy(busy = false, applied = applied) }
-                original = group.copy(id = id)
-                baseline = normalized(_state.value)
-            } else {
-                _state.update { it.copy(busy = false, done = true) }
+            try {
+                val group = (original ?: EventGroup(name = s.name)).copy(
+                    name = s.name.trim(),
+                    emoji = s.emoji.trim().ifEmpty { null },
+                    colorArgb = s.color,
+                    tags = lines(s.tags),
+                    defaultChannel = s.channel,
+                    defaultTemplateId = s.templateId,
+                    reminderRules = s.rules,
+                    extraRecipients = lines(s.extra),
+                )
+                val id = container.groups.save(group)
+                val before = container.groups.memberIds(id)
+                container.groups.setMembers(id, s.members)
+                giveTags(group, s.members - before)
+                val applied = if (thenApply) applyTemplate(group.copy(id = id), s.members) else null
+                if (thenApply) {
+                    _state.update { it.copy(busy = false, applied = applied) }
+                    original = group.copy(id = id)
+                    baseline = normalized(_state.value)
+                } else {
+                    _state.update { it.copy(busy = false, done = true) }
+                }
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                container.logger.e("Groups", "save failed", e)
+                android.widget.Toast.makeText(container.appContext, R.string.save_failed, android.widget.Toast.LENGTH_LONG).show()
+                _state.update { it.copy(busy = false) }
             }
         }
     }

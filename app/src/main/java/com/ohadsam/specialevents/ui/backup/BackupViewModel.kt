@@ -287,6 +287,9 @@ class BackupViewModel(private val container: AppContainer) : ViewModel() {
         _state.update { it.copy(message = UiMessage(success)) }
     }
 
+    /** The file picker came back after the password was lost (the screen was recreated while it was open). */
+    fun passwordLost() = _state.update { it.copy(message = UiMessage(R.string.backup_err_need_password)) }
+
     private fun launchBusy(block: suspend () -> Unit) {
         _state.update { it.copy(busy = true) }
         viewModelScope.launch {
@@ -295,7 +298,10 @@ class BackupViewModel(private val container: AppContainer) : ViewModel() {
             } catch (e: java.io.IOException) {
                 container.logger.w("Backup", "failed", e)
                 _state.update { it.copy(message = UiMessage(R.string.backup_err_io)) }
-            } catch (e: IllegalStateException) {
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                // A bad file, a revoked folder permission or a parser error must end in a message, not a crash.
                 container.logger.w("Backup", "failed", e)
                 _state.update { it.copy(message = UiMessage(R.string.backup_err_io)) }
             } finally {

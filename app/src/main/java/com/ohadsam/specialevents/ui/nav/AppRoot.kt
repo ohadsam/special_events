@@ -77,7 +77,8 @@ private fun AppScaffold(container: AppContainer, nav: NavHostController, pending
     val factory = remember { ViewModelFactory(container) }
     LaunchedEffect(pendingRoute) {
         pendingRoute?.let {
-            nav.navigate(it) { launchSingleTop = true }
+            // A route that does not exist (an old notification, a foreign intent) is dropped instead of crashing.
+            runCatching { nav.navigate(it) { launchSingleTop = true } }
             onRouteHandled()
         }
     }

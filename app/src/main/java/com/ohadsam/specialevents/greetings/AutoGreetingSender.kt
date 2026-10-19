@@ -90,7 +90,7 @@ class AutoGreetingSender(
     private suspend fun send(r: Recipient, text: String, eventId: Long, day: Long): Boolean {
         val phone = PhoneNumbers.forDial(r.phone) ?: return false
         return try {
-            val sms = smsManager()
+            val sms = smsManager() ?: return false
             sms.sendMultipartTextMessage(phone, null, sms.divideMessage(text), null, null)
             greetings.markSent(eventId, day, SendChannel.SMS, text, r.key)
             true
@@ -99,6 +99,10 @@ class AutoGreetingSender(
             false
         } catch (e: IllegalArgumentException) {
             logger.w(TAG, "auto SMS could not be built", e)
+            false
+        } catch (e: RuntimeException) {
+            // The telephony stack throws plain runtime errors on some devices; the reminder then falls back to a notification.
+            logger.w(TAG, "auto SMS failed", e)
             false
         }
     }
@@ -113,7 +117,7 @@ class AutoGreetingSender(
         logger.i(TAG, "auto SMS sent to $sent of $total for event ${event.id}")
     }
 
-    private fun smsManager(): SmsManager =
+    private fun smsManager(): SmsManager? =
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             context.getSystemService(SmsManager::class.java)
         } else {

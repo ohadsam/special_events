@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.ohadsam.specialevents.AppContainer
+import com.ohadsam.specialevents.R
 import android.net.Uri
 import com.ohadsam.specialevents.calendar.CalendarBasis
 import com.ohadsam.specialevents.contacts.ContactsReader
@@ -226,38 +227,47 @@ class EditorViewModel(private val container: AppContainer, private val eventId: 
         }
         _state.update { it.copy(saving = true) }
         viewModelScope.launch {
-            val base = original
-            val personType = s.type == EventType.BIRTHDAY || s.type == EventType.YAHRZEIT || s.type == EventType.BAR_BAT_MITZVAH
-            val known = s.knownTags.associateBy { it.name.lowercase() }
-            val previousGroups = if (base == null) emptySet() else container.groups.groupsOf(base.id).map { it.id }.toSet()
-            val addedGroups = s.allGroups.filter { it.id in s.groupIds && it.id !in previousGroups }
-            // A group's tags go onto the people who join it.
-            val tagNames = (s.tags + addedGroups.flatMap { it.tags }).distinctBy { it.lowercase() }
-            val event = (base ?: SpecialEvent(type = s.type, title = s.title, origin = s.date.toOrigin())).copy(
-                type = s.type,
-                title = s.title.trim(),
-                personName = if (personType) s.title.trim() else null,
-                gender = s.gender,
-                relation = s.relation.trim().ifEmpty { null },
-                origin = s.date.toOrigin(),
-                recurrence = if (s.type.yearly) Recurrence.YEARLY else Recurrence.ONCE,
-                afterSunset = s.date.afterSunset && s.date.basis == CalendarBasis.GREGORIAN,
-                notes = s.notes.trim().ifEmpty { null },
-                colorArgb = s.colorArgb,
-                iconKey = s.chosenEmoji,
-                photoUri = s.photoUri,
-                contactLookupUri = s.contactLookupUri,
-                contactPhone = s.contactPhone,
-                contactEmail = s.contactEmail,
-                tags = tagNames.map { known[it.lowercase()] ?: Tag(name = it) },
-            )
-            val id = container.events.save(event)
-            // The previous photo file is only deleted once the change is really saved.
-            base?.photoUri?.takeIf { it != s.photoUri }?.let(PhotoStore::delete)
-            if (base == null) container.reminders.addDefaults(id, s.type)
-            container.groups.setGroupsOf(id, s.groupIds)
-            applyGroupTemplate(id, s.allGroups.filter { it.id in s.groupIds }, addedGroups.isNotEmpty())
-            _state.update { it.copy(saving = false, savedId = id) }
+            try {
+                val base = original
+                val personType = s.type == EventType.BIRTHDAY || s.type == EventType.YAHRZEIT || s.type == EventType.BAR_BAT_MITZVAH
+                val known = s.knownTags.associateBy { it.name.lowercase() }
+                val previousGroups = if (base == null) emptySet() else container.groups.groupsOf(base.id).map { it.id }.toSet()
+                val addedGroups = s.allGroups.filter { it.id in s.groupIds && it.id !in previousGroups }
+                // A group's tags go onto the people who join it.
+                val tagNames = (s.tags + addedGroups.flatMap { it.tags }).distinctBy { it.lowercase() }
+                val event = (base ?: SpecialEvent(type = s.type, title = s.title, origin = s.date.toOrigin())).copy(
+                    type = s.type,
+                    title = s.title.trim(),
+                    personName = if (personType) s.title.trim() else null,
+                    gender = s.gender,
+                    relation = s.relation.trim().ifEmpty { null },
+                    origin = s.date.toOrigin(),
+                    recurrence = if (s.type.yearly) Recurrence.YEARLY else Recurrence.ONCE,
+                    afterSunset = s.date.afterSunset && s.date.basis == CalendarBasis.GREGORIAN,
+                    notes = s.notes.trim().ifEmpty { null },
+                    colorArgb = s.colorArgb,
+                    iconKey = s.chosenEmoji,
+                    photoUri = s.photoUri,
+                    contactLookupUri = s.contactLookupUri,
+                    contactPhone = s.contactPhone,
+                    contactEmail = s.contactEmail,
+                    tags = tagNames.map { known[it.lowercase()] ?: Tag(name = it) },
+                )
+                val id = container.events.save(event)
+                // The previous photo file is only deleted once the change is really saved.
+                base?.photoUri?.takeIf { it != s.photoUri }?.let(PhotoStore::delete)
+                if (base == null) container.reminders.addDefaults(id, s.type)
+                container.groups.setGroupsOf(id, s.groupIds)
+                applyGroupTemplate(id, s.allGroups.filter { it.id in s.groupIds }, addedGroups.isNotEmpty())
+                _state.update { it.copy(saving = false, savedId = id) }
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                // Save stays usable and the user is told, instead of a stuck disabled button.
+                container.logger.e("Editor", "save failed", e)
+                android.widget.Toast.makeText(container.appContext, R.string.save_failed, android.widget.Toast.LENGTH_LONG).show()
+                _state.update { it.copy(saving = false) }
+            }
         }
     }
 

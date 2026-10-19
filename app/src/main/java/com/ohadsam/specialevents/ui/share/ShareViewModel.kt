@@ -110,13 +110,21 @@ class ShareViewModel(private val container: AppContainer, private val initial: S
         if (s.selected.isEmpty()) return
         _state.update { it.copy(busy = true) }
         viewModelScope.launch {
-            val data = SharePlanner.build(s.selected, container.backups.snapshot(), s.fields)
-            val text = BackupCodec.encode(data, Instant.now().toString(), BuildConfig.VERSION_NAME, BackupCodec.KIND_SHARE)
-            val file = withContext(Dispatchers.IO) {
-                BackupFiles.backupFile(context, BackupFiles.fileName("special-events-share", "sevents", LocalDate.now())).also { it.writeText(text) }
+            try {
+                val data = SharePlanner.build(s.selected, container.backups.snapshot(), s.fields)
+                val text = BackupCodec.encode(data, Instant.now().toString(), BuildConfig.VERSION_NAME, BackupCodec.KIND_SHARE)
+                val file = withContext(Dispatchers.IO) {
+                    BackupFiles.backupFile(context, BackupFiles.fileName("special-events-share", "sevents", LocalDate.now())).also { it.writeText(text) }
+                }
+                onReady(file)
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                container.logger.e("Share", "prepare failed", e)
+                android.widget.Toast.makeText(context, R.string.save_failed, android.widget.Toast.LENGTH_LONG).show()
+            } finally {
+                _state.update { it.copy(busy = false) }
             }
-            _state.update { it.copy(busy = false) }
-            onReady(file)
         }
     }
 

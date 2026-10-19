@@ -48,6 +48,8 @@ class ReminderScheduler(
         val cfg = settings.settings.first()
         if (!cfg.remindersEnabled) {
             cancelAlarm()
+            // Reminders that fell due while switched off are gone: they must not all fire when it is switched back on.
+            state.lastHandled = now
             logger.i(TAG, "reminders are switched off")
             return
         }
@@ -56,14 +58,23 @@ class ReminderScheduler(
         // First run: nothing to catch up on. A clock set backwards must not hide reminders.
         val last = (state.lastHandled ?: now).let { if (it.isAfter(now)) now else it }
         val due = plan.filter { it.fireAt > last && it.fireAt <= now }
+        var delivered = 0
         due.take(MAX_PER_PASS).forEach {
-            // An automatic SMS replaces the prompt when it went out; any other outcome falls back to the normal reminder.
-            if (!autoSender.handle(it)) notifications.show(notifications.contentFor(it, zone, cfg.calendarMode))
+            // One reminder that cannot be delivered (no telephony, a database error) must not stop the others or the next alarm.
+            try {
+                // An automatic SMS replaces the prompt when it went out; any other outcome falls back to the normal reminder.
+                if (!autoSender.handle(it)) notifications.show(notifications.contentFor(it, zone, cfg.calendarMode))
+                delivered++
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                logger.e(TAG, "could not deliver a reminder", e)
+            }
         }
         state.lastHandled = now
         val next = plan.firstOrNull { it.fireAt > now }
         if (next == null) cancelAlarm() else setAlarm(pendingNext(), next.fireAt.toEpochMilli())
-        logger.i(TAG, "delivered=${due.size} next=${next?.fireAt} exact=${canScheduleExact()} planned=${plan.size}")
+        logger.i(TAG, "delivered=$delivered next=${next?.fireAt} exact=${canScheduleExact()} planned=${plan.size}")
     }
 
     /** Repeats a notification [minutes] from now (kept out of Shabbat / Yom Tov), carrying its text so no lookup is needed. */

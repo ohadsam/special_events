@@ -391,6 +391,8 @@
     <string name="backup_err_format">זה לא קובץ גיבוי של האפליקציה</string>
     <string name="backup_err_new">הקובץ נוצר בגרסה חדשה יותר של האפליקציה — עדכנו ונסו שוב</string>
     <string name="backup_err_big">הקובץ גדול מדי</string>
+    <string name="save_failed">הפעולה נכשלה — נסו שוב</string>
+    <string name="backup_err_need_password">הסיסמה אבדה כשהמסך נסגר — הגדירו אותה שוב ונסו שוב</string>
     <string name="backup_err_io">הפעולה נכשלה — בדקו את המקום בזיכרון ונסו שוב</string>
     <string name="backup_import_title">שחזור מגיבוי</string>
     <string name="backup_import_summary">אירועים חדשים: %1$d · כבר קיימים: %2$d · תבניות ברכה חדשות: %3$d</string>

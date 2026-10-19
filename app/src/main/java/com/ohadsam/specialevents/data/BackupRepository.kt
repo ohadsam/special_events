@@ -32,12 +32,20 @@ class BackupRepository(
         BackupPlanner.preview(events.allEvents.first(), greetings.customTemplates.first(), incoming, mode)
 
     /** Returns how many events were added ([defaultReminders]: give events that came without any the standard reminders of their type). In [ImportMode.REPLACE] the current events (and their reminders and checklists) are removed first. */
-    suspend fun import(incoming: BackupData, mode: ImportMode, defaultReminders: Boolean = false): Int = db.withTransaction {
+    suspend fun import(incoming: BackupData, mode: ImportMode, defaultReminders: Boolean = false): Int {
+        val replacedPhotos = ArrayList<String?>()
+        val added = importInTransaction(incoming, mode, defaultReminders, replacedPhotos)
+        // Files go only after the database change is committed: a rolled-back import must not lose photos.
+        replacedPhotos.forEach(PhotoStore::delete)
+        return added
+    }
+
+    private suspend fun importInTransaction(incoming: BackupData, mode: ImportMode, defaultReminders: Boolean, replacedPhotos: MutableList<String?>): Int = db.withTransaction {
         val current = events.allEvents.first()
         if (mode == ImportMode.REPLACE) {
             current.forEach {
                 events.delete(it.id)
-                PhotoStore.delete(it.photoUri)
+                replacedPhotos += it.photoUri
             }
         }
         val known = if (mode == ImportMode.REPLACE) HashSet<String>() else current.map(BackupPlanner::key).toHashSet()

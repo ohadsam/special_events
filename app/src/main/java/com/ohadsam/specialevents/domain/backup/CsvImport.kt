@@ -2,6 +2,7 @@ package com.ohadsam.specialevents.domain.backup
 
 import com.ohadsam.specialevents.calendar.CalendarBasis
 import com.ohadsam.specialevents.calendar.OriginDate
+import com.ohadsam.specialevents.calendar.hasPossibleDay
 import com.ohadsam.specialevents.domain.EventType
 import com.ohadsam.specialevents.domain.Recurrence
 import com.ohadsam.specialevents.domain.SpecialEvent
@@ -150,7 +151,7 @@ object CsvImport {
         val basis = cell(CsvField.BASIS)?.let { b -> if (b.equals("HEBREW", true) || b.contains("עבר")) CalendarBasis.HEBREW else CalendarBasis.GREGORIAN } ?: CalendarBasis.GREGORIAN
         val limit = if (basis == CalendarBasis.HEBREW) HEBREW_MONTHS else GREGORIAN_MONTHS
         if (month !in 1..limit || day !in 1..MAX_DAY) return null
-        return OriginDate(basis, cell(CsvField.YEAR)?.toIntOrNull(), month, day)
+        return OriginDate(basis, cell(CsvField.YEAR)?.toIntOrNull(), month, day).takeIf { it.hasPossibleDay() }
     }
 
     private const val GREGORIAN_MONTHS = 12
