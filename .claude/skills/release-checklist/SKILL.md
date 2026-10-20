@@ -54,6 +54,10 @@ Real incidents carried over from earlier apps (keep concrete; add new ones below
 - strings.xml: an unescaped apostrophe (`'`) breaks resource compilation with a cryptic "Failed to compile values resource" - use the typographic geresh or `\'`.
 - Lint `ByteOrderMark`: never put a literal U+FEFF in source; write `"\uFEFF"`. When lint fails, the console shows only a count - CI prints the findings from `lint-results-debug.txt` in the failure summary.
 - A first-run dialog covers the UI under test: emulator tests must dismiss it first (`AppRobot.dismissWelcome`).
+- An emulator workflow that ends its test command with `|| echo ...` reports green when tests fail. Let the command fail, upload the results, and print the failing tests' messages as the LAST step so they are in the log tail.
+- When a UI test fails to find a node, make the helper dump the semantics tree (all roots) into the failure message - one CI round then tells you what was on screen.
+- A lambda parameter named like an outer value silently shadows it (`cell` row height vs grid `cell`): name the outer one for what it is.
+- Collapsing/accordion screens hide rows from UI tests: the test must open the section first.
 - KSP occasionally flakes (`Expected start of the object '{', but had 'EOF'`) — re-run CI, don't "fix".
 
 ## 8. Merge

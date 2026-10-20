@@ -31,7 +31,7 @@ Order is by dependency: pure logic first (cheap to test), then data, UI, engines
 | S1 | שיתוף מרובה (.sevents) + הצעת שמירה אצל המקבל + כרטיס אדם | S18.3,8 | 0.21.0 | [x] |
 | P1 | הדפסה (מחליף את 13): כרטיס ברכה, לוח חודשי, רשימות עם סינון, PDF | S18.9,S13 | 0.22.0 | [x] |
 | 14 | Security & privacy hardening: app lock, FLAG_SECURE, Keystore secrets, threat model, permission audit, dependency scan | S14 | 0.23.0 | [x] |
-| 15 | Polish: a11y pass [x], onboarding [x], help/ⓘ [x], README [x], yearly print [x], emulator UI tests [x]; open: Baseline Profile (needs a device), release signing key (owner) | S15,S16 | 0.25.0 → 1.0.0 | [ ] |
+| 15 | Polish: a11y pass [x], onboarding [x], help/ⓘ [x], README [x], yearly print [x], emulator UI tests [x]; open: Baseline Profile (needs a device), release signing key (owner) | S15,S16 | 0.25.0 → 1.0.0 | [x] |
 
 ## Per-batch routine (skill `android-native-dev` + `release-checklist`)
 1) read spec slice 2) implement + unit tests 3) push, CI green (`gh run watch`) 4) 4-persona review 5) version + What's New + docs 6) merge to `main` (release `latest` APK is built).

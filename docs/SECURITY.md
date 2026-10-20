@@ -17,6 +17,8 @@ All of it lives in the app's private storage (Room database, DataStore, `files/p
 | CSV formula injection | Cells starting with `= + - @` are prefixed (phone numbers excepted). |
 | HTML injection in print/share | Every user string escaped; colours validated; only `data:image/` URIs accepted; WebView has JavaScript, file and network access off. |
 | Other apps calling our components | Only `MainActivity` (launcher + validated VIEW; `content:` URIs only, no `file:`; a foreign `route` extra is length-limited, cannot open the import screen and a route that does not exist is dropped), the widget receivers/config activity (required by the launcher; the config activity refuses an invalid widget id) are exported. Boot/date receivers are not exported. All `PendingIntent`s are `FLAG_IMMUTABLE`. |
+| Daily summary notification | Off by default; names appear like in ordinary reminders (same notification channels). No new permission (POST_NOTIFICATIONS only). |
+| Undo after delete | The deleted event is held in memory only (not written anywhere) until the Undo offer ends; its photo file is deleted when the offer expires. |
 | Widgets on a locked phone | Setting "hide details in widgets" renders a generic title instead of names and checklist items (off by default). |
 | Gallery photo in a greeting | Chosen with the system photo picker (no storage permission); only that one URI is handed to the target app, read-only and temporary; the app keeps no copy. |
 | File sharing | `FileProvider` limited to cache sub-folders `voice/`, `backup/`, `share/`, granted per share with read-only URI permission. |
