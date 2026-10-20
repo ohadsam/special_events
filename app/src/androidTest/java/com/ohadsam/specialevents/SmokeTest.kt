@@ -46,13 +46,15 @@ class SmokeTest {
     @Test
     fun settingsScreensOpen() {
         AppRobot.click(rule, text(R.string.tab_settings))
+        // Settings sections are collapsed accordions: open the one that holds the entry first.
         listOf(
-            R.string.settings_groups to R.string.groups_title,
-            R.string.settings_print to R.string.print_title,
-            R.string.settings_backup to R.string.backup_title,
-            R.string.settings_guide to R.string.guide_title,
-            R.string.settings_logs to R.string.logs_title,
-        ).forEach { (entry, title) ->
+            Triple(R.string.settings_groups, R.string.settings_section_greetings, R.string.groups_title),
+            Triple(R.string.settings_print, R.string.settings_section_backup, R.string.print_title),
+            Triple(R.string.settings_backup, R.string.settings_section_backup, R.string.backup_title),
+            Triple(R.string.settings_guide, R.string.settings_section_general, R.string.guide_title),
+            Triple(R.string.settings_logs, R.string.settings_section_general, R.string.logs_title),
+        ).forEach { (entry, section, title) ->
+            if (rule.onAllNodesWithText(text(entry)).fetchSemanticsNodes().isEmpty()) AppRobot.click(rule, text(section), scroll = true)
             AppRobot.click(rule, text(entry), scroll = true)
             rule.onAllNodesWithText(text(title)).onFirst().assertExists()
             AppRobot.back(rule)

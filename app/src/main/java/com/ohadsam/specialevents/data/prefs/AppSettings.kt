@@ -43,6 +43,9 @@ data class AppSettings(
     val hideContent: Boolean = false,
     /** Home-screen widgets show "an event" instead of names and checklist items, so nothing private is readable on a locked phone. */
     val hideWidgetDetails: Boolean = false,
+    /** A morning notification listing today's and tomorrow's events, at [dailySummaryHour]:00. */
+    val dailySummary: Boolean = false,
+    val dailySummaryHour: Int = 8,
     /** Automatic backup: the folder the user picked (a persisted SAF tree URI, empty = none), how often in days (0 = off), copies to keep. */
     val autoBackupFolder: String = "",
     val autoBackupDays: Int = 0,

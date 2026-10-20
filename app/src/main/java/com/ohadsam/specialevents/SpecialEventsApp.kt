@@ -37,6 +37,11 @@ class SpecialEventsApp : Application() {
             }
         }
         appScope.launch {
+            container.settings.settings.map { it.dailySummary to it.dailySummaryHour }.distinctUntilChanged().collect {
+                runCatching { com.ohadsam.specialevents.reminders.DailySummary.schedule(applicationContext, container.settings.settings.first()) }
+            }
+        }
+        appScope.launch {
             runCatching {
                 if (!container.settings.settings.first().groupsSeeded) {
                     container.groups.ensureBuiltIns()

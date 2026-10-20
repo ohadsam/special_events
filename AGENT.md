@@ -73,6 +73,8 @@ Read order: CLAUDE.md → docs/PLAN.md → STRUCTURE.md → the batch's section 
 
 - v0.30.1: EventUnavailable (spinner while loading, "event not found" when gone) on detail/reminders/checklist/greeting. EditorViewModel still turns a missing id into a new form (not changed).
 
+- v0.31.0: UndoDelete (capture as one-event backup, restore via import MERGE, photo kept until the snackbar is gone - an app kill during the offer leaves one orphan photo file), DailySummary (WorkManager daily job, CANCEL_AND_REENQUEUE on each start/hour change; inexact by design), Settings accordion (one section open), confirm dialogs, permission-denied toasts. Unverified on device: Undo restoring groups/rules, summary timing under Doze, accordion with TalkBack.
+
 ## Known issues / open items (need the owner)
 - Feature spec for "אירועים מיוחדים" not yet provided → fill `docs/SPEC.md`, then define batches in `docs/PLAN.md`.
 - **Signing key:** `app/sideload.jks` (password in app/build.gradle.kts) is committed on purpose so every CI build updates in place; NOT a store key. Never change it after users installed the app.

@@ -34,6 +34,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -61,167 +62,199 @@ fun SettingsScreen(viewModel: SettingsViewModel, onOpenLogs: () -> Unit, onOpenR
     val context = LocalContext.current
     var showWhatsNew by remember { mutableStateOf(false) }
     var confirmResetAll by remember { mutableStateOf(false) }
+    // One section open at a time keeps this long screen short; the open one survives rotation.
+    var open by rememberSaveable { mutableStateOf("appearance") }
 
     Scaffold(topBar = { TopAppBar(title = { Text(stringResource(R.string.tab_settings)) }, actions = { HelpButton(HelpTopic.SETTINGS) }) }) { padding ->
         Column(Modifier.padding(padding).verticalScroll(rememberScrollState())) {
-            SectionHeader(stringResource(R.string.settings_section_appearance))
-            ChoiceRow(
-                title = stringResource(R.string.settings_theme),
-                options = ThemeMode.entries.map { it to stringResource(it.labelRes()) },
-                selected = settings.themeMode,
-                onSelect = { v -> viewModel.update { it.copy(themeMode = v) } },
-            )
-            SwitchRow(
-                title = stringResource(R.string.settings_dynamic_color),
-                description = stringResource(if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) R.string.settings_dynamic_color_desc else R.string.settings_dynamic_color_unsupported),
-                checked = settings.dynamicColor,
-                enabled = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S,
-                onChange = { v -> viewModel.update { it.copy(dynamicColor = v) } },
-            )
-            ResetRow(viewModel::resetAppearance)
-
-            SectionHeader(stringResource(R.string.settings_section_calendar))
-            ChoiceRow(
-                title = stringResource(R.string.settings_calendar_mode),
-                options = CalendarMode.entries.map { it to stringResource(it.labelRes()) },
-                selected = settings.calendarMode,
-                onSelect = { v -> viewModel.update { it.copy(calendarMode = v) } },
-            )
-            SwitchRow(
-                title = stringResource(R.string.settings_in_israel),
-                description = stringResource(R.string.settings_in_israel_desc),
-                checked = settings.inIsrael,
-                onChange = { v -> viewModel.update { it.copy(inIsrael = v) } },
-            )
-            SwitchRow(
-                title = stringResource(R.string.settings_week_starts_sunday),
-                checked = settings.weekStartsOnSunday,
-                onChange = { v -> viewModel.update { it.copy(weekStartsOnSunday = v) } },
-            )
-            ResetRow(viewModel::resetCalendar)
-
-            SectionHeader(stringResource(R.string.settings_section_date_rules))
-            ChoiceRow(
-                title = stringResource(R.string.settings_rule_adar),
-                description = stringResource(R.string.settings_rule_adar_desc),
-                options = AdarInLeapYear.entries.map { it to stringResource(it.labelRes()) },
-                selected = settings.dateRules.adar,
-                onSelect = { v -> viewModel.update { it.copy(dateRules = it.dateRules.copy(adar = v)) } },
-            )
-            ChoiceRow(
-                title = stringResource(R.string.settings_rule_thirtieth),
-                description = stringResource(R.string.settings_rule_thirtieth_desc),
-                options = ShortMonthThirtieth.entries.map { it to stringResource(it.labelRes()) },
-                selected = settings.dateRules.thirtiethOfShortMonth,
-                onSelect = { v -> viewModel.update { it.copy(dateRules = it.dateRules.copy(thirtiethOfShortMonth = v)) } },
-            )
-            ChoiceRow(
-                title = stringResource(R.string.settings_rule_leap_day),
-                description = stringResource(R.string.settings_rule_leap_day_desc),
-                options = LeapDay.entries.map { it to stringResource(it.labelRes()) },
-                selected = settings.dateRules.leapDay,
-                onSelect = { v -> viewModel.update { it.copy(dateRules = it.dateRules.copy(leapDay = v)) } },
-            )
-            ResetRow(viewModel::resetDateRules)
-
-            SectionHeader(stringResource(R.string.settings_section_reminders))
-            SwitchRow(
-                title = stringResource(R.string.settings_reminders_enabled),
-                description = stringResource(R.string.settings_reminders_enabled_desc),
-                checked = settings.remindersEnabled,
-                onChange = { v -> viewModel.update { it.copy(remindersEnabled = v) } },
-            )
-            ChoiceRow(
-                title = stringResource(R.string.settings_place),
-                description = stringResource(R.string.settings_place_desc),
-                options = Places.ALL.map { it.id to it.nameHe },
-                selected = settings.placeId,
-                onSelect = viewModel::setPlace,
-            )
-            ChoiceRow(
-                title = stringResource(R.string.settings_tzeit),
-                options = TzeitMethod.entries.map { it to stringResource(it.labelRes()) },
-                selected = settings.tzeit,
-                onSelect = { v -> viewModel.update { it.copy(tzeit = v) } },
-            )
-            AboutRow(Icons.Outlined.HealthAndSafety, R.string.settings_reminder_health, R.string.settings_reminder_health_desc, onOpenReminderHealth)
-            ResetRow(viewModel::resetReminders)
-
-            SectionHeader(stringResource(R.string.settings_section_greetings))
-            AboutRow(Icons.Outlined.Groups, R.string.settings_groups, R.string.settings_groups_desc, onOpenGroups)
-            AboutRow(Icons.Outlined.Message, R.string.settings_templates, R.string.settings_templates_desc, onOpenTemplates)
-            TextRow(
-                title = stringResource(R.string.settings_self_phone),
-                value = settings.selfPhone,
-                placeholder = stringResource(R.string.settings_not_set),
-                description = stringResource(R.string.settings_self_desc),
-                keyboardType = KeyboardType.Phone,
-                onChange = { v -> viewModel.update { it.copy(selfPhone = v) } },
-            )
-            TextRow(
-                title = stringResource(R.string.settings_self_email),
-                value = settings.selfEmail,
-                placeholder = stringResource(R.string.settings_not_set),
-                keyboardType = KeyboardType.Email,
-                onChange = { v -> viewModel.update { it.copy(selfEmail = v) } },
-            )
-            TextRow(
-                title = stringResource(R.string.settings_country_code),
-                value = settings.countryCode,
-                placeholder = "972",
-                description = stringResource(R.string.settings_country_code_desc),
-                keyboardType = KeyboardType.Number,
-                onChange = { v -> viewModel.update { it.copy(countryCode = v.filter(Char::isDigit).ifEmpty { "972" }) } },
-            )
-            ResetRow(viewModel::resetGreetings)
-
-            SectionHeader(stringResource(R.string.settings_section_security))
-            val deviceSecure = remember { DeviceAuth.isSecure(context) }
-            SwitchRow(
-                title = stringResource(R.string.settings_app_lock),
-                checked = settings.appLockEnabled && deviceSecure,
-                onChange = { v -> viewModel.update { it.copy(appLockEnabled = v) } },
-                description = stringResource(if (deviceSecure) R.string.settings_app_lock_desc else R.string.settings_app_lock_no_device_lock),
-                enabled = deviceSecure,
-            )
-            if (settings.appLockEnabled && deviceSecure) {
+            SectionHeader(stringResource(R.string.settings_section_appearance), open == "appearance") { open = if (open == "appearance") "" else "appearance" }
+            if (open == "appearance") {
                 ChoiceRow(
-                    title = stringResource(R.string.settings_app_lock_timeout),
-                    options = AppLockPolicy.TIMEOUTS_SECONDS.map { it to stringResource(timeoutLabel(it)) },
-                    selected = settings.appLockTimeoutSeconds,
-                    onSelect = { v -> viewModel.update { it.copy(appLockTimeoutSeconds = v) } },
+                    title = stringResource(R.string.settings_theme),
+                    options = ThemeMode.entries.map { it to stringResource(it.labelRes()) },
+                    selected = settings.themeMode,
+                    onSelect = { v -> viewModel.update { it.copy(themeMode = v) } },
+                )
+                SwitchRow(
+                    title = stringResource(R.string.settings_dynamic_color),
+                    description = stringResource(if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) R.string.settings_dynamic_color_desc else R.string.settings_dynamic_color_unsupported),
+                    checked = settings.dynamicColor,
+                    enabled = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S,
+                    onChange = { v -> viewModel.update { it.copy(dynamicColor = v) } },
+                )
+                ResetRow(viewModel::resetAppearance)
+            }
+
+            SectionHeader(stringResource(R.string.settings_section_calendar), open == "calendar") { open = if (open == "calendar") "" else "calendar" }
+            if (open == "calendar") {
+                ChoiceRow(
+                    title = stringResource(R.string.settings_calendar_mode),
+                    options = CalendarMode.entries.map { it to stringResource(it.labelRes()) },
+                    selected = settings.calendarMode,
+                    onSelect = { v -> viewModel.update { it.copy(calendarMode = v) } },
+                )
+                SwitchRow(
+                    title = stringResource(R.string.settings_in_israel),
+                    description = stringResource(R.string.settings_in_israel_desc),
+                    checked = settings.inIsrael,
+                    onChange = { v -> viewModel.update { it.copy(inIsrael = v) } },
+                )
+                SwitchRow(
+                    title = stringResource(R.string.settings_week_starts_sunday),
+                    checked = settings.weekStartsOnSunday,
+                    onChange = { v -> viewModel.update { it.copy(weekStartsOnSunday = v) } },
+                )
+                ResetRow(viewModel::resetCalendar)
+            }
+
+            SectionHeader(stringResource(R.string.settings_section_date_rules), open == "date_rules") { open = if (open == "date_rules") "" else "date_rules" }
+            if (open == "date_rules") {
+                ChoiceRow(
+                    title = stringResource(R.string.settings_rule_adar),
+                    description = stringResource(R.string.settings_rule_adar_desc),
+                    options = AdarInLeapYear.entries.map { it to stringResource(it.labelRes()) },
+                    selected = settings.dateRules.adar,
+                    onSelect = { v -> viewModel.update { it.copy(dateRules = it.dateRules.copy(adar = v)) } },
+                )
+                ChoiceRow(
+                    title = stringResource(R.string.settings_rule_thirtieth),
+                    description = stringResource(R.string.settings_rule_thirtieth_desc),
+                    options = ShortMonthThirtieth.entries.map { it to stringResource(it.labelRes()) },
+                    selected = settings.dateRules.thirtiethOfShortMonth,
+                    onSelect = { v -> viewModel.update { it.copy(dateRules = it.dateRules.copy(thirtiethOfShortMonth = v)) } },
+                )
+                ChoiceRow(
+                    title = stringResource(R.string.settings_rule_leap_day),
+                    description = stringResource(R.string.settings_rule_leap_day_desc),
+                    options = LeapDay.entries.map { it to stringResource(it.labelRes()) },
+                    selected = settings.dateRules.leapDay,
+                    onSelect = { v -> viewModel.update { it.copy(dateRules = it.dateRules.copy(leapDay = v)) } },
+                )
+                ResetRow(viewModel::resetDateRules)
+            }
+
+            SectionHeader(stringResource(R.string.settings_section_reminders), open == "reminders") { open = if (open == "reminders") "" else "reminders" }
+            if (open == "reminders") {
+                SwitchRow(
+                    title = stringResource(R.string.settings_reminders_enabled),
+                    description = stringResource(R.string.settings_reminders_enabled_desc),
+                    checked = settings.remindersEnabled,
+                    onChange = { v -> viewModel.update { it.copy(remindersEnabled = v) } },
+                )
+                ChoiceRow(
+                    title = stringResource(R.string.settings_place),
+                    description = stringResource(R.string.settings_place_desc),
+                    options = Places.ALL.map { it.id to it.nameHe },
+                    selected = settings.placeId,
+                    onSelect = viewModel::setPlace,
+                )
+                ChoiceRow(
+                    title = stringResource(R.string.settings_tzeit),
+                    options = TzeitMethod.entries.map { it to stringResource(it.labelRes()) },
+                    selected = settings.tzeit,
+                    onSelect = { v -> viewModel.update { it.copy(tzeit = v) } },
+                )
+                SwitchRow(
+                    title = stringResource(R.string.settings_daily_summary),
+                    description = stringResource(R.string.settings_daily_summary_desc),
+                    checked = settings.dailySummary,
+                    onChange = { v -> viewModel.update { it.copy(dailySummary = v) } },
+                )
+                if (settings.dailySummary) {
+                    ChoiceRow(
+                        title = stringResource(R.string.settings_daily_summary_hour),
+                        options = SUMMARY_HOURS.map { it to "%02d:00".format(it) },
+                        selected = settings.dailySummaryHour,
+                        onSelect = { v -> viewModel.update { it.copy(dailySummaryHour = v) } },
+                    )
+                }
+                AboutRow(Icons.Outlined.HealthAndSafety, R.string.settings_reminder_health, R.string.settings_reminder_health_desc, onOpenReminderHealth)
+                ResetRow(viewModel::resetReminders)
+            }
+
+            SectionHeader(stringResource(R.string.settings_section_greetings), open == "greetings") { open = if (open == "greetings") "" else "greetings" }
+            if (open == "greetings") {
+                AboutRow(Icons.Outlined.Groups, R.string.settings_groups, R.string.settings_groups_desc, onOpenGroups)
+                AboutRow(Icons.Outlined.Message, R.string.settings_templates, R.string.settings_templates_desc, onOpenTemplates)
+                TextRow(
+                    title = stringResource(R.string.settings_self_phone),
+                    value = settings.selfPhone,
+                    placeholder = stringResource(R.string.settings_not_set),
+                    description = stringResource(R.string.settings_self_desc),
+                    keyboardType = KeyboardType.Phone,
+                    onChange = { v -> viewModel.update { it.copy(selfPhone = v) } },
+                )
+                TextRow(
+                    title = stringResource(R.string.settings_self_email),
+                    value = settings.selfEmail,
+                    placeholder = stringResource(R.string.settings_not_set),
+                    keyboardType = KeyboardType.Email,
+                    onChange = { v -> viewModel.update { it.copy(selfEmail = v) } },
+                )
+                TextRow(
+                    title = stringResource(R.string.settings_country_code),
+                    value = settings.countryCode,
+                    placeholder = "972",
+                    description = stringResource(R.string.settings_country_code_desc),
+                    keyboardType = KeyboardType.Number,
+                    onChange = { v -> viewModel.update { it.copy(countryCode = v.filter(Char::isDigit).ifEmpty { "972" }) } },
+                )
+                ResetRow(viewModel::resetGreetings)
+            }
+
+            SectionHeader(stringResource(R.string.settings_section_security), open == "security") { open = if (open == "security") "" else "security" }
+            if (open == "security") {
+                val deviceSecure = remember { DeviceAuth.isSecure(context) }
+                SwitchRow(
+                    title = stringResource(R.string.settings_app_lock),
+                    checked = settings.appLockEnabled && deviceSecure,
+                    onChange = { v -> viewModel.update { it.copy(appLockEnabled = v) } },
+                    description = stringResource(if (deviceSecure) R.string.settings_app_lock_desc else R.string.settings_app_lock_no_device_lock),
+                    enabled = deviceSecure,
+                )
+                if (settings.appLockEnabled && deviceSecure) {
+                    ChoiceRow(
+                        title = stringResource(R.string.settings_app_lock_timeout),
+                        options = AppLockPolicy.TIMEOUTS_SECONDS.map { it to stringResource(timeoutLabel(it)) },
+                        selected = settings.appLockTimeoutSeconds,
+                        onSelect = { v -> viewModel.update { it.copy(appLockTimeoutSeconds = v) } },
+                    )
+                }
+                SwitchRow(
+                    title = stringResource(R.string.settings_hide_content),
+                    checked = settings.hideContent,
+                    onChange = { v -> viewModel.update { it.copy(hideContent = v) } },
+                    description = stringResource(R.string.settings_hide_content_desc),
+                )
+                SwitchRow(
+                    title = stringResource(R.string.settings_hide_widget_details),
+                    checked = settings.hideWidgetDetails,
+                    onChange = { v -> viewModel.update { it.copy(hideWidgetDetails = v) } },
+                    description = stringResource(R.string.settings_hide_widget_details_desc),
+                )
+                Text(stringResource(R.string.settings_privacy_note), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp))
+            }
+
+            SectionHeader(stringResource(R.string.settings_section_backup), open == "backup") { open = if (open == "backup") "" else "backup" }
+            if (open == "backup") {
+                AboutRow(Icons.Outlined.Print, R.string.settings_print, R.string.settings_print_desc, onOpenPrint)
+                AboutRow(Icons.Outlined.Backup, R.string.settings_backup, R.string.settings_backup_desc, onOpenBackup)
+                AboutRow(Icons.Outlined.Sync, R.string.settings_calsync, R.string.settings_calsync_desc, onOpenCalendarSync)
+            }
+
+            SectionHeader(stringResource(R.string.settings_section_general), open == "general") { open = if (open == "general") "" else "general" }
+            if (open == "general") {
+                AboutRow(Icons.AutoMirrored.Outlined.MenuBook, R.string.settings_guide, R.string.settings_guide_desc, onOpenGuide)
+                AboutRow(Icons.Outlined.Contacts, R.string.settings_import_contacts, R.string.settings_import_contacts_desc, onImportContacts)
+                AboutRow(Icons.Outlined.NewReleases, R.string.settings_whats_new, null) { showWhatsNew = true }
+                AboutRow(Icons.Outlined.BugReport, R.string.settings_logs, R.string.settings_logs_desc, onOpenLogs)
+                AboutRow(Icons.Outlined.RestartAlt, R.string.settings_reset_all, R.string.settings_reset_all_desc) { confirmResetAll = true }
+                ListItem(
+                    leadingContent = { Icon(Icons.Outlined.Info, contentDescription = null) },
+                    headlineContent = { Text(stringResource(R.string.settings_about)) },
+                    supportingContent = { Text(stringResource(R.string.settings_version, BuildConfig.VERSION_NAME, BuildConfig.VERSION_CODE)) },
                 )
             }
-            SwitchRow(
-                title = stringResource(R.string.settings_hide_content),
-                checked = settings.hideContent,
-                onChange = { v -> viewModel.update { it.copy(hideContent = v) } },
-                description = stringResource(R.string.settings_hide_content_desc),
-            )
-            SwitchRow(
-                title = stringResource(R.string.settings_hide_widget_details),
-                checked = settings.hideWidgetDetails,
-                onChange = { v -> viewModel.update { it.copy(hideWidgetDetails = v) } },
-                description = stringResource(R.string.settings_hide_widget_details_desc),
-            )
-            Text(stringResource(R.string.settings_privacy_note), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp))
-
-            SectionHeader(stringResource(R.string.settings_section_backup))
-            AboutRow(Icons.Outlined.Print, R.string.settings_print, R.string.settings_print_desc, onOpenPrint)
-            AboutRow(Icons.Outlined.Backup, R.string.settings_backup, R.string.settings_backup_desc, onOpenBackup)
-            AboutRow(Icons.Outlined.Sync, R.string.settings_calsync, R.string.settings_calsync_desc, onOpenCalendarSync)
-
-            SectionHeader(stringResource(R.string.settings_section_general))
-            AboutRow(Icons.AutoMirrored.Outlined.MenuBook, R.string.settings_guide, R.string.settings_guide_desc, onOpenGuide)
-            AboutRow(Icons.Outlined.Contacts, R.string.settings_import_contacts, R.string.settings_import_contacts_desc, onImportContacts)
-            AboutRow(Icons.Outlined.NewReleases, R.string.settings_whats_new, null) { showWhatsNew = true }
-            AboutRow(Icons.Outlined.BugReport, R.string.settings_logs, R.string.settings_logs_desc, onOpenLogs)
-            AboutRow(Icons.Outlined.RestartAlt, R.string.settings_reset_all, R.string.settings_reset_all_desc) { confirmResetAll = true }
-            ListItem(
-                leadingContent = { Icon(Icons.Outlined.Info, contentDescription = null) },
-                headlineContent = { Text(stringResource(R.string.settings_about)) },
-                supportingContent = { Text(stringResource(R.string.settings_version, BuildConfig.VERSION_NAME, BuildConfig.VERSION_CODE)) },
-            )
         }
     }
     if (showWhatsNew) WhatsNewDialog(onDismiss = { showWhatsNew = false })
@@ -261,3 +294,5 @@ private fun timeoutLabel(seconds: Int): Int = when (seconds) {
     60 -> R.string.lock_timeout_60
     else -> R.string.lock_timeout_300
 }
+
+private val SUMMARY_HOURS = listOf(6, 7, 8, 9, 10, 12, 18, 20)
