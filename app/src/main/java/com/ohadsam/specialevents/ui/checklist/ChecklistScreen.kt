@@ -50,6 +50,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ohadsam.specialevents.R
+import com.ohadsam.specialevents.ui.common.EventUnavailable
 import com.ohadsam.specialevents.domain.checklist.Checklist
 import com.ohadsam.specialevents.domain.checklist.ChecklistItem
 import com.ohadsam.specialevents.domain.checklist.ChecklistKind
@@ -85,7 +86,10 @@ fun ChecklistScreen(viewModel: ChecklistViewModel, onBack: () -> Unit) {
             )
         },
     ) { padding ->
-        if (state.event == null) return@Scaffold
+        if (state.event == null) {
+            EventUnavailable(state.loading, padding)
+            return@Scaffold
+        }
         LazyColumn(Modifier.fillMaxSize().padding(padding), contentPadding = androidx.compose.foundation.layout.PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
             item {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {

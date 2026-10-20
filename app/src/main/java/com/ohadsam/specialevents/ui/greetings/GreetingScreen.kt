@@ -47,6 +47,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ohadsam.specialevents.R
+import com.ohadsam.specialevents.ui.common.EventUnavailable
 import com.ohadsam.specialevents.data.GreetingSent
 import com.ohadsam.specialevents.data.SendChannel
 import com.ohadsam.specialevents.greetings.GreetingSender
@@ -88,7 +89,10 @@ fun GreetingScreen(viewModel: GreetingViewModel, onBack: () -> Unit) {
             )
         },
     ) { padding ->
-        if (event == null) return@Scaffold
+        if (event == null) {
+            EventUnavailable(state.loading, padding)
+            return@Scaffold
+        }
         Column(
             Modifier.fillMaxSize().padding(padding).imePadding().verticalScroll(rememberScrollState()).padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(14.dp),

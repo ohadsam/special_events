@@ -43,6 +43,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ohadsam.specialevents.R
+import com.ohadsam.specialevents.ui.common.EventUnavailable
 import com.ohadsam.specialevents.data.prefs.AppSettings
 import com.ohadsam.specialevents.domain.SpecialEvent
 import com.ohadsam.specialevents.domain.reminders.ReminderEngine
@@ -99,7 +100,10 @@ fun EventRemindersScreen(viewModel: EventRemindersViewModel, onBack: () -> Unit)
             }
         },
     ) { padding ->
-        if (event == null) return@Scaffold
+        if (event == null) {
+            EventUnavailable(state.loading, padding)
+            return@Scaffold
+        }
         LazyColumn(
             Modifier.fillMaxSize().padding(padding),
             contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 96.dp),

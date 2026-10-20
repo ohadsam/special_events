@@ -57,6 +57,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ohadsam.specialevents.R
+import com.ohadsam.specialevents.ui.common.EventUnavailable
 import com.ohadsam.specialevents.calendar.ParshaNames
 import com.ohadsam.specialevents.domain.Gender
 import com.ohadsam.specialevents.domain.UpcomingItem
@@ -130,7 +131,10 @@ fun DetailScreen(viewModel: DetailViewModel, onBack: () -> Unit, onEdit: () -> U
             )
         },
     ) { padding ->
-        if (event == null) return@Scaffold
+        if (event == null) {
+            EventUnavailable(state.loading, padding)
+            return@Scaffold
+        }
         val mode = state.settings.calendarMode
         Column(
             Modifier.fillMaxSize().padding(padding).verticalScroll(rememberScrollState()).padding(16.dp),

@@ -71,6 +71,8 @@ Read order: CLAUDE.md → docs/PLAN.md → STRUCTURE.md → the batch's section 
 
 - v0.30.0: widget shortcuts (tap a day in the month widget = new event on that date; "greeting" link on today's rows of the upcoming widget). Unverified on device: tap targets of 42 day cells, PendingIntent uniqueness of per-day routes.
 
+- v0.30.1: EventUnavailable (spinner while loading, "event not found" when gone) on detail/reminders/checklist/greeting. EditorViewModel still turns a missing id into a new form (not changed).
+
 ## Known issues / open items (need the owner)
 - Feature spec for "אירועים מיוחדים" not yet provided → fill `docs/SPEC.md`, then define batches in `docs/PLAN.md`.
 - **Signing key:** `app/sideload.jks` (password in app/build.gradle.kts) is committed on purpose so every CI build updates in place; NOT a store key. Never change it after users installed the app.
