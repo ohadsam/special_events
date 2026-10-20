@@ -394,6 +394,12 @@
     <string name="settings_hide_widget_details">הסתרת פרטים בווידג׳טים</string>
     <string name="settings_hide_widget_details_desc">הווידג׳טים יציגו ״אירוע״ במקום שמות ופריטי רשימה, כך שלא יהיה אפשר לקרוא אותם במסך הבית כשהטלפון נעול</string>
     <string name="widget_hidden_title">אירוע</string>
+    <string name="event_deleted">האירוע ״%1$s״ נמחק</string>
+    <string name="checklist_start_over_body">כל הסימונים ברשימה יתאפסו, והמשימות יישארו.</string>
+    <string name="template_delete_title">למחוק את התבנית?</string>
+    <string name="template_delete_body">התבנית ״%1$s״ תימחק ולא ניתן יהיה לשחזר אותה.</string>
+    <string name="template_delete_action">מחיקה</string>
+    <string name="permission_denied">ההרשאה לא ניתנה — אפשר לאשר אותה בהגדרות המכשיר ← אפליקציות</string>
     <string name="event_not_found">האירוע לא נמצא — ייתכן שנמחק</string>
     <string name="widget_greet">ברכה</string>
     <string name="save_failed">הפעולה נכשלה — נסו שוב</string>

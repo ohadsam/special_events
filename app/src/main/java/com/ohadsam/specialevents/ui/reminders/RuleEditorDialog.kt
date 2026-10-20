@@ -47,6 +47,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.content.IntentCompat
 import com.ohadsam.specialevents.R
+import com.ohadsam.specialevents.ui.common.permissionDeniedToast
 import com.ohadsam.specialevents.calendar.Tier
 import com.ohadsam.specialevents.data.prefs.AppSettings
 import com.ohadsam.specialevents.domain.SpecialEvent
@@ -84,7 +85,10 @@ fun RuleEditorDialog(
         val uri = result.data?.let { IntentCompat.getParcelableExtra(it, RingtoneManager.EXTRA_RINGTONE_PICKED_URI, Uri::class.java) }
         if (result.resultCode == Activity.RESULT_OK && uri != null) rule = rule.copy(profileKey = SoundProfile.custom(uri.toString()).key)
     }
-    val smsPermission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted -> rule = rule.copy(autoSend = granted) }
+    val smsPermission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+        rule = rule.copy(autoSend = granted)
+        if (!granted) permissionDeniedToast(context)
+    }
     val profile = SoundProfile.fromKey(rule.profileKey)
     val isCustom = profile.key !in SoundProfile.BUILT_IN.map { it.key }
 

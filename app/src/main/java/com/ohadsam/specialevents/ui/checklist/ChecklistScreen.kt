@@ -66,6 +66,7 @@ fun ChecklistScreen(viewModel: ChecklistViewModel, onBack: () -> Unit) {
     val scope = rememberCoroutineScope()
     var editing by remember { mutableStateOf<ChecklistItem?>(null) }
     var menu by remember { mutableStateOf(false) }
+    var confirmStartOver by remember { mutableStateOf(false) }
     val removedText = stringResource(R.string.checklist_removed)
     val undoText = stringResource(R.string.action_undo)
 
@@ -80,12 +81,26 @@ fun ChecklistScreen(viewModel: ChecklistViewModel, onBack: () -> Unit) {
                     IconButton(onClick = { menu = true }) { Icon(Icons.Outlined.MoreVert, contentDescription = stringResource(R.string.action_more)) }
                     DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
                         DropdownMenuItem(text = { Text(stringResource(R.string.checklist_add_template)) }, onClick = { menu = false; viewModel.addTemplate() })
-                        DropdownMenuItem(text = { Text(stringResource(R.string.checklist_start_over)) }, onClick = { menu = false; viewModel.startOver() })
+                        DropdownMenuItem(text = { Text(stringResource(R.string.checklist_start_over)) }, onClick = { menu = false; confirmStartOver = true })
                     }
                 },
             )
         },
     ) { padding ->
+        if (confirmStartOver) {
+            AlertDialog(
+                onDismissRequest = { confirmStartOver = false },
+                title = { Text(stringResource(R.string.checklist_start_over)) },
+                text = { Text(stringResource(R.string.checklist_start_over_body)) },
+                confirmButton = {
+                    TextButton(onClick = {
+                        confirmStartOver = false
+                        viewModel.startOver()
+                    }) { Text(stringResource(R.string.checklist_start_over)) }
+                },
+                dismissButton = { TextButton(onClick = { confirmStartOver = false }) { Text(stringResource(R.string.action_cancel)) } },
+            )
+        }
         if (state.event == null) {
             EventUnavailable(state.loading, padding)
             return@Scaffold

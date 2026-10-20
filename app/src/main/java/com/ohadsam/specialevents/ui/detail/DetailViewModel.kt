@@ -67,8 +67,10 @@ class DetailViewModel(private val container: AppContainer, private val eventId: 
     fun delete() {
         viewModelScope.launch {
             val photo = state.value.event?.photoUri
+            val deleted = container.undoDelete.capture(eventId)
             container.events.delete(eventId)
-            PhotoStore.delete(photo)
+            // With an Undo on offer the photo file stays until the offer is gone (the app root deletes it then).
+            if (deleted == null) PhotoStore.delete(photo) else container.undoDelete.notices.tryEmit(deleted)
         }
     }
 

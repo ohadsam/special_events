@@ -71,6 +71,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ohadsam.specialevents.R
+import com.ohadsam.specialevents.ui.common.EventUnavailable
 import com.ohadsam.specialevents.calendar.CalendarBasis
 import com.ohadsam.specialevents.domain.EditorDate
 import com.ohadsam.specialevents.domain.EventType
@@ -115,7 +116,10 @@ fun EditorScreen(viewModel: EditorViewModel, onClose: () -> Unit, onSaved: (Long
             )
         },
     ) { padding ->
-        if (state.loading) return@Scaffold
+        if (state.loading || state.notFound) {
+            EventUnavailable(state.loading, padding)
+            return@Scaffold
+        }
         Column(
             Modifier.fillMaxSize().padding(padding).imePadding().verticalScroll(rememberScrollState()).padding(horizontal = 16.dp, vertical = 8.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),

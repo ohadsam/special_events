@@ -7,6 +7,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -14,6 +18,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.platform.LocalContext
+import com.ohadsam.specialevents.R
+import com.ohadsam.specialevents.contacts.PhotoStore
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -94,6 +101,23 @@ private fun AppScaffold(container: AppContainer, nav: NavHostController, pending
             onDismiss = { finishOnboarding() },
         )
     }
+    val snackbar = remember { SnackbarHostState() }
+    val appContext = LocalContext.current
+    LaunchedEffect(Unit) {
+        container.undoDelete.notices.collect { deleted ->
+            val result = snackbar.showSnackbar(
+                message = appContext.getString(R.string.event_deleted, deleted.title),
+                actionLabel = appContext.getString(R.string.action_undo),
+                withDismissAction = true,
+                duration = SnackbarDuration.Long,
+            )
+            if (result == SnackbarResult.ActionPerformed) {
+                runCatching { container.undoDelete.restore(deleted) }.onFailure { container.logger.w("Undo", "restore failed", it) }
+            } else {
+                PhotoStore.delete(deleted.photoUri)
+            }
+        }
+    }
     val backStack by nav.currentBackStackEntryAsState()
     val currentRoute = backStack?.destination?.route
     val showBar = TopLevel.entries.any { it.route == currentRoute }
@@ -101,6 +125,7 @@ private fun AppScaffold(container: AppContainer, nav: NavHostController, pending
     Scaffold(
         // Insets are handled by the bottom bar and by each screen's own Scaffold; avoid double padding.
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
+        snackbarHost = { SnackbarHost(snackbar) },
         bottomBar = {
             if (showBar) {
                 NavigationBar {

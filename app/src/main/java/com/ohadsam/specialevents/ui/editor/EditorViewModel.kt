@@ -33,6 +33,8 @@ import kotlinx.coroutines.withContext
 
 data class EditorState(
     val loading: Boolean = true,
+    /** An existing event was asked for but is gone (deleted elsewhere): show a message, never a blank form that would create a new one. */
+    val notFound: Boolean = false,
     val isNew: Boolean = true,
     val type: EventType = EventType.BIRTHDAY,
     val title: String = "",
@@ -82,7 +84,9 @@ class EditorViewModel(private val container: AppContainer, private val eventId: 
             val memberOf = if (eventId != 0L) container.groups.groupsOf(eventId).map { it.id }.toSet() else emptySet()
             val event = if (eventId != 0L) container.events.get(eventId) else null
             original = event
-            _state.value = if (event == null) {
+            _state.value = if (event == null && eventId != 0L) {
+                _state.value.copy(loading = false, notFound = true)
+            } else if (event == null) {
                 _state.value.copy(loading = false, knownTags = tags, allGroups = allGroups, date = initialDate?.let { EditorDate.today(it) } ?: _state.value.date)
             } else {
                 val today = LocalDate.now()

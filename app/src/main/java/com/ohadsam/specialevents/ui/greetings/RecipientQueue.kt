@@ -30,6 +30,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import com.ohadsam.specialevents.R
+import com.ohadsam.specialevents.ui.common.permissionDeniedToast
 import com.ohadsam.specialevents.data.SendChannel
 import com.ohadsam.specialevents.domain.groups.Recipient
 import com.ohadsam.specialevents.greetings.GreetingSender
@@ -43,7 +44,7 @@ import com.ohadsam.specialevents.greetings.GreetingSender
 fun RecipientQueue(state: GreetingState, viewModel: GreetingViewModel, subject: String, notFound: () -> Unit) {
     val context = LocalContext.current
     val list = state.list
-    val askPermission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted -> if (granted) viewModel.askSmsAll(true) }
+    val askPermission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted -> if (granted) viewModel.askSmsAll(true) else permissionDeniedToast(context) }
     val smsCount = list.recipients.count { it.phone != null && it.key !in list.done }
 
     fun send(r: Recipient, channel: SendChannel) {

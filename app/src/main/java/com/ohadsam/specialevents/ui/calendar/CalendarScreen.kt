@@ -20,12 +20,11 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
-import androidx.compose.material.icons.outlined.EditCalendar
 import androidx.compose.material.icons.outlined.MoreVert
-import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.Today
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
@@ -83,11 +82,12 @@ private fun CalendarContent(state: CalendarState, vm: CalendarViewModel, onOpenE
                 actions = {
                     HelpButton(HelpTopic.CALENDAR)
                     TooltipIconButton(onClick = vm::goToday, icon = Icons.Outlined.Today, description = stringResource(R.string.calendar_today))
-                    TooltipIconButton(onClick = { jumpingToEvent = true }, icon = Icons.Outlined.Search, description = stringResource(R.string.calendar_jump_event))
-                    TooltipIconButton(onClick = { picking = true }, icon = Icons.Outlined.EditCalendar, description = stringResource(R.string.calendar_jump))
                     Box {
                         TooltipIconButton(onClick = { menuOpen = true }, icon = Icons.Outlined.MoreVert, description = stringResource(R.string.action_more))
                         DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
+                            DropdownMenuItem(text = { Text(stringResource(R.string.calendar_jump_event)) }, onClick = { menuOpen = false; jumpingToEvent = true })
+                            DropdownMenuItem(text = { Text(stringResource(R.string.calendar_jump)) }, onClick = { menuOpen = false; picking = true })
+                            HorizontalDivider()
                             LayerItem(R.string.calendar_layer_events, prefs.showEvents, vm::toggleEvents)
                             LayerItem(R.string.calendar_layer_holidays, prefs.showHolidays, vm::toggleHolidays)
                             LayerItem(R.string.calendar_layer_parsha, prefs.showParsha, vm::toggleParsha)

@@ -55,6 +55,7 @@ class AppContainer(private val context: Context) {
 
     val groups: GroupRepository by lazy { GroupRepository(database) }
 
+    val undoDelete: com.ohadsam.specialevents.data.UndoDelete by lazy { com.ohadsam.specialevents.data.UndoDelete(backups, events) }
     val backups: BackupRepository by lazy { BackupRepository(database, events, reminders, checklists, greetings, groups) }
 
     val settings: SettingsRepository = SettingsRepository(

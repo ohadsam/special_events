@@ -24,12 +24,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.ohadsam.specialevents.R
+import com.ohadsam.specialevents.ui.common.permissionDeniedToast
 
 /** Record a voice greeting, listen to it and hand it to WhatsApp. The microphone is only asked for when the user taps record. */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun VoiceSection(state: GreetingState, viewModel: GreetingViewModel, onSend: () -> Unit) {
-    val permission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted -> if (granted) viewModel.startRecording() }
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val permission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted -> if (granted) viewModel.startRecording() else permissionDeniedToast(context) }
     Column(verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
         Text(stringResource(R.string.greeting_voice), style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.primary)
         if (state.recording) {

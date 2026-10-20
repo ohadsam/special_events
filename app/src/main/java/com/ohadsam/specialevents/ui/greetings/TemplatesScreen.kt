@@ -67,6 +67,7 @@ private val SAMPLE = GreetingContext("דנה", age = 40, years = 25, relation = 
 fun TemplatesScreen(viewModel: TemplatesViewModel, onBack: () -> Unit) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     var editing by remember { mutableStateOf<GreetingTemplate?>(null) }
+    var deleting by remember { mutableStateOf<GreetingTemplate?>(null) }
     val shown = state.shown
     Scaffold(
         topBar = {
@@ -128,12 +129,26 @@ fun TemplatesScreen(viewModel: TemplatesViewModel, onBack: () -> Unit) {
             },
             onDelete = if (t.id > 0) {
                 {
-                    viewModel.delete(t)
+                    deleting = t
                     editing = null
                 }
             } else {
                 null
             },
+        )
+    }
+    deleting?.let { t ->
+        AlertDialog(
+            onDismissRequest = { deleting = null },
+            title = { Text(stringResource(R.string.template_delete_title)) },
+            text = { Text(stringResource(R.string.template_delete_body, t.name)) },
+            confirmButton = {
+                TextButton(onClick = {
+                    viewModel.delete(t)
+                    deleting = null
+                }) { Text(stringResource(R.string.template_delete_action), color = MaterialTheme.colorScheme.error) }
+            },
+            dismissButton = { TextButton(onClick = { deleting = null }) { Text(stringResource(R.string.action_cancel)) } },
         )
     }
 }
