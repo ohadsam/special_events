@@ -17,7 +17,7 @@ class UpdateMathTest {
 
     @Test fun rejectsBrokenOrHostileManifests() {
         for (bad in listOf("", "{", "[]", manifest().replace("250", "0"), manifest().replace(sha, "xyz"),
-            manifest().replace("0.2.0", "<script>"), manifest().replace("\"versionName\":\"0.2.0\",", ""), "x".repeat(20_000))) assertNull(UpdateMath.parse(bad), bad.take(40))
+            manifest().replace("0.2.0", "<script>"), manifest().replace("\"versionName\":\"0.2.0\",", ""), "x".repeat(20_000))) assertNull(bad.take(40), UpdateMath.parse(bad))
     }
 
     @Test fun foreignApkUrlFallsBackToTheOfficialOne() {
@@ -30,7 +30,7 @@ class UpdateMathTest {
         assertTrue(UpdateMath.validUrl("https://objects.githubusercontent.com/github-production/abc?X=1"))
         assertTrue(UpdateMath.validUrl("https://release-assets.githubusercontent.com/a/b"))
         for (bad in listOf("http://github.com/a", "https://github.com.evil.com/a", "https://evilgithub.com/a", "https://user@github.com/a", "https://github.com:8443/a", "https://evil.com/github.com", "ftp://github.com/a", "", "https://"))
-            assertFalse(UpdateMath.validUrl(bad), bad)
+            assertFalse(bad, UpdateMath.validUrl(bad))
     }
 
     @Test fun versionOrderAndHashCheck() {
