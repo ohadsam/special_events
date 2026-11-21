@@ -3,6 +3,8 @@
 
     <!-- Permissions are added by the batch that needs them, each with an in-app explanation (see docs/SPEC.md S14). -->
     <!-- Reminders (batch 5): show notifications, ring at the exact minute, come back after a reboot, vibrate. -->
+    <!-- In-app update: lets this app hand its own newer APK (same signing key) to the system installer as an update. -->
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
@@ -25,6 +27,12 @@
         <package android:name="com.whatsapp" />
         <package android:name="com.whatsapp.w4b" />
     </queries>
+
+    <permission
+        android:name="com.ohadsam.specialevents.permission.READ_UPCOMING"
+        android:description="@string/perm_read_upcoming_desc"
+        android:label="@string/perm_read_upcoming_label"
+        android:protectionLevel="dangerous" />
 
     <application
         android:name=".SpecialEventsApp"
@@ -56,6 +64,17 @@
                 <data android:pathPattern=".*\\.sevents" />
             </intent-filter>
         </activity>
+
+        <!-- Result of an in-app update; not exported. -->
+        <receiver android:name=".update.InstallReceiver" android:exported="false" />
+
+        <!-- Read-only list of upcoming events for other apps (ClockWise). Guarded by a dangerous permission the user must grant to the other app;
+             names are replaced by a generic text when "hide details" is on. See docs/PUBLIC_API.md. -->
+        <provider
+            android:name=".publicapi.UpcomingProvider"
+            android:authorities="${applicationId}.public"
+            android:exported="true"
+            android:readPermission="com.ohadsam.specialevents.permission.READ_UPCOMING" />
 
         <provider
             android:name="androidx.core.content.FileProvider"

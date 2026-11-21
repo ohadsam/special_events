@@ -242,6 +242,8 @@ fun SettingsScreen(viewModel: SettingsViewModel, onOpenLogs: () -> Unit, onOpenR
                 AboutRow(Icons.Outlined.Sync, R.string.settings_calsync, R.string.settings_calsync_desc, onOpenCalendarSync)
             }
 
+            SectionHeader(stringResource(R.string.settings_section_updates), open == "updates") { open = if (open == "updates") "" else "updates" }
+            if (open == "updates") UpdatesContent()
             SectionHeader(stringResource(R.string.settings_section_general), open == "general") { open = if (open == "general") "" else "general" }
             if (open == "general") {
                 AboutRow(Icons.AutoMirrored.Outlined.MenuBook, R.string.settings_guide, R.string.settings_guide_desc, onOpenGuide)

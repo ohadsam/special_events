@@ -44,9 +44,20 @@ jobs:
           VER=$(grep -m1 'versionName' app/build.gradle.kts | sed -E 's/.*"([^"]+)".*/\1/')
           SHA=$(git rev-parse --short HEAD)
           SRC=$(ls app/build/outputs/apk/release/*.apk | head -1)
-          APK="SpecialEvents-v${VER}-${SHA}.apk"
-          cp "$SRC" "$APK"
+          CODE=$((100 + $(git rev-list --count HEAD)))
+          cp "$SRC" SpecialEvents.apk
+          HASH=$(sha256sum SpecialEvents.apk | cut -d' ' -f1)
+          echo "$HASH  SpecialEvents.apk" > SpecialEvents.apk.sha256
+          NOTES=$(python3 -c "import json;print(' '.join(json.load(open('app/src/main/assets/whatsnew.json'))['items'])[:380])")
+          python3 - "$VER" "$CODE" "$SHA" "$HASH" "$GITHUB_REPOSITORY" "$NOTES" <<'PY'
+          import json, sys
+          v, code, sha, h, repo, notes = sys.argv[1:7]
+          json.dump({"versionName": v, "versionCode": int(code), "sha": sha, "sha256": h,
+                     "apk": f"https://github.com/{repo}/releases/download/latest/SpecialEvents.apk", "notes": notes}, open("version.json", "w"), ensure_ascii=False)
+          print("version.json ok", v, code)
+          PY
           gh release delete latest --yes --cleanup-tag || true
-          gh release create latest "$APK" --prerelease --target "$GITHUB_SHA" \
+          # stable file names so the in-app updater (Settings -> Updates) finds them
+          gh release create latest SpecialEvents.apk SpecialEvents.apk.sha256 version.json --prerelease --target "$GITHUB_SHA" \
             --title "Latest build v${VER} (${SHA})" \
             --notes "Automatic build of main @ ${SHA}. Sideload-signed: installs over any previous build of this app."

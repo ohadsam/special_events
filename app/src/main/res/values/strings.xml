@@ -871,4 +871,25 @@
     <string name="templates_preview">תצוגה מקדימה (דוגמה)</string>
     <string name="settings_templates">תבניות ברכה</string>
     <string name="settings_templates_desc">ברכות מוכנות ותבניות משלכם עם שם, גיל, תאריך ופרשה</string>
+    <string name="update_check">בדוק עדכונים</string>
+    <string name="update_checking">בודק...</string>
+    <string name="update_up_to_date">הגרסה שלך (%1$s) עדכנית</string>
+    <string name="update_available">גרסה חדשה זמינה: %1$s</string>
+    <string name="update_download">הורד ואמת</string>
+    <string name="update_downloading">מוריד... %1$d%%</string>
+    <string name="update_ready">גרסה %1$s מוכנה להתקנה (אומתה)</string>
+    <string name="update_install">התקן עדכון</string>
+    <string name="update_allow">אפשר התקנה מהאפליקציה</string>
+    <string name="update_allow_hint">אנדרואיד ידרוש לאשר פעם אחת "התקנת אפליקציות לא מוכרות" עבור ClockWise. אחרי האישור חזור לכאן ולחץ שוב.</string>
+    <string name="update_network_error">אין חיבור לשרת העדכונים. נסה שוב בעוד רגע.</string>
+    <string name="update_manifest_error">קובץ הגרסה בשרת אינו תקין.</string>
+    <string name="update_download_error">ההורדה נכשלה או שהקובץ אינו תואם לחתימת ה-SHA256.</string>
+    <string name="update_verify_error">הקובץ שהורד אינו עדכון תקף של ClockWise (חבילה, גרסה או מפתח חתימה שונים) ולא יותקן.</string>
+    <string name="update_install_error">ההתקנה לא הצליחה להתחיל.</string>
+    <string name="update_last_failed">ניסיון ההתקנה הקודם נכשל.</string>
+    <string name="updates_hint">בדיקה והתקנה ישירות מהאפליקציה, מול הגרסה האחרונה ב-GitHub. העדכון מותקן מעל הקיים, וההגדרות נשמרות.</string>
+    <string name="settings_section_updates">עדכונים</string>
+    <string name="settings_updates_version">גרסה מותקנת: %1$s</string>
+    <string name="perm_read_upcoming_label">קריאת האירועים הקרובים</string>
+    <string name="perm_read_upcoming_desc">מאפשר לאפליקציה אחרת (למשל ClockWise) לקרוא את רשימת האירועים הקרובים: כותרת, סוג ותאריך. השמות מוסתרים אם הפעלת הסתרת פרטים.</string>
 </resources>

@@ -3,6 +3,7 @@
 Read order: CLAUDE.md → docs/PLAN.md → STRUCTURE.md → the batch's section in docs/SPEC.md.
 
 ## Recently done
+- v0.32.0: in-app update (Settings -> Updates; `latest` release now has stable `SpecialEvents.apk`, `.sha256`, `version.json`) and the read-only public provider for ClockWise (`docs/PUBLIC_API.md`). Not verifiable here (device): installer prompt, permission dialog for READ_UPCOMING, provider read from ClockWise.
 - Bootstrap: dev setup (CI workflows, ktlint/detekt config, editorconfig) and reusable skills `android-native-dev` + `release-checklist` copied from the Tehilim_Daily / ExtendedFileManager practice.
 
 - v0.1.0 (batch 0): app shell + CI green. Unverified on a device: visuals/RTL of the shell, launcher icon look, edge-to-edge insets.
