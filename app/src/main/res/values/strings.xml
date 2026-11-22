@@ -892,4 +892,8 @@
     <string name="settings_updates_version">גרסה מותקנת: %1$s</string>
     <string name="perm_read_upcoming_label">קריאת האירועים הקרובים</string>
     <string name="perm_read_upcoming_desc">מאפשר לאפליקציה אחרת (למשל ClockWise) לקרוא את רשימת האירועים הקרובים: כותרת, סוג ותאריך. השמות מוסתרים אם הפעלת הסתרת פרטים.</string>
+    <string name="share_link_title">שיתוף קישור להורדה</string>
+    <string name="share_link_message">אירועים מיוחדים - ימי הולדת, אירועים, ברכות ותזכורות. הורדה והתקנה: %1$s</string>
+    <string name="share_link_whatsapp">שלח בוואטסאפ</string>
+    <string name="share_link_email">שלח במייל</string>
 </resources>

@@ -24,6 +24,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.ohadsam.specialevents.R
 import com.ohadsam.specialevents.update.RemoteVersion
+import com.ohadsam.specialevents.update.UpdateMath
 import com.ohadsam.specialevents.update.Updater
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -94,5 +95,18 @@ fun UpdatesContent() {
                 }, modifier = Modifier.heightIn(min = 48.dp)) { Text(stringResource(if (Updater.canInstall(ctx)) R.string.update_install else R.string.update_allow)) }
             }
         }
+        Text(stringResource(R.string.share_link_title), style = MaterialTheme.typography.titleSmall)
+        val message = stringResource(R.string.share_link_message, UpdateMath.RELEASE_PAGE)
+        androidx.compose.material3.OutlinedButton(onClick = {
+            val send = Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_TEXT, message).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            try { ctx.startActivity(Intent(send).setPackage("com.whatsapp")) } catch (_: android.content.ActivityNotFoundException) {
+                try { ctx.startActivity(Intent(send).setPackage("com.whatsapp.w4b")) } catch (_: android.content.ActivityNotFoundException) { ctx.startActivity(Intent.createChooser(send, null).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) }
+            }
+        }, modifier = Modifier.heightIn(min = 48.dp)) { Text(stringResource(R.string.share_link_whatsapp)) }
+        val subject = stringResource(R.string.app_name)
+        androidx.compose.material3.OutlinedButton(onClick = {
+            val mail = Intent(Intent.ACTION_SENDTO, android.net.Uri.parse("mailto:")).putExtra(Intent.EXTRA_SUBJECT, subject).putExtra(Intent.EXTRA_TEXT, message)
+            try { ctx.startActivity(Intent.createChooser(mail, null).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) } catch (_: android.content.ActivityNotFoundException) { }
+        }, modifier = Modifier.heightIn(min = 48.dp)) { Text(stringResource(R.string.share_link_email)) }
     }
 }
