@@ -44,6 +44,11 @@ data class AppSettings(
     /** Home-screen widgets show "an event" instead of names and checklist items, so nothing private is readable on a locked phone. */
     val hideWidgetDetails: Boolean = false,
     /** A morning notification listing today's and tomorrow's events, at [dailySummaryHour]:00. */
+    /** Look for a newer build once a day when the app opens (only the project's release page is contacted). */
+    val autoUpdateCheck: Boolean = true,
+    val lastUpdateCheckAt: Long = 0,
+    /** The version the user chose "later" for, so it is not offered again on every start. */
+    val dismissedUpdateVersion: String = "",
     val dailySummary: Boolean = false,
     val dailySummaryHour: Int = 8,
     /** Automatic backup: the folder the user picked (a persisted SAF tree URI, empty = none), how often in days (0 = off), copies to keep. */

@@ -31,6 +31,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -57,13 +58,19 @@ import com.ohadsam.specialevents.ui.common.labelRes
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsScreen(viewModel: SettingsViewModel, onOpenLogs: () -> Unit, onOpenReminderHealth: () -> Unit, onImportContacts: () -> Unit, onOpenTemplates: () -> Unit, onOpenBackup: () -> Unit, onOpenCalendarSync: () -> Unit, onOpenGroups: () -> Unit, onOpenGuide: () -> Unit, onOpenPrint: () -> Unit) {
+fun SettingsScreen(viewModel: SettingsViewModel, onOpenLogs: () -> Unit, onOpenReminderHealth: () -> Unit, onImportContacts: () -> Unit, onOpenTemplates: () -> Unit, onOpenBackup: () -> Unit, onOpenCalendarSync: () -> Unit, onOpenGroups: () -> Unit, onOpenGuide: () -> Unit, onOpenPrint: () -> Unit, requestedSection: String? = null, onSectionShown: () -> Unit = {}) {
     val settings by viewModel.settings.collectAsStateWithLifecycle()
     val context = LocalContext.current
     var showWhatsNew by remember { mutableStateOf(false) }
     var confirmResetAll by remember { mutableStateOf(false) }
     // One section open at a time keeps this long screen short; the open one survives rotation.
     var open by rememberSaveable { mutableStateOf("appearance") }
+    LaunchedEffect(requestedSection) {
+        requestedSection?.let {
+            open = it
+            onSectionShown()
+        }
+    }
 
     Scaffold(topBar = { TopAppBar(title = { Text(stringResource(R.string.tab_settings)) }, actions = { HelpButton(HelpTopic.SETTINGS) }) }) { padding ->
         Column(Modifier.padding(padding).verticalScroll(rememberScrollState())) {
@@ -243,7 +250,7 @@ fun SettingsScreen(viewModel: SettingsViewModel, onOpenLogs: () -> Unit, onOpenR
             }
 
             SectionHeader(stringResource(R.string.settings_section_updates), open == "updates") { open = if (open == "updates") "" else "updates" }
-            if (open == "updates") UpdatesContent()
+            if (open == "updates") UpdatesContent(settings.autoUpdateCheck) { v -> viewModel.update { it.copy(autoUpdateCheck = v) } }
             SectionHeader(stringResource(R.string.settings_section_general), open == "general") { open = if (open == "general") "" else "general" }
             if (open == "general") {
                 AboutRow(Icons.AutoMirrored.Outlined.MenuBook, R.string.settings_guide, R.string.settings_guide_desc, onOpenGuide)

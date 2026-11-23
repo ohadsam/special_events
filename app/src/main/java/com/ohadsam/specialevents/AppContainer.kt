@@ -55,6 +55,8 @@ class AppContainer(private val context: Context) {
 
     val groups: GroupRepository by lazy { GroupRepository(database) }
 
+    /** A settings section another screen wants opened (the update prompt asks for "updates"); the screen clears it once shown. */
+    val settingsSection = kotlinx.coroutines.flow.MutableStateFlow<String?>(null)
     val undoDelete: com.ohadsam.specialevents.data.UndoDelete by lazy { com.ohadsam.specialevents.data.UndoDelete(backups, events) }
     val backups: BackupRepository by lazy { BackupRepository(database, events, reminders, checklists, greetings, groups) }
 

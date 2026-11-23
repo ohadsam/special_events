@@ -3,6 +3,8 @@
 
     <!-- Permissions are added by the batch that needs them, each with an in-app explanation (see docs/SPEC.md S14). -->
     <!-- Reminders (batch 5): show notifications, ring at the exact minute, come back after a reboot, vibrate. -->
+    <!-- In-app update: reads the project's GitHub release page and downloads the APK from it, nothing else (see docs/SECURITY.md). Without this the update check can never connect. -->
+    <uses-permission android:name="android.permission.INTERNET" />
     <!-- In-app update: lets this app hand its own newer APK (same signing key) to the system installer as an update. -->
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />

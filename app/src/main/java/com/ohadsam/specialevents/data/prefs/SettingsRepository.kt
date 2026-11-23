@@ -52,6 +52,9 @@ class SettingsRepository(private val store: DataStore<Preferences>) {
             appLockTimeoutSeconds = p[APP_LOCK_TIMEOUT] ?: d.appLockTimeoutSeconds,
             hideContent = p[HIDE_CONTENT] ?: d.hideContent,
             hideWidgetDetails = p[HIDE_WIDGET_DETAILS] ?: d.hideWidgetDetails,
+            autoUpdateCheck = p[AUTO_UPDATE] ?: d.autoUpdateCheck,
+            lastUpdateCheckAt = p[LAST_UPDATE_CHECK] ?: d.lastUpdateCheckAt,
+            dismissedUpdateVersion = p[DISMISSED_UPDATE] ?: d.dismissedUpdateVersion,
             dailySummary = p[DAILY_SUMMARY] ?: d.dailySummary,
             dailySummaryHour = p[DAILY_SUMMARY_HOUR] ?: d.dailySummaryHour,
             autoBackupFolder = p[AUTO_FOLDER] ?: d.autoBackupFolder,
@@ -87,6 +90,9 @@ class SettingsRepository(private val store: DataStore<Preferences>) {
         p[APP_LOCK_TIMEOUT] = s.appLockTimeoutSeconds
         p[HIDE_CONTENT] = s.hideContent
         p[HIDE_WIDGET_DETAILS] = s.hideWidgetDetails
+        p[AUTO_UPDATE] = s.autoUpdateCheck
+        p[LAST_UPDATE_CHECK] = s.lastUpdateCheckAt
+        p[DISMISSED_UPDATE] = s.dismissedUpdateVersion
         p[DAILY_SUMMARY] = s.dailySummary
         p[DAILY_SUMMARY_HOUR] = s.dailySummaryHour
         p[AUTO_FOLDER] = s.autoBackupFolder
@@ -123,6 +129,9 @@ class SettingsRepository(private val store: DataStore<Preferences>) {
         val APP_LOCK_TIMEOUT = intPreferencesKey("app_lock_timeout")
         val HIDE_CONTENT = booleanPreferencesKey("hide_content")
         val HIDE_WIDGET_DETAILS = booleanPreferencesKey("hide_widget_details")
+        val AUTO_UPDATE = booleanPreferencesKey("auto_update_check")
+        val LAST_UPDATE_CHECK = longPreferencesKey("last_update_check")
+        val DISMISSED_UPDATE = stringPreferencesKey("dismissed_update")
         val DAILY_SUMMARY = booleanPreferencesKey("daily_summary")
         val DAILY_SUMMARY_HOUR = intPreferencesKey("daily_summary_hour")
         val AUTO_FOLDER = stringPreferencesKey("auto_backup_folder")

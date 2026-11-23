@@ -5,6 +5,9 @@ import android.net.Uri
 import android.provider.Settings
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.ui.Alignment
+import androidx.compose.material3.Switch
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.heightIn
@@ -43,7 +46,7 @@ private sealed interface UpdateUi {
 
 /** Settings -> Updates: check, download + verify + install a newer build from inside the app (same signing key, so it is an update, not a reinstall). */
 @Composable
-fun UpdatesContent() {
+fun UpdatesContent(autoCheck: Boolean, onAutoCheck: (Boolean) -> Unit) {
     val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
     var state by remember { mutableStateOf<UpdateUi>(UpdateUi.Idle) }
@@ -53,6 +56,13 @@ fun UpdatesContent() {
     Column(Modifier.padding(horizontal = 16.dp, vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Text(stringResource(R.string.settings_updates_version, version), style = MaterialTheme.typography.bodyMedium)
         Text(stringResource(R.string.updates_hint), style = MaterialTheme.typography.bodySmall)
+        Row(Modifier.fillMaxWidth().heightIn(min = 48.dp), verticalAlignment = Alignment.CenterVertically) {
+            Column(Modifier.weight(1f)) {
+                Text(stringResource(R.string.update_auto), style = MaterialTheme.typography.bodyLarge)
+                Text(stringResource(R.string.update_auto_desc), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+            Switch(checked = autoCheck, onCheckedChange = onAutoCheck)
+        }
         if (lastInstall?.startsWith("failed") == true) Text(stringResource(R.string.update_last_failed), color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
         when (val s = state) {
             UpdateUi.Idle, UpdateUi.UpToDate, is UpdateUi.Problem -> {

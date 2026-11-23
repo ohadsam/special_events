@@ -4,7 +4,7 @@ What the app protects, what it does not, and how each risk is handled. Updated a
 
 ## Data held
 Names, dates, notes, phone numbers and e-mail addresses of the user's contacts; reminder rules; greeting history; photos; checklists and gift budgets.
-All of it lives in the app's private storage (Room database, DataStore, `files/photos`, `cache/`). Nothing is sent to any server: the app declares **no INTERNET permission** and the print WebView blocks network loads.
+All of it lives in the app's private storage (Room database, DataStore, `files/photos`, `cache/`). Your data is never sent to any server. The only network use is the **update check and download** (INTERNET permission, added in 0.33.0 - the 0.32.0 updater was written without it and could not connect): it reads `version.json` and the APK of the project's `latest` GitHub release; no request carries any user data. The print WebView still blocks all network loads.
 
 ## Threats and answers
 | Threat | Answer |
@@ -29,7 +29,7 @@ All of it lives in the app's private storage (Room database, DataStore, `files/p
 | Vulnerable libraries | Dependabot weekly (gradle + actions); lint and detekt in CI. |
 
 ## Permissions (all requested in context, all optional)
-POST_NOTIFICATIONS, SCHEDULE_EXACT_ALARM, RECEIVE_BOOT_COMPLETED, VIBRATE (reminders) · READ_CONTACTS (import, on demand) · RECORD_AUDIO (voice greeting, on tap) · SEND_SMS (automatic SMS, per rule) · READ_CALENDAR / WRITE_CALENDAR (calendar sync screen). No location, no storage, no internet.
+POST_NOTIFICATIONS, SCHEDULE_EXACT_ALARM, RECEIVE_BOOT_COMPLETED, VIBRATE (reminders) · READ_CONTACTS (import, on demand) · RECORD_AUDIO (voice greeting, on tap) · SEND_SMS (automatic SMS, per rule) · READ_CALENDAR / WRITE_CALENDAR (calendar sync screen). INTERNET (update check and download from the project's GitHub release only) · REQUEST_INSTALL_PACKAGES (hands the verified APK to the system installer; the user confirms every install). No location, no storage.
 
 ## Known limits / ideas
 - The database is not encrypted at rest beyond Android's file-based encryption (SQLCipher with a Keystore key is an option if required).

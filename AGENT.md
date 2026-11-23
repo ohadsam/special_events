@@ -76,6 +76,8 @@ Read order: CLAUDE.md → docs/PLAN.md → STRUCTURE.md → the batch's section 
 
 - v0.31.0: UndoDelete (capture as one-event backup, restore via import MERGE, photo kept until the snackbar is gone - an app kill during the offer leaves one orphan photo file), DailySummary (WorkManager daily job, CANCEL_AND_REENQUEUE on each start/hour change; inexact by design), Settings accordion (one section open), confirm dialogs, permission-denied toasts. Unverified on device: Undo restoring groups/rules, summary timing under Doze, accordion with TalkBack.
 
+- v0.33.0: main already had the in-app updater (another session, 0.32.0); a duplicate built in parallel was dropped. FIXED: INTERNET permission was missing, so every update check failed. Added: daily automatic check + prompt (settings autoUpdateCheck/lastUpdateCheckAt/dismissedUpdateVersion, container.settingsSection opens the "updates" accordion section), switch in Settings -> Updates, help text, emulator test. Unverified on device: the whole install flow, PackageInstaller result, unknown-sources prompt. The update check compares versionCode of the latest release, so every merge to main (even docs-only) counts as an update.
+
 ## Known issues / open items (need the owner)
 - Feature spec for "אירועים מיוחדים" not yet provided → fill `docs/SPEC.md`, then define batches in `docs/PLAN.md`.
 - **Signing key:** `app/sideload.jks` (password in app/build.gradle.kts) is committed on purpose so every CI build updates in place; NOT a store key. Never change it after users installed the app.

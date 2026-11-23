@@ -4,6 +4,13 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.Dispatchers
+import com.ohadsam.specialevents.update.Updater
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
@@ -103,6 +110,40 @@ private fun AppScaffold(container: AppContainer, nav: NavHostController, pending
     }
     val snackbar = remember { SnackbarHostState() }
     val appContext = LocalContext.current
+    // Once a day at most, and only while the user keeps the automatic check on: ask the release page whether a newer build exists.
+    var updatePrompt by remember { mutableStateOf<com.ohadsam.specialevents.update.RemoteVersion?>(null) }
+    val autoCheck = settings?.autoUpdateCheck == true
+    LaunchedEffect(autoCheck) {
+        val s = settings ?: return@LaunchedEffect
+        if (!autoCheck || System.currentTimeMillis() - s.lastUpdateCheckAt < UPDATE_CHECK_INTERVAL_MS) return@LaunchedEffect
+        val result = withContext(Dispatchers.IO) { Updater.check(appContext) }
+        container.settings.update { it.copy(lastUpdateCheckAt = System.currentTimeMillis()) }
+        if (result is Updater.Check.Available && result.remote.versionName != s.dismissedUpdateVersion) updatePrompt = result.remote
+    }
+    updatePrompt?.let { remote ->
+        AlertDialog(
+            onDismissRequest = { updatePrompt = null },
+            title = { Text(stringResource(R.string.update_prompt_title)) },
+            text = { Text(stringResource(R.string.update_prompt_body, remote.versionName, runCatching { Updater.installedName(appContext) }.getOrDefault(""))) },
+            confirmButton = {
+                TextButton(onClick = {
+                    updatePrompt = null
+                    container.settingsSection.value = "updates"
+                    nav.navigate(TopLevel.SETTINGS.route) {
+                        popUpTo(nav.graph.findStartDestination().id) { saveState = true }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                }) { Text(stringResource(R.string.update_prompt_now)) }
+            },
+            dismissButton = {
+                TextButton(onClick = {
+                    updatePrompt = null
+                    scope.launch { container.settings.update { it.copy(dismissedUpdateVersion = remote.versionName) } }
+                }) { Text(stringResource(R.string.update_prompt_later)) }
+            },
+        )
+    }
     LaunchedEffect(Unit) {
         container.undoDelete.notices.collect { deleted ->
             val result = snackbar.showSnackbar(
@@ -177,6 +218,7 @@ private fun AppScaffold(container: AppContainer, nav: NavHostController, pending
                 )
             }
             composable(TopLevel.SETTINGS.route) {
+                val requestedSection by container.settingsSection.collectAsState()
                 SettingsScreen(
                     viewModel(factory = factory),
                     onOpenLogs = { nav.navigate(Routes.LOGS) },
@@ -188,6 +230,8 @@ private fun AppScaffold(container: AppContainer, nav: NavHostController, pending
                     onOpenGroups = { nav.navigate(Routes.GROUPS) },
                     onOpenPrint = { nav.navigate(Routes.print()) },
                     onOpenGuide = { nav.navigate(Routes.guide()) },
+                    requestedSection = requestedSection,
+                    onSectionShown = { container.settingsSection.value = null },
                 )
             }
             composable(Routes.DETAIL, arguments = listOf(navArgument("id") { type = NavType.LongType })) { entry ->
@@ -324,3 +368,5 @@ private fun AppScaffold(container: AppContainer, nav: NavHostController, pending
         }
     }
 }
+
+private const val UPDATE_CHECK_INTERVAL_MS = 24L * 60 * 60 * 1000
