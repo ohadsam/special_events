@@ -3,6 +3,7 @@ package com.ohadsam.specialevents.domain
 import com.ohadsam.specialevents.calendar.CalendarBasis
 import com.ohadsam.specialevents.calendar.OriginDate
 import com.ohadsam.specialevents.domain.calsync.CalendarImportPlanner
+import com.ohadsam.specialevents.domain.gcal.MatchKind
 import com.ohadsam.specialevents.domain.calsync.DeviceEvent
 import java.time.LocalDate
 import org.junit.Assert.assertEquals
@@ -56,9 +57,9 @@ class CalendarImportPlannerTest {
             device("יום הולדת יוסי", LocalDate.of(1975, 3, 2), yearly = true),
             device("פגישה עם רופא", LocalDate.of(2026, 11, 3)),
         )
-        val strict = CalendarImportPlanner.plan(existing, found, onlyRecurring = true)
+        val strict = CalendarImportPlanner.review(existing, found, onlyRecurring = true)
         assertEquals(listOf("יום הולדת דנה", "יום הולדת יוסי"), strict.map { it.event.title })
-        assertEquals(listOf(true, false), strict.map { it.duplicate })
-        assertEquals(3, CalendarImportPlanner.plan(existing, found, onlyRecurring = false).size)
+        assertEquals(listOf(MatchKind.EXACT, MatchKind.NONE), strict.map { it.match.kind })
+        assertEquals(3, CalendarImportPlanner.review(existing, found, onlyRecurring = false).size)
     }
 }
