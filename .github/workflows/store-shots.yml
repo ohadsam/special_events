@@ -33,6 +33,9 @@ jobs:
           script: |
             chmod +x gradlew
             ./gradlew installDebug installDebugAndroidTest --stacktrace
+            adb shell pm grant com.ohadsam.specialevents android.permission.POST_NOTIFICATIONS || true
+            adb shell appops set com.ohadsam.specialevents SCHEDULE_EXACT_ALARM allow || true
+            adb shell dumpsys deviceidle whitelist +com.ohadsam.specialevents || true
             adb shell cmd locale set-app-locales com.ohadsam.specialevents --locales he
             adb shell am instrument -w -e class com.ohadsam.specialevents.StoreShotsTest com.ohadsam.specialevents.test/androidx.test.runner.AndroidJUnitRunner
             mkdir -p shots
