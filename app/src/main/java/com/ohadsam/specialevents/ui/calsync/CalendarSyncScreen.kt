@@ -234,7 +234,7 @@ private fun ReviewCard(row: ImportRow, decision: ImportDecision, onDecide: (Impo
                 Text(stringResource(R.string.review_in_app, other.title, stringResource(other.type.labelRes()), originText(other.origin)), style = MaterialTheme.typography.bodySmall)
                 Text(stringResource(R.string.review_in_calendar, row.event.title, stringResource(row.event.type.labelRes()), originText(row.event.origin)), style = MaterialTheme.typography.bodySmall)
                 if (row.match.differences.isNotEmpty()) {
-                    Text(stringResource(R.string.review_differs, row.match.differences.joinToString(", ") { stringResource(differenceRes(it)) }), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
+                    Text(stringResource(R.string.review_differs, row.match.differences.map { stringResource(differenceRes(it)) }.joinToString(", ")), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
                 }
             }
             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
