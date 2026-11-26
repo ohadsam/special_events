@@ -20,6 +20,8 @@ object GcalMatcher {
     /** Words that say what kind of event it is, not whose: dropped before names are compared. */
     private val FILLER = setOf("יום", "הולדת", "של", "ל", "נישואין", "אזכרה", "בר", "בת", "מצווה", "birthday", "anniversary", "bar", "bat", "mitzvah", "s", "the")
     private val SPLIT = Regex("[^\\p{L}\\p{Nd}]+")
+    /** English "Dana's": the possessive is not part of the name (TextSearch.normalize would otherwise glue it on as "danas"). */
+    private val POSSESSIVE = Regex("['’]s\\b", RegexOption.IGNORE_CASE)
 
     fun match(candidate: SpecialEvent, existing: List<SpecialEvent>): Match {
         val key = BackupPlanner.key(candidate)
@@ -71,7 +73,7 @@ object GcalMatcher {
     private const val PREFIXES = "לבהוכמש"
 
     private fun words(title: String): Set<String> {
-        val all = TextSearch.normalize(title).split(SPLIT).filter { it.isNotEmpty() }
+        val all = TextSearch.normalize(title.replace(POSSESSIVE, "")).split(SPLIT).filter { it.isNotEmpty() }
         val names = all.filter { it !in FILLER }
         return (names.ifEmpty { all }).toSet()
     }
