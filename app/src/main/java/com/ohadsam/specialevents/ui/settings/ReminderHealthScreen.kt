@@ -48,6 +48,7 @@ import com.ohadsam.specialevents.R
 import com.ohadsam.specialevents.domain.reminders.SoundProfile
 import com.ohadsam.specialevents.permissions.PermissionHealth
 import com.ohadsam.specialevents.reminders.NotificationContent
+import com.ohadsam.specialevents.ui.common.RingingBell
 
 private const val TEST_NOTIFICATION_ID = 424242
 
@@ -84,7 +85,12 @@ fun ReminderHealthScreen(container: AppContainer, onBack: () -> Unit) {
             HealthRow(R.string.health_battery, R.string.health_battery_desc, health.batteryUnrestricted) {
                 openSettings(context, Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS))
             }
-            if (health.requiredOk) Text(stringResource(R.string.health_all_good), color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.titleSmall)
+            if (health.requiredOk) {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    RingingBell()
+                    Text(stringResource(R.string.health_all_good), color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.titleSmall)
+                }
+            }
             OutlinedButton(onClick = { openNotificationSettings(context) }, modifier = Modifier.fillMaxWidth()) { Text(stringResource(R.string.health_open_settings)) }
             Button(
                 onClick = { container.notifications.show(NotificationContent(TEST_NOTIFICATION_ID, 0L, testTitle, testBody, SoundProfile.DEFAULT_KEY), snoozeable = false) },

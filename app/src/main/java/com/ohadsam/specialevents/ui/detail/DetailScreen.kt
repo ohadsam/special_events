@@ -1,5 +1,7 @@
 package com.ohadsam.specialevents.ui.detail
 
+import com.ohadsam.specialevents.domain.EventType
+import com.ohadsam.specialevents.ui.common.GlowingFlame
 import com.ohadsam.specialevents.ui.help.HelpTopic
 import com.ohadsam.specialevents.ui.help.HelpButton
 import android.content.Intent
@@ -241,7 +243,10 @@ private fun Header(state: DetailState) {
     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
         EventAvatar(event.photoUri, event.iconKey ?: event.type.defaultEmoji(), accent, 72.dp)
         Column {
-            Text(event.title, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                Text(event.title, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f, fill = false))
+                if (event.type == EventType.YAHRZEIT) GlowingFlame(Modifier.size(22.dp))
+            }
             Text(
                 listOfNotNull(stringResource(event.type.labelRes()), event.relation).joinToString(" · "),
                 style = MaterialTheme.typography.bodyMedium,

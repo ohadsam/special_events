@@ -183,7 +183,7 @@ class DeviceCalendars(private val context: Context) {
 
     private companion object {
         const val ACCOUNT_NAME = "special_events"
-        const val CALENDAR_TITLE = "אירועים מיוחדים"
+        const val CALENDAR_TITLE = "PresentSimple"
         const val CALENDAR_COLOR = 0xFF4A3AB8.toInt()
         const val MAX_EVENTS = 5_000
         const val BATCH = 100

@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -33,6 +34,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ohadsam.specialevents.R
 import com.ohadsam.specialevents.data.SendChannel
 import com.ohadsam.specialevents.domain.review.YearReview
+import com.ohadsam.specialevents.ui.common.PulsingHeart
 import com.ohadsam.specialevents.ui.common.labelRes
 import java.time.Month
 import java.time.format.TextStyle
@@ -87,7 +89,10 @@ private fun ReviewBody(r: YearReview) {
         if (r.byType.isNotEmpty()) {
             ListCard(stringResource(R.string.review_by_type), r.byType.map { (type, n) -> stringResource(type.labelRes()) to n.toString() })
         }
-        StatCard(r.greetingsSent.toString(), stringResource(R.string.review_greetings, r.greetingsSent))
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            Box(Modifier.weight(1f)) { StatCard(r.greetingsSent.toString(), stringResource(R.string.review_greetings, r.greetingsSent)) }
+            PulsingHeart(Modifier.size(32.dp))
+        }
         r.coveragePercent?.let { StatCard("$it%", stringResource(R.string.review_coverage, r.greeted, r.passed)) }
         if (r.byChannel.isNotEmpty()) {
             ListCard(stringResource(R.string.review_by_channel), r.byChannel.map { (c, n) -> stringResource(channelRes(c)) to n.toString() })

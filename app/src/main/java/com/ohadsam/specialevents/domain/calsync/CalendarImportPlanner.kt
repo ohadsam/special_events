@@ -78,8 +78,8 @@ object CalendarImportPlanner {
         )
     }
 
-    /** The first line the app writes above its mark; the real text comes from a string resource, this is only used to strip it again. */
-    const val HEADLINE_PREFIX = "נשמר מהאפליקציה אירועים מיוחדים"
+    /** Start of the first line the app writes above its mark (string `gcal_headline`, today "נשמר מהאפליקציה PresentSimple"; entries from before 0.35 end with the old name). Only used to strip that line again. */
+    const val HEADLINE_PREFIX = "נשמר מהאפליקציה"
 
     private const val MAX_TITLE = 200
     private const val MAX_NOTES = 2_000

@@ -3,6 +3,7 @@ package com.ohadsam.specialevents.ui.greetings
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableIntStateOf
 import com.ohadsam.specialevents.ui.common.ConfettiBurst
+import com.ohadsam.specialevents.ui.common.PopCheck
 import com.ohadsam.specialevents.ui.help.HelpTopic
 import com.ohadsam.specialevents.ui.help.HelpButton
 import androidx.compose.foundation.horizontalScroll
@@ -19,7 +20,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
-import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.DeleteOutline
 import androidx.compose.material.icons.outlined.MusicNote
 import androidx.compose.material3.AlertDialog
@@ -115,7 +115,7 @@ fun GreetingScreen(viewModel: GreetingViewModel, onBack: () -> Unit) {
             }
             if (state.greeted) {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                    Icon(Icons.Outlined.CheckCircle, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+                    PopCheck()
                     Text(stringResource(R.string.greeting_already), color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.titleSmall)
                 }
             }

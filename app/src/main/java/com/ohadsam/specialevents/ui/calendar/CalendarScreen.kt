@@ -1,5 +1,12 @@
 package com.ohadsam.specialevents.ui.calendar
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.togetherWith
 import com.ohadsam.specialevents.ui.help.TooltipIconButton
 import com.ohadsam.specialevents.ui.help.HelpTopic
 import com.ohadsam.specialevents.ui.help.HelpButton
@@ -162,6 +169,8 @@ private fun LevelChips(selected: CalendarLevel, onSelect: (CalendarLevel) -> Uni
     }
 }
 
+private const val PAGE_FLIP_MS = 500
+
 @Composable
 private fun PeriodNav(state: CalendarState, onPrev: () -> Unit, onNext: () -> Unit, onTitle: () -> Unit) {
     val titles = periodTitles(state.prefs.level, state.prefs.anchor, state.settings.calendarMode, state.settings.weekStartsOnSunday)
@@ -169,7 +178,12 @@ private fun PeriodNav(state: CalendarState, onPrev: () -> Unit, onNext: () -> Un
         // Arrows are auto-mirrored: in the Hebrew (RTL) layout "previous" points right.
         TooltipIconButton(onClick = onPrev, icon = Icons.AutoMirrored.Outlined.KeyboardArrowLeft, description = stringResource(R.string.calendar_previous))
         Column(Modifier.weight(1f).clickable(onClickLabel = stringResource(R.string.calendar_pick_month), onClick = onTitle), horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(titles.title, style = MaterialTheme.typography.titleMedium, textAlign = TextAlign.Center)
+            // The period title turns like a calendar page when it changes (0.5 s, vertical).
+            AnimatedContent(
+                targetState = titles.title,
+                transitionSpec = { (slideInVertically(tween(PAGE_FLIP_MS)) { it / 2 } + fadeIn(tween(PAGE_FLIP_MS))) togetherWith (slideOutVertically(tween(PAGE_FLIP_MS)) { -it / 2 } + fadeOut(tween(PAGE_FLIP_MS))) },
+                label = "page-flip",
+            ) { title -> Text(title, style = MaterialTheme.typography.titleMedium, textAlign = TextAlign.Center) }
             titles.subtitle?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = TextAlign.Center) }
         }
         TooltipIconButton(onClick = onNext, icon = Icons.AutoMirrored.Outlined.KeyboardArrowRight, description = stringResource(R.string.calendar_next))
