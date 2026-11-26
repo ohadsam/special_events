@@ -40,6 +40,7 @@ jobs:
             ls -la shots
       - name: Convert to JPEG
         run: |
+          sudo apt-get install -y imagemagick > /dev/null
           cd shots
           for f in *.png; do convert "$f" -resize 540x -quality 78 "${f%.png}.jpg"; done
           rm -f *.png
