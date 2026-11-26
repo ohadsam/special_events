@@ -2,6 +2,7 @@ package com.ohadsam.specialevents.domain.review
 
 import com.ohadsam.specialevents.calendar.DateRules
 import com.ohadsam.specialevents.data.GreetingSent
+import com.ohadsam.specialevents.data.SendChannel
 import com.ohadsam.specialevents.domain.EventTimeline
 import com.ohadsam.specialevents.domain.EventType
 import com.ohadsam.specialevents.domain.ItemKind
@@ -9,7 +10,6 @@ import com.ohadsam.specialevents.domain.SpecialEvent
 import com.ohadsam.specialevents.domain.checklist.Checklist
 import com.ohadsam.specialevents.domain.checklist.ChecklistItem
 import com.ohadsam.specialevents.domain.checklist.GiftSummary
-import com.ohadsam.specialevents.greetings.SendChannel
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId

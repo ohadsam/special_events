@@ -3,10 +3,10 @@ package com.ohadsam.specialevents.domain
 import com.ohadsam.specialevents.calendar.CalendarBasis
 import com.ohadsam.specialevents.calendar.OriginDate
 import com.ohadsam.specialevents.data.GreetingSent
+import com.ohadsam.specialevents.data.SendChannel
 import com.ohadsam.specialevents.domain.checklist.ChecklistItem
 import com.ohadsam.specialevents.domain.checklist.ChecklistKind
 import com.ohadsam.specialevents.domain.review.YearReviewCalculator
-import com.ohadsam.specialevents.greetings.SendChannel
 import java.time.LocalDate
 import java.time.ZoneOffset
 import org.junit.Assert.assertEquals
