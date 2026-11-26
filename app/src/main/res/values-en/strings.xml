@@ -423,7 +423,7 @@
     <string name="gcal_err_permission">No calendar permission</string>
     <string name="gcal_err_no_calendar">The selected calendar was not found</string>
     <string name="gcal_err_write">Writing to the calendar failed</string>
-    <string name="gcal_synced">Sync finished: %1$d added, %2$d removed</string>
+    <string name="gcal_synced">Sync finished: %1$d added, %2$d removed, %3$d taken over from the calendar</string>
     <string name="calsync_apply">Apply %1$d changes</string>
     <string name="calsync_applied">%1$d events added, %2$d merged</string>
     <string name="review_new">New</string>

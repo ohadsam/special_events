@@ -56,6 +56,8 @@ data class AppSettings(
     val gcalLastSyncAt: Long = 0,
     /** "" = the last sync went fine, otherwise a short code (permission, no-calendar, write). */
     val gcalLastError: String = "",
+    /** Titles last written to the calendar (see GcalTitles); lets the next sync tell a calendar edit from an app edit. */
+    val gcalTitles: String = "",
     val dailySummary: Boolean = false,
     val dailySummaryHour: Int = 8,
     /** Automatic backup: the folder the user picked (a persisted SAF tree URI, empty = none), how often in days (0 = off), copies to keep. */

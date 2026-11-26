@@ -59,6 +59,7 @@ class SettingsRepository(private val store: DataStore<Preferences>) {
             gcalCalendarId = p[GCAL_CALENDAR] ?: d.gcalCalendarId,
             gcalLastSyncAt = p[GCAL_LAST] ?: d.gcalLastSyncAt,
             gcalLastError = p[GCAL_ERROR] ?: d.gcalLastError,
+            gcalTitles = p[GCAL_TITLES] ?: d.gcalTitles,
             dailySummary = p[DAILY_SUMMARY] ?: d.dailySummary,
             dailySummaryHour = p[DAILY_SUMMARY_HOUR] ?: d.dailySummaryHour,
             autoBackupFolder = p[AUTO_FOLDER] ?: d.autoBackupFolder,
@@ -101,6 +102,7 @@ class SettingsRepository(private val store: DataStore<Preferences>) {
         p[GCAL_CALENDAR] = s.gcalCalendarId
         p[GCAL_LAST] = s.gcalLastSyncAt
         p[GCAL_ERROR] = s.gcalLastError
+        p[GCAL_TITLES] = s.gcalTitles
         p[DAILY_SUMMARY] = s.dailySummary
         p[DAILY_SUMMARY_HOUR] = s.dailySummaryHour
         p[AUTO_FOLDER] = s.autoBackupFolder
@@ -144,6 +146,7 @@ class SettingsRepository(private val store: DataStore<Preferences>) {
         val GCAL_CALENDAR = longPreferencesKey("gcal_calendar")
         val GCAL_LAST = longPreferencesKey("gcal_last")
         val GCAL_ERROR = stringPreferencesKey("gcal_error")
+        val GCAL_TITLES = stringPreferencesKey("gcal_titles")
         val DAILY_SUMMARY = booleanPreferencesKey("daily_summary")
         val DAILY_SUMMARY_HOUR = intPreferencesKey("daily_summary_hour")
         val AUTO_FOLDER = stringPreferencesKey("auto_backup_folder")

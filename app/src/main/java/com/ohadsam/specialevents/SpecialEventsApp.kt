@@ -1,17 +1,23 @@
 package com.ohadsam.specialevents
 
 import android.app.Application
+import android.database.ContentObserver
+import android.os.Handler
+import android.os.Looper
+import android.provider.CalendarContract
 import com.ohadsam.specialevents.log.AppLogger
 import com.ohadsam.specialevents.widget.WidgetUpdater
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 
 class SpecialEventsApp : Application() {
@@ -30,6 +36,7 @@ class SpecialEventsApp : Application() {
         log.i("App", "start v${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})")
         container.notifications.createChannels()
         watchRemindersInputs()
+        watchCalendarChanges()
         appScope.launch {
             // Keeps WorkManager in line with the backup settings (also repairs the job after an update or a data clear).
             container.settings.settings.map { it.autoBackupFolder to it.autoBackupDays }.distinctUntilChanged().collect {
@@ -84,7 +91,26 @@ class SpecialEventsApp : Application() {
         }
     }
 
+    /** Edits made in Google Calendar itself (a renamed entry, a deleted one) reach the app while it is running, so the calendar stays two-way. */
+    @OptIn(FlowPreview::class)
+    private fun watchCalendarChanges() {
+        val c = container
+        val changed = Channel<Unit>(Channel.CONFLATED)
+        val observer = object : ContentObserver(Handler(Looper.getMainLooper())) {
+            override fun onChange(selfChange: Boolean) {
+                changed.trySend(Unit)
+            }
+        }
+        contentResolver.registerContentObserver(CalendarContract.Events.CONTENT_URI, true, observer)
+        appScope.launch {
+            changed.receiveAsFlow()
+                .debounce(CALENDAR_OBSERVER_DEBOUNCE_MS)
+                .collect { runCatching { c.gcal.onCalendarChanged() }.onFailure { c.logger.e("App", "calendar change sync failed", it) } }
+        }
+    }
+
     private companion object {
+        const val CALENDAR_OBSERVER_DEBOUNCE_MS = 8_000L
         const val REPLAN_DEBOUNCE_MS = 600L
         const val GCAL_DEBOUNCE_MS = 3_000L
     }

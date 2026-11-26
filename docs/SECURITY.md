@@ -32,6 +32,9 @@ All of it lives in the app's private storage (Room database, DataStore, `files/p
 ## Permissions (all requested in context, all optional)
 POST_NOTIFICATIONS, SCHEDULE_EXACT_ALARM, RECEIVE_BOOT_COMPLETED, VIBRATE (reminders) · READ_CONTACTS (import, on demand) · RECORD_AUDIO (voice greeting, on tap) · SEND_SMS (automatic SMS, per rule) · READ_CALENDAR / WRITE_CALENDAR (calendar sync screen). INTERNET (update check and download from the project's GitHub release only) · REQUEST_INSTALL_PACKAGES (hands the verified APK to the system installer; the user confirms every install). No location, no storage.
 
+## 0.35.0 additions
+- No new permissions. The calendar ContentObserver only fires a debounced re-check (the calendar is read only when calendar permission and Google sync are on); a calendar edit can rename an app event only for entries carrying the app's mark and only when the app's own title was unchanged since the last write. `androidx.profileinstaller` adds no permission or network access.
+
 ## Known limits / ideas
 - The database is not encrypted at rest beyond Android's file-based encryption (SQLCipher with a Keystore key is an option if required).
 - Authentication uses the system confirm screen; a BiometricPrompt with crypto binding would be stronger.

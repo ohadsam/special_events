@@ -59,7 +59,7 @@ class DeviceCalendars(private val context: Context) {
                 val date = Instant.ofEpochMilli(c.getLong(2)).atZone(ZoneOffset.UTC).toLocalDate()
                 val tag = GcalTag.parse(c.getString(4))
                 val key = tag?.let { GcalPlanner.existingKey(it, title, CalendarImportPlanner.isYearlyRule(c.getString(3)), date) }
-                out += ExistingEntry(c.getLong(0), key, title, date)
+                out += ExistingEntry(c.getLong(0), key, title, date, tag)
             }
         }
         return out

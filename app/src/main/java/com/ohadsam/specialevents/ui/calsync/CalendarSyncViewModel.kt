@@ -102,7 +102,7 @@ class CalendarSyncViewModel(private val container: AppContainer) : ViewModel() {
         _state.update {
             it.copy(
                 phase = SyncPhase.READY,
-                result = if (report.error.isEmpty()) SyncResult(R.string.gcal_synced, listOf(report.inserted, report.deleted)) else SyncResult(errorText(report.error)),
+                result = if (report.error.isEmpty()) SyncResult(R.string.gcal_synced, listOf(report.inserted, report.deleted, report.pulled)) else SyncResult(errorText(report.error)),
             )
         }
     }

@@ -14,7 +14,10 @@ import java.time.LocalDate
 data class DesiredEntry(val key: String, val title: String, val date: LocalDate, val rrule: String?, val description: String)
 
 /** An entry already in the target calendar that carries the app's mark. [key] is null for entries without a valid mark. */
-data class ExistingEntry(val calendarEventId: Long, val key: String?, val title: String, val date: LocalDate)
+data class ExistingEntry(val calendarEventId: Long, val key: String?, val title: String, val date: LocalDate, val tag: GcalTagData? = null)
+
+/** An event whose title was edited in the calendar while the app's own title stayed as last written: the calendar edit is taken over. */
+data class ExternalRename(val eventId: Long, val title: String)
 
 data class SyncDiff(val insert: List<DesiredEntry>, val deleteIds: List<Long>, val unchanged: Int)
 
@@ -95,4 +98,37 @@ object GcalPlanner {
         }
         return SyncDiff(desired.filter { it.key !in have }, delete, unchanged)
     }
+
+    /**
+     * Two-way sync for titles. [written] is what the app put in the calendar last time (event id -> title). An entry whose title differs
+     * from that was edited in the calendar; if the app's title is still the one written, the calendar edit wins. When both sides changed
+     * the app wins (the next sync rewrites the entry), and anything ambiguous (two events with the same type and date) is left alone.
+     */
+    fun externalRenames(events: List<SpecialEvent>, autoSync: Boolean, existing: List<ExistingEntry>, written: Map<Long, String>): List<ExternalRename> {
+        val syncing = events.filter { stateOf(it, autoSync) == EventSyncState.SYNC }
+        val out = LinkedHashMap<Long, ExternalRename>()
+        for (entry in existing) {
+            val tag = entry.tag ?: continue
+            val title = entry.title.trim()
+            if (title.isEmpty()) continue
+            val candidates = syncing.filter { it.type == tag.type && it.origin == tag.origin }
+            val event = candidates.singleOrNull() ?: continue
+            val last = written[event.id] ?: continue
+            if (title != event.title && title != last && event.title == last && event.id !in out) out[event.id] = ExternalRename(event.id, title)
+        }
+        return out.values.toList()
+    }
+}
+
+/** The titles last written to the calendar, kept as one string in the settings: one `id<TAB>title` line per event. */
+object GcalTitles {
+    fun encode(events: List<SpecialEvent>, autoSync: Boolean): String =
+        events.filter { GcalPlanner.stateOf(it, autoSync) == EventSyncState.SYNC }
+            .joinToString("\n") { "${it.id}\t${it.title.replace('\t', ' ').replace('\n', ' ')}" }
+
+    fun decode(text: String): Map<Long, String> =
+        text.lineSequence().mapNotNull { line ->
+            val tab = line.indexOf('\t')
+            if (tab <= 0) null else line.substring(0, tab).toLongOrNull()?.let { it to line.substring(tab + 1) }
+        }.toMap()
 }

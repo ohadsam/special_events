@@ -7,9 +7,12 @@ import com.ohadsam.specialevents.domain.calsync.CalendarImportPlanner
 import com.ohadsam.specialevents.domain.calsync.DeviceEvent
 import com.ohadsam.specialevents.domain.gcal.DesiredEntry
 import com.ohadsam.specialevents.domain.gcal.ExistingEntry
+import com.ohadsam.specialevents.domain.gcal.ExternalRename
 import com.ohadsam.specialevents.domain.gcal.GcalMatcher
 import com.ohadsam.specialevents.domain.gcal.GcalPlanner
 import com.ohadsam.specialevents.domain.gcal.GcalTag
+import com.ohadsam.specialevents.domain.gcal.GcalTagData
+import com.ohadsam.specialevents.domain.gcal.GcalTitles
 import com.ohadsam.specialevents.domain.gcal.ImportDecision
 import com.ohadsam.specialevents.domain.gcal.MatchKind
 import java.time.LocalDate
@@ -204,5 +207,40 @@ class GcalTest {
         assertEquals(ImportDecision.CREATE, rows[0].decision)
         assertTrue(rows[0].tagged)
         assertEquals(MatchKind.LIKELY, rows[1].match.kind)
+    }
+
+    // ---- two-way titles
+
+    private fun entryFor(event: SpecialEvent, title: String) =
+        ExistingEntry(1, null, title, LocalDate.of(2027, 10, 17), GcalTagData(event.type, event.origin.basis, event.origin.year, event.origin.month, event.origin.day, true))
+
+    @Test
+    fun calendarRenameIsTakenOverWhenTheAppTitleIsUnchanged() {
+        val e = birthday("דנה")
+        val renames = GcalPlanner.externalRenames(listOf(e), true, listOf(entryFor(e, "דנה כהן")), mapOf(e.id to "דנה"))
+        assertEquals(listOf(ExternalRename(e.id, "דנה כהן")), renames)
+    }
+
+    @Test
+    fun appRenameBeatsTheCalendarWhenBothChanged() {
+        val e = birthday("דנה כהן")
+        assertTrue(GcalPlanner.externalRenames(listOf(e), true, listOf(entryFor(e, "דני")), mapOf(e.id to "דנה")).isEmpty())
+    }
+
+    @Test
+    fun noRenameWithoutAKnownLastTitleOrWhenTwoEventsShareTheDate() {
+        val e = birthday("דנה")
+        assertTrue(GcalPlanner.externalRenames(listOf(e), true, listOf(entryFor(e, "אחר")), emptyMap()).isEmpty())
+        val twin = e.copy(id = 2, title = "רון")
+        assertTrue(GcalPlanner.externalRenames(listOf(e, twin), true, listOf(entryFor(e, "אחר")), mapOf(1L to "דנה", 2L to "רון")).isEmpty())
+    }
+
+    @Test
+    fun writtenTitlesRoundTripAndSkipEventsThatAreNotSynced() {
+        val on = birthday("דנה", mode = CalendarSyncMode.ON)
+        val off = birthday("רון", mode = CalendarSyncMode.OFF).copy(id = 2)
+        val text = GcalTitles.encode(listOf(on, off), autoSync = false)
+        assertEquals(mapOf(1L to "דנה"), GcalTitles.decode(text))
+        assertEquals(emptyMap<Long, String>(), GcalTitles.decode(""))
     }
 }

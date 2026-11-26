@@ -1,0 +1,60 @@
+name: Store screenshots (emulator)
+# Manual: runs StoreShotsTest on an emulator in Hebrew and publishes the screenshots as an artifact and on the `store-shots` branch,
+# from where the store (ohadsam/os_app_store) copies them. The pictures come from the real app, never edited by hand.
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  shots:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - name: Free disk space for the emulator image
+        run: sudo rm -rf /usr/share/dotnet /opt/ghc /opt/hostedtoolcache/CodeQL /usr/local/share/boost /usr/local/lib/android/sdk/ndk || true
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: 17 }
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Take the screenshots (Hebrew UI)
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          target: google_apis
+          disk-size: 3072M
+          disable-animations: true
+          script: |
+            chmod +x gradlew
+            ./gradlew installDebug installDebugAndroidTest --stacktrace
+            adb shell cmd locale set-app-locales com.ohadsam.specialevents --locales he
+            adb shell am instrument -w -e class com.ohadsam.specialevents.StoreShotsTest com.ohadsam.specialevents.test/androidx.test.runner.AndroidJUnitRunner
+            mkdir -p shots
+            adb pull /sdcard/Android/data/com.ohadsam.specialevents/files/shots/. shots/
+            ls -la shots
+      - name: Convert to JPEG
+        run: |
+          cd shots
+          for f in *.png; do convert "$f" -resize 540x -quality 78 "${f%.png}.jpg"; done
+          rm -f *.png
+          ls -la
+      - uses: actions/upload-artifact@v4
+        with:
+          name: store-shots
+          path: shots
+      - name: Publish on the store-shots branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout --orphan store-shots
+          git rm -rf . > /dev/null
+          cp shots/*.jpg .
+          git add *.jpg
+          git commit -m "Store screenshots from the emulator test"
+          git push --force origin store-shots

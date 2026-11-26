@@ -12,6 +12,7 @@ import com.ohadsam.specialevents.data.EventRepository
 import com.ohadsam.specialevents.data.prefs.SettingsRepository
 import com.ohadsam.specialevents.domain.CalendarSyncMode
 import com.ohadsam.specialevents.domain.gcal.GcalPlanner
+import com.ohadsam.specialevents.domain.gcal.GcalTitles
 import com.ohadsam.specialevents.log.AppLogger
 import java.time.LocalDate
 import java.util.concurrent.TimeUnit
@@ -23,7 +24,7 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 
 /** What one sync did; [error] is "" when it went fine. */
-data class GcalReport(val inserted: Int, val deleted: Int, val error: String)
+data class GcalReport(val inserted: Int, val deleted: Int, val error: String, val pulled: Int = 0)
 
 /**
  * Keeps a Google calendar on the phone in line with the events the user chose to save there: writes new ones, replaces edited ones and
@@ -38,6 +39,16 @@ class GoogleCalendarSync(
 ) {
     private val device = DeviceCalendars(context)
     private val lock = Mutex()
+
+    /** No observer-triggered sync until this time: the calendar notifies us about our own writes too. */
+    @Volatile
+    private var quietUntil = 0L
+
+    /** Called when something in the phone's calendars changed (the app registers a ContentObserver for it). */
+    suspend fun onCalendarChanged() {
+        if (System.currentTimeMillis() < quietUntil) return
+        syncIfNeeded()
+    }
 
     /** Runs a sync when anything is meant to be in the calendar (the auto switch or any event set to "save"); otherwise does nothing. */
     suspend fun syncIfNeeded(): GcalReport? {
@@ -61,7 +72,9 @@ class GoogleCalendarSync(
                 GcalReport(0, 0, ERROR_WRITE)
             }
             settings.update { it.copy(gcalLastError = report.error, gcalLastSyncAt = if (report.error.isEmpty()) System.currentTimeMillis() else it.gcalLastSyncAt) }
-            logger.i(TAG, "synced +${report.inserted} -${report.deleted} ${report.error}")
+            // Our own writes make the calendar notify us; the observer ignores that echo.
+            quietUntil = System.currentTimeMillis() + ECHO_MS
+            logger.i(TAG, "synced +${report.inserted} -${report.deleted} pulled ${report.pulled} ${report.error}")
             report
         }
     }
@@ -70,18 +83,28 @@ class GoogleCalendarSync(
         if (!device.hasPermission()) return GcalReport(0, 0, ERROR_PERMISSION)
         val cfg = settings.settings.first()
         if (cfg.gcalCalendarId < 0 || !device.calendarExists(cfg.gcalCalendarId)) return GcalReport(0, 0, ERROR_NO_CALENDAR)
-        val all = events.allEvents.first()
+        var all = events.allEvents.first()
+        val existing = device.markedEntries(cfg.gcalCalendarId)
+        // Calendar edits first: a title changed in Google Calendar is taken over before the calendar is brought in line with the app.
+        val renames = GcalPlanner.externalRenames(all, cfg.gcalAutoSync, existing, GcalTitles.decode(cfg.gcalTitles))
+        renames.forEach { r ->
+            events.get(r.eventId)?.let { e -> events.save(e.copy(title = r.title, personName = if (e.personName == e.title) r.title else e.personName)) }
+        }
+        if (renames.isNotEmpty()) all = events.allEvents.first()
         val desired = GcalPlanner.desired(all, cfg.gcalAutoSync, LocalDate.now(), HORIZON_YEARS, cfg.dateRules, context.getString(R.string.gcal_headline))
-        val diff = GcalPlanner.diff(all, cfg.gcalAutoSync, desired, device.markedEntries(cfg.gcalCalendarId))
+        val diff = GcalPlanner.diff(all, cfg.gcalAutoSync, desired, existing)
         val deleted = device.delete(diff.deleteIds)
         val inserted = device.insert(cfg.gcalCalendarId, diff.insert)
-        return GcalReport(inserted, deleted, if (inserted < diff.insert.size) ERROR_WRITE else "")
+        val failed = inserted < diff.insert.size
+        if (!failed) settings.update { it.copy(gcalTitles = GcalTitles.encode(all, cfg.gcalAutoSync)) }
+        return GcalReport(inserted, deleted, if (failed) ERROR_WRITE else "", renames.size)
     }
 
     companion object {
         private const val TAG = "GoogleCalendar"
         private const val WORK_NAME = "gcal-sync"
         private const val HORIZON_YEARS = 3
+        private const val ECHO_MS = 5_000L
         const val ERROR_PERMISSION = "permission"
         const val ERROR_NO_CALENDAR = "no-calendar"
         const val ERROR_WRITE = "write"
