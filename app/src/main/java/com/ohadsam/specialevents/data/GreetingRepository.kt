@@ -34,6 +34,9 @@ class GreetingRepository(db: AppDatabase, private val clock: Clock = Clock.syste
 
     fun sentFor(eventId: Long): Flow<List<GreetingSent>> = dao.observeSentFor(eventId).map { rows -> rows.map(::toSent) }
 
+    /** Every greeting ever sent; feeds the year in review. */
+    val allSent: Flow<List<GreetingSent>> = dao.observeAllSent().map { rows -> rows.map(::toSent) }
+
     /** (eventId, occurrence day) pairs that were greeted, for the "greeted" check marks. */
     val greetedKeys: Flow<Set<Pair<Long, Long>>> = dao.observeAllSent().map { rows -> rows.map { it.eventId to it.occurrenceDay }.toSet() }
 

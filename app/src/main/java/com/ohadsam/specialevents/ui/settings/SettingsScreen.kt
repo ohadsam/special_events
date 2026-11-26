@@ -16,6 +16,7 @@ import androidx.compose.material.icons.outlined.Contacts
 import androidx.compose.material.icons.outlined.Groups
 import androidx.compose.material.icons.outlined.HealthAndSafety
 import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.Insights
 import androidx.compose.material.icons.outlined.Message
 import androidx.compose.material.icons.outlined.NewReleases
 import androidx.compose.material.icons.outlined.Print
@@ -59,7 +60,7 @@ import com.ohadsam.specialevents.ui.common.labelRes
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsScreen(viewModel: SettingsViewModel, onOpenLogs: () -> Unit, onOpenReminderHealth: () -> Unit, onImportContacts: () -> Unit, onOpenTemplates: () -> Unit, onOpenBackup: () -> Unit, onOpenCalendarSync: () -> Unit, onOpenGroups: () -> Unit, onOpenGuide: () -> Unit, onOpenPrint: () -> Unit, requestedSection: String? = null, onSectionShown: () -> Unit = {}) {
+fun SettingsScreen(viewModel: SettingsViewModel, onOpenLogs: () -> Unit, onOpenReminderHealth: () -> Unit, onImportContacts: () -> Unit, onOpenTemplates: () -> Unit, onOpenBackup: () -> Unit, onOpenCalendarSync: () -> Unit, onOpenReview: () -> Unit, onOpenGroups: () -> Unit, onOpenGuide: () -> Unit, onOpenPrint: () -> Unit, requestedSection: String? = null, onSectionShown: () -> Unit = {}) {
     val settings by viewModel.settings.collectAsStateWithLifecycle()
     val context = LocalContext.current
     var showWhatsNew by remember { mutableStateOf(false) }
@@ -256,6 +257,7 @@ fun SettingsScreen(viewModel: SettingsViewModel, onOpenLogs: () -> Unit, onOpenR
                         if (v && (!DeviceCalendars(context).hasPermission() || settings.gcalCalendarId < 0)) onOpenCalendarSync() else viewModel.update { it.copy(gcalAutoSync = v) }
                     },
                 )
+                AboutRow(Icons.Outlined.Insights, R.string.settings_review, R.string.settings_review_desc, onOpenReview)
                 AboutRow(Icons.Outlined.Sync, R.string.settings_calsync, R.string.settings_calsync_desc, onOpenCalendarSync)
             }
 

@@ -2,7 +2,7 @@
 
 **מה זה:** פרומפט אחד, בשלבים, שמדביקים כמו שהוא בשיחה חדשה ב-ChatGPT (עדיף עם יצירת תמונות / Code Interpreter מופעלים). הוא מבקש לוגו שמכיל את השם **PresentSimple**, אייקון אנדרואיד, איורים למסכי האפליקציה ואנימציות קצרות. כל שלב נעצר וממתין ל"continue", כך שאפשר לבחור כיוון לפני שממשיכים.
 
-**איך משתמשים:** מדביקים את הבלוק שבתוך ``` (הוא באנגלית כי מודלי תמונה מדייקים יותר ככה; הטקסט העברי שצריך להופיע בלוגו כתוב בו במדויק). בסוף כל שלב בודקים בעין **את האיות של PresentSimple** (P ו-S גדולות, בלי רווח, בלי אותיות מיותרות) ואת העברית, ואומרים "continue 2" או מבקשים תיקון.
+**איך משתמשים:** מדביקים את הבלוק שבתוך ``` (הוא באנגלית כי מודלי תמונה מדייקים יותר ככה; השם נשאר באנגלית גם בגרסה העברית; הכותרת העברית אופציונלית). בסוף כל שלב בודקים בעין **את האיות של PresentSimple** (P ו-S גדולות, בלי רווח, בלי אותיות מיותרות) ואת העברית, ואומרים "continue 2" או מבקשים תיקון.
 
 **מה לשלוח לי אחרי זה:** את ה-ZIP הסופי (או את התיקיות) - אני ממיר את ה-SVG לאייקון האפליקציה (vector drawable), למסך הפתיחה, למצבי "ריק", ולחנות האפליקציות, ומחליף את השם באפליקציה אם תחליט על כך (כרגע השם בתוך האפליקציה נשאר "אירועים מיוחדים").
 
@@ -11,7 +11,7 @@ You are the brand designer, illustrator and motion designer for an Android app c
 
 CURRENT LOOK (keep the family, you may refine): the launcher icon is a white calendar page with an amber header band and a pink heart, on an indigo-to-magenta 135-degree gradient, with a few faint confetti dots. PALETTE (use only these): indigo #4527A0, magenta #C2185B, amber #FFB300, white #FFFFFF, ink #1B1B1F, soft background #FCF9FF; dark background #14121A with the same accents slightly lightened (indigo #7E57C2, magenta #F06292, amber #FFCA28). Gradient allowed ONLY indigo -> magenta at 135 degrees. Style: flat vector, soft rounded geometry, round caps and joins, generous empty space, no photo-realism, no tiny details, no outlines thinner than 6% of the artboard, original work only (no copied logos, mascots, brands, fonts-as-art or living artists' styles), free to use.
 
-NAME RULE (very important): the exact wordmark text is  PresentSimple  - ten letters then six letters, no space, capital P and capital S, everything else lowercase: P-r-e-s-e-n-t-S-i-m-p-l-e. Image models often misspell lettering, so draw the letters as custom outlined shapes, then CHECK the spelling letter by letter and tell me you did. Letters: rounded, geometric, friendly sans-serif look, highly legible at 120 px wide. Give the "P" a small personal touch (for example a tiny ribbon, bow or heart-shaped counter) but keep it readable. The Hebrew companion line (separate art, right-to-left, correct final letters) must read exactly:  אירועים מיוחדים
+NAME RULE (very important): the exact wordmark text is  PresentSimple  - seven letters then six letters, no space, capital P and capital S, everything else lowercase: P-r-e-s-e-n-t-S-i-m-p-l-e. Image models often misspell lettering, so draw the letters as custom outlined shapes, then CHECK the spelling letter by letter and tell me you did. Letters: rounded, geometric, friendly sans-serif look, highly legible at 120 px wide. Give the "P" a small personal touch (for example a tiny ribbon, bow or heart-shaped counter) but keep it readable. The app keeps the SAME English name and the SAME logo in the Hebrew version: never translate or transliterate "PresentSimple" and never draw it in Hebrew letters. A Hebrew tagline is OPTIONAL and separate art only (right-to-left, correct final letters), it must read exactly:  אירועים מיוחדים
 
 STAGE 1 - CONCEPTS. One sheet with 3 distinct directions, each shown on a light and a dark background, numbered 1-3, one-line rationale in the chat (not inside the art):
  1) A gift box whose lid ribbon forms a tiny calendar tab (or a calendar page folded like a gift), amber ribbon, symbol left + wordmark right.
@@ -23,7 +23,7 @@ STAGE 2 - LOGO SET for the chosen direction (SVG and transparent PNG each):
  a) logo-horizontal-light / logo-horizontal-dark: symbol + PresentSimple on one line, viewBox 640x160 (light = ink text on light; dark = white text on dark).
  b) logo-stacked-light / logo-stacked-dark: viewBox 480x420.
  c) wordmark-light / wordmark-dark: the name only, viewBox 560x120.
- d) hebrew-line-light / hebrew-line-dark: "אירועים מיוחדים", viewBox 480x80.
+ d) tagline-he-light / tagline-he-dark (optional, separate from every logo): "אירועים מיוחדים", viewBox 480x80.
  e) symbol.svg: the symbol alone, viewBox 512x512, transparent.
  f) ANDROID LAUNCHER ICON, viewBox 108x108 (this is the adaptive-icon canvas; ONLY the central 66x66 circle is guaranteed visible, so keep all essential art inside it):
     - ic_background.svg: the indigo->magenta gradient (plus optional faint confetti dots), full 108x108 square.
@@ -31,7 +31,7 @@ STAGE 2 - LOGO SET for the chosen direction (SVG and transparent PNG each):
     - ic_monochrome.svg: the symbol as ONE solid shape set in a single colour (#000000), transparent background, readable as a silhouette (used for Android 13+ themed icons).
     - ic_notification.svg: viewBox 24x24, a simple white (#FFFFFF) silhouette of the symbol, no gradient, thick strokes (status-bar icon).
     - ic_launcher_preview.png 512x512 on a rounded square mask.
- g) share-card.png 1200x630: gradient background, stacked logo centred, Hebrew line below, nothing else.
+ g) share-card.png 1200x630: gradient background, stacked logo centred, nothing else (English name only).
  h) splash.svg viewBox 360x640 (portrait): the symbol centred on the gradient with calm space; this is also the first frame of the splash animation.
 Contrast: wordmark vs its background at least 4.5:1 in both light and dark; the logo must read at 120 px wide and the symbol at 36 px.
 
@@ -65,4 +65,4 @@ Reply "ready" and start with Stage 1.
 3. מצבי "ריק" במסכים (אירועים קרובים, חיפוש, סיימת הכול) ואייקוני סוגי האירועים.
 4. אנימציות: מימוש ב-Compose מקבוצות ה-SVG לפי טבלאות התזמון (בלי ספרייה חיצונית); כיבוד "הפחתת תנועה" של המערכת.
 5. חנות האפליקציות (`ohadsam/os_app_store`): אייקון, צילום מסך ותיאור לפי ה-checklist שלה.
-6. שינוי שם התצוגה ל-PresentSimple (strings, README, החנות) - רק לאחר שתאשר.
+6. שם התצוגה של האפליקציה כבר שונה ל-PresentSimple (גם בגרסה העברית; השורה העברית "אירועים מיוחדים" נשארת רק כתת-כותרת אופציונלית).

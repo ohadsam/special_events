@@ -71,6 +71,8 @@ import com.ohadsam.specialevents.ui.print.PrintScreen
 import com.ohadsam.specialevents.ui.print.PrintViewModel
 import com.ohadsam.specialevents.ui.reminders.EventRemindersScreen
 import com.ohadsam.specialevents.ui.reminders.EventRemindersViewModel
+import com.ohadsam.specialevents.ui.review.YearReviewScreen
+import com.ohadsam.specialevents.ui.review.YearReviewViewModel
 import com.ohadsam.specialevents.ui.search.SearchScreen
 import com.ohadsam.specialevents.ui.share.ShareScreen
 import com.ohadsam.specialevents.ui.share.ShareViewModel
@@ -227,6 +229,7 @@ private fun AppScaffold(container: AppContainer, nav: NavHostController, pending
                     onOpenTemplates = { nav.navigate(Routes.TEMPLATES) },
                     onOpenBackup = { nav.navigate(Routes.backup()) },
                     onOpenCalendarSync = { nav.navigate(Routes.CALENDAR_SYNC) },
+                    onOpenReview = { nav.navigate(Routes.YEAR_REVIEW) },
                     onOpenGroups = { nav.navigate(Routes.GROUPS) },
                     onOpenPrint = { nav.navigate(Routes.print()) },
                     onOpenGuide = { nav.navigate(Routes.guide()) },
@@ -300,6 +303,10 @@ private fun AppScaffold(container: AppContainer, nav: NavHostController, pending
             ) { entry ->
                 val vm: BackupViewModel = viewModel(factory = BackupViewModel.Factory(container))
                 BackupScreen(vm, onBack = { nav.popBackStack() }, openUri = entry.arguments?.getString("uri"), onShareEvents = { nav.navigate(Routes.share()) })
+            }
+            composable(Routes.YEAR_REVIEW) {
+                val vm: YearReviewViewModel = viewModel(factory = YearReviewViewModel.Factory(container))
+                YearReviewScreen(vm, onBack = { nav.popBackStack() })
             }
             composable(Routes.CALENDAR_SYNC) {
                 val vm: CalendarSyncViewModel = viewModel(factory = CalendarSyncViewModel.Factory(container))

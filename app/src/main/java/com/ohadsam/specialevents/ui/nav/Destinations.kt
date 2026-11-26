@@ -37,6 +37,7 @@ object Routes {
 
     fun group(id: Long) = "group/$id"
     const val CALENDAR_SYNC = "calendar_sync"
+    const val YEAR_REVIEW = "year_review"
     const val BACKUP = "backup?uri={uri}"
 
     /** [uri] = a backup file to preview straight away (opened from outside the app). */

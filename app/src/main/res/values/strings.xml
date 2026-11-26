@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">אירועים מיוחדים</string>
+    <string name="app_name" translatable="false">PresentSimple</string>
 
     <string name="tab_upcoming">קרובים</string>
     <string name="tab_calendar">לוח שנה</string>
@@ -628,7 +628,7 @@
     <string name="help_search_title">חיפוש מתקדם</string>
     <string name="help_search_body">חיפוש בשמות, הערות ותגיות, בתאריכים עבריים ולועזיים, בטווחים ובסוגים.\n• אפשר לכתוב בעברית טבעית, למשל ״ימי הולדת בחודש הבא״.\n• ״חיפוש בתוך חיפוש״ מצמצם את התוצאות צעד אחר צעד.\n• חיפושים שימושיים נשמרים, ויש הצעות אוטומטיות לפי תבניות.</string>
     <string name="help_widgets_title">ווידג׳טים</string>
-    <string name="help_widgets_body">מוסיפים מהמסך הראשי של הטלפון: לחיצה ארוכה ← ווידג׳טים ← אירועים מיוחדים.\n• אירועים קרובים: רשימה עם ספירה לאחור; באירוע של היום יש קישור ״ברכה״ ישר למסך השליחה.\n• אירוע וצ׳קליסט: בוחרים אירוע ומסמנים משימות ישר מהמסך.\n• התאריך היום: עברי ולועזי והאירוע הקרוב.\n• מיני־חודש: ימים עם אירועים מסומנים; נגיעה ביום פותחת אירוע חדש בתאריך הזה.\nהווידג׳טים מתעדכנים בחצות ובכל שינוי. בהגדרות ← אבטחה אפשר להסתיר בהם שמות ופריטי רשימה.</string>
+    <string name="help_widgets_body">מוסיפים מהמסך הראשי של הטלפון: לחיצה ארוכה ← ווידג׳טים ← PresentSimple.\n• אירועים קרובים: רשימה עם ספירה לאחור; באירוע של היום יש קישור ״ברכה״ ישר למסך השליחה.\n• אירוע וצ׳קליסט: בוחרים אירוע ומסמנים משימות ישר מהמסך.\n• התאריך היום: עברי ולועזי והאירוע הקרוב.\n• מיני־חודש: ימים עם אירועים מסומנים; נגיעה ביום פותחת אירוע חדש בתאריך הזה.\nהווידג׳טים מתעדכנים בחצות ובכל שינוי. בהגדרות ← אבטחה אפשר להסתיר בהם שמות ופריטי רשימה.</string>
     <string name="help_backup_title">גיבוי, שחזור ושיתוף</string>
     <string name="help_backup_body">הגדרות ← גיבוי ושיתוף.\n• גיבוי לקובץ כולל אירועים, תזכורות, צ׳קליסטים, קבוצות ותבניות. תמונות לא כלולות.\n• הצפנה בסיסמה: אין דרך לשחזר סיסמה שנשכחה.\n• שחזור מציג מה ייווסף לפני כל שינוי: הוספה בלי כפילויות, או החלפה מלאה.\n• קבצי sevents. נפתחים ישר מוואטסאפ או ממנהל הקבצים.\n• שיתוף אירועים נבחרים: כקובץ שמי שיש לו את האפליקציה יקבל הצעה לשמור (ויבחר אילו), או כהודעה מסודרת לוואטסאפ ולמייל. אתם בוחרים אילו פרטים יצטרפו — הערות, טלפון, תגיות, תזכורות, צ׳קליסט וקבוצות.\n• גיבוי אוטומטי לתיקייה שתבחרו (יומי, שבועי או חודשי), עם מספר עותקים לשמירה.\n• ייבוא מגיליון (CSV): האפליקציה מזהה את העמודות לפי הכותרות, מבינה תאריכים בכל כתיבה, ומראה תצוגה מקדימה.\n• ייצוא ליומן (ICS) ולגיליון (CSV), ושיתוף האפליקציה עצמה כקובץ התקנה.\n• הקובץ כולל שמות וטלפונים בטקסט גלוי — שמרו אותו במקום בטוח.</string>
     <string name="help_calsync_title">סנכרון יומנים</string>
@@ -758,7 +758,7 @@
     <string name="lock_title">האפליקציה נעולה</string>
     <string name="lock_body">אשרו שזה אתם כדי להמשיך.</string>
     <string name="lock_unlock">פתח</string>
-    <string name="lock_prompt_title">אירועים מיוחדים</string>
+    <string name="lock_prompt_title" translatable="false">PresentSimple</string>
     <string name="backup_auto_title">גיבוי אוטומטי לתיקייה</string>
     <string name="backup_auto_desc">האפליקציה תשמור גיבוי בתיקייה שתבחרו (למשל בענן שלכם) בקביעות, ותשאיר רק את העותקים האחרונים. הקבצים לא מוצפנים — בחרו תיקייה שאתם סומכים עליה.</string>
     <string name="backup_auto_pick">בחר תיקייה</string>
@@ -938,7 +938,24 @@
     <string name="perm_read_upcoming_label">קריאת האירועים הקרובים</string>
     <string name="perm_read_upcoming_desc">מאפשר לאפליקציה אחרת (למשל ClockWise) לקרוא את רשימת האירועים הקרובים: כותרת, סוג ותאריך. השמות מוסתרים אם הפעלת הסתרת פרטים.</string>
     <string name="share_link_title">שיתוף קישור להורדה</string>
-    <string name="share_link_message">אירועים מיוחדים - ימי הולדת, אירועים, ברכות ותזכורות. הורדה והתקנה: %1$s</string>
+    <string name="share_link_message">PresentSimple - ימי הולדת, אירועים, ברכות ותזכורות. הורדה והתקנה: %1$s</string>
     <string name="share_link_whatsapp">שלח בוואטסאפ</string>
     <string name="share_link_email">שלח במייל</string>
+    <string name="review_title">סיכום שנתי</string>
+    <string name="review_previous_year">שנה קודמת</string>
+    <string name="review_next_year">שנה הבאה</string>
+    <string name="review_empty">אין עדיין נתונים לשנה הזו. הוסיפו אירועים ושלחו ברכות — והסיכום יתמלא.</string>
+    <string name="review_occurrences">%1$d תאריכים מיוחדים בשנה הזו</string>
+    <string name="review_busiest_month">החודש העמוס ביותר — %1$d אירועים</string>
+    <string name="review_by_type">לפי סוג</string>
+    <string name="review_greetings">%1$d ברכות נשלחו בשנה הזו</string>
+    <string name="review_coverage">מהאירועים שכבר עברו בירכתם %1$d מתוך %2$d</string>
+    <string name="review_by_channel">איך שלחתם</string>
+    <string name="review_top_people">למי שלחתם הכי הרבה</string>
+    <string name="review_gifts">מתנות</string>
+    <string name="review_gifts_spent">שולם</string>
+    <string name="review_gifts_planned">מתוכנן ועדיין לא נקנה</string>
+    <string name="review_amount">%1$d ₪</string>
+    <string name="settings_review">סיכום שנתי</string>
+    <string name="settings_review_desc">כמה אירועים, ברכות ומתנות היו בשנה</string>
 </resources>
