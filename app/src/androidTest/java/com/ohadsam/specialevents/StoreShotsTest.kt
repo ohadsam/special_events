@@ -50,6 +50,9 @@ class StoreShotsTest {
 
     @Test
     fun takeShots() {
+        // The empty state must be gone, otherwise the first picture shows "no events yet".
+        val addFirst = AppRobot.text(rule, R.string.action_add_first_event)
+        rule.waitUntil(LOAD_MS) { rule.onAllNodesWithText(addFirst).fetchSemanticsNodes().isEmpty() }
         shot("upcoming")
         AppRobot.click(rule, DEMO.first().first)
         shot("event")
