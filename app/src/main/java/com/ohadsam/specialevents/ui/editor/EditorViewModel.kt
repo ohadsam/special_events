@@ -10,6 +10,7 @@ import com.ohadsam.specialevents.calendar.CalendarBasis
 import com.ohadsam.specialevents.contacts.ContactsReader
 import com.ohadsam.specialevents.contacts.PhotoStore
 import com.ohadsam.specialevents.domain.EditorDate
+import com.ohadsam.specialevents.domain.CalendarSyncMode
 import com.ohadsam.specialevents.domain.EventType
 import com.ohadsam.specialevents.domain.Gender
 import com.ohadsam.specialevents.domain.IconSuggester
@@ -63,6 +64,7 @@ data class EditorState(
     val dateParse: DateParse? = null,
     val allGroups: List<EventGroup> = emptyList(),
     val groupIds: Set<Long> = emptySet(),
+    val calendarSync: CalendarSyncMode = CalendarSyncMode.FOLLOW,
 ) {
     val emoji: String get() = chosenEmoji ?: IconSuggester.suggest(type, title, type.defaultEmoji())
     val emojiOptions: List<String> get() = IconSuggester.options(type, title, type.defaultEmoji())
@@ -109,6 +111,7 @@ class EditorViewModel(private val container: AppContainer, private val eventId: 
                     contactLookupUri = event.contactLookupUri,
                     contactPhone = event.contactPhone,
                     contactEmail = event.contactEmail,
+                    calendarSync = event.calendarSync,
                 )
             }
             baseline = normalized(_state.value)
@@ -158,6 +161,8 @@ class EditorViewModel(private val container: AppContainer, private val eventId: 
     fun setColor(value: Int?) = _state.update { it.copy(colorArgb = value) }
 
     fun setEmoji(value: String?) = _state.update { it.copy(chosenEmoji = value) }
+
+    fun setCalendarSync(value: CalendarSyncMode) = _state.update { it.copy(calendarSync = value) }
 
     fun setNewTag(value: String) = _state.update { it.copy(newTag = value) }
 
@@ -244,6 +249,7 @@ class EditorViewModel(private val container: AppContainer, private val eventId: 
                     title = s.title.trim(),
                     personName = if (personType) s.title.trim() else null,
                     gender = s.gender,
+                calendarSync = s.calendarSync,
                     relation = s.relation.trim().ifEmpty { null },
                     origin = s.date.toOrigin(),
                     recurrence = if (s.type.yearly) Recurrence.YEARLY else Recurrence.ONCE,

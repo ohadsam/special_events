@@ -45,6 +45,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.ohadsam.specialevents.BuildConfig
 import com.ohadsam.specialevents.R
+import com.ohadsam.specialevents.calsync.DeviceCalendars
 import com.ohadsam.specialevents.calendar.AdarInLeapYear
 import com.ohadsam.specialevents.calendar.LeapDay
 import com.ohadsam.specialevents.calendar.ShortMonthThirtieth
@@ -246,6 +247,15 @@ fun SettingsScreen(viewModel: SettingsViewModel, onOpenLogs: () -> Unit, onOpenR
             if (open == "backup") {
                 AboutRow(Icons.Outlined.Print, R.string.settings_print, R.string.settings_print_desc, onOpenPrint)
                 AboutRow(Icons.Outlined.Backup, R.string.settings_backup, R.string.settings_backup_desc, onOpenBackup)
+                SwitchRow(
+                    title = stringResource(R.string.settings_gcal_auto),
+                    description = stringResource(R.string.settings_gcal_auto_desc),
+                    checked = settings.gcalAutoSync,
+                    // First time: permission and the choice of calendar are made on the sync screen, which turns the switch on itself.
+                    onChange = { v ->
+                        if (v && (!DeviceCalendars(context).hasPermission() || settings.gcalCalendarId < 0)) onOpenCalendarSync() else viewModel.update { it.copy(gcalAutoSync = v) }
+                    },
+                )
                 AboutRow(Icons.Outlined.Sync, R.string.settings_calsync, R.string.settings_calsync_desc, onOpenCalendarSync)
             }
 

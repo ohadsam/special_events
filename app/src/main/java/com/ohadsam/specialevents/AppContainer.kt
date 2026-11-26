@@ -57,6 +57,7 @@ class AppContainer(private val context: Context) {
 
     /** A settings section another screen wants opened (the update prompt asks for "updates"); the screen clears it once shown. */
     val settingsSection = kotlinx.coroutines.flow.MutableStateFlow<String?>(null)
+    val gcal: com.ohadsam.specialevents.calsync.GoogleCalendarSync by lazy { com.ohadsam.specialevents.calsync.GoogleCalendarSync(context.applicationContext, events, settings, logger) }
     val undoDelete: com.ohadsam.specialevents.data.UndoDelete by lazy { com.ohadsam.specialevents.data.UndoDelete(backups, events) }
     val backups: BackupRepository by lazy { BackupRepository(database, events, reminders, checklists, greetings, groups) }
 

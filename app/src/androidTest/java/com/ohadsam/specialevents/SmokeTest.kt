@@ -70,6 +70,13 @@ class SmokeTest {
     }
 
     @Test
+    fun googleCalendarSwitchIsInSettings() {
+        AppRobot.click(rule, text(R.string.tab_settings))
+        AppRobot.click(rule, text(R.string.settings_section_backup), scroll = true)
+        rule.onAllNodesWithText(text(R.string.settings_gcal_auto)).onFirst().assertExists()
+    }
+
+    @Test
     fun welcomeIsShownOnlyOnce() {
         // setUp already dismissed it; it must not come back after the activity is recreated.
         rule.activityRule.scenario.recreate()

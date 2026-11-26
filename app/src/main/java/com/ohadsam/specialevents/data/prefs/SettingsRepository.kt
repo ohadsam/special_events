@@ -55,6 +55,10 @@ class SettingsRepository(private val store: DataStore<Preferences>) {
             autoUpdateCheck = p[AUTO_UPDATE] ?: d.autoUpdateCheck,
             lastUpdateCheckAt = p[LAST_UPDATE_CHECK] ?: d.lastUpdateCheckAt,
             dismissedUpdateVersion = p[DISMISSED_UPDATE] ?: d.dismissedUpdateVersion,
+            gcalAutoSync = p[GCAL_AUTO] ?: d.gcalAutoSync,
+            gcalCalendarId = p[GCAL_CALENDAR] ?: d.gcalCalendarId,
+            gcalLastSyncAt = p[GCAL_LAST] ?: d.gcalLastSyncAt,
+            gcalLastError = p[GCAL_ERROR] ?: d.gcalLastError,
             dailySummary = p[DAILY_SUMMARY] ?: d.dailySummary,
             dailySummaryHour = p[DAILY_SUMMARY_HOUR] ?: d.dailySummaryHour,
             autoBackupFolder = p[AUTO_FOLDER] ?: d.autoBackupFolder,
@@ -93,6 +97,10 @@ class SettingsRepository(private val store: DataStore<Preferences>) {
         p[AUTO_UPDATE] = s.autoUpdateCheck
         p[LAST_UPDATE_CHECK] = s.lastUpdateCheckAt
         p[DISMISSED_UPDATE] = s.dismissedUpdateVersion
+        p[GCAL_AUTO] = s.gcalAutoSync
+        p[GCAL_CALENDAR] = s.gcalCalendarId
+        p[GCAL_LAST] = s.gcalLastSyncAt
+        p[GCAL_ERROR] = s.gcalLastError
         p[DAILY_SUMMARY] = s.dailySummary
         p[DAILY_SUMMARY_HOUR] = s.dailySummaryHour
         p[AUTO_FOLDER] = s.autoBackupFolder
@@ -132,6 +140,10 @@ class SettingsRepository(private val store: DataStore<Preferences>) {
         val AUTO_UPDATE = booleanPreferencesKey("auto_update_check")
         val LAST_UPDATE_CHECK = longPreferencesKey("last_update_check")
         val DISMISSED_UPDATE = stringPreferencesKey("dismissed_update")
+        val GCAL_AUTO = booleanPreferencesKey("gcal_auto")
+        val GCAL_CALENDAR = longPreferencesKey("gcal_calendar")
+        val GCAL_LAST = longPreferencesKey("gcal_last")
+        val GCAL_ERROR = stringPreferencesKey("gcal_error")
         val DAILY_SUMMARY = booleanPreferencesKey("daily_summary")
         val DAILY_SUMMARY_HOUR = intPreferencesKey("daily_summary_hour")
         val AUTO_FOLDER = stringPreferencesKey("auto_backup_folder")

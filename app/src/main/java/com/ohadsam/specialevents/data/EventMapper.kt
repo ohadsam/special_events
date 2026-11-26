@@ -5,6 +5,7 @@ import com.ohadsam.specialevents.calendar.OriginDate
 import com.ohadsam.specialevents.data.db.EventEntity
 import com.ohadsam.specialevents.data.db.EventWithTags
 import com.ohadsam.specialevents.data.db.TagEntity
+import com.ohadsam.specialevents.domain.CalendarSyncMode
 import com.ohadsam.specialevents.domain.EventType
 import com.ohadsam.specialevents.domain.Gender
 import com.ohadsam.specialevents.domain.Recurrence
@@ -38,6 +39,7 @@ object EventMapper {
             tags = row.tags.map(::toDomain),
             createdAt = e.createdAt,
             updatedAt = e.updatedAt,
+            calendarSync = enumOrNull<CalendarSyncMode>(e.calendarSync) ?: CalendarSyncMode.FOLLOW,
         )
     }
 
@@ -68,6 +70,7 @@ object EventMapper {
         archived = event.archived,
         createdAt = if (event.createdAt == 0L) now else event.createdAt,
         updatedAt = now,
+        calendarSync = event.calendarSync.name,
     )
 
     private inline fun <reified E : Enum<E>> enumOrNull(name: String): E? = enumValues<E>().firstOrNull { it.name == name }

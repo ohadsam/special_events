@@ -74,6 +74,7 @@ import com.ohadsam.specialevents.R
 import com.ohadsam.specialevents.ui.common.EventUnavailable
 import com.ohadsam.specialevents.calendar.CalendarBasis
 import com.ohadsam.specialevents.domain.EditorDate
+import com.ohadsam.specialevents.domain.CalendarSyncMode
 import com.ohadsam.specialevents.domain.EventType
 import com.ohadsam.specialevents.domain.Gender
 import com.ohadsam.specialevents.ui.common.EventAvatar
@@ -404,6 +405,13 @@ private fun MoreOptions(state: EditorState, vm: EditorViewModel) {
             ColorSwatch(0, 0, null, state.colorArgb == null) { vm.setColor(null) }
             PALETTE.forEachIndexed { i, c -> ColorSwatch(i + 1, PALETTE.size, c, state.colorArgb == c) { vm.setColor(c) } }
         }
+        Text(stringResource(R.string.editor_gcal), style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.primary)
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            CalendarSyncMode.entries.forEach { mode ->
+                FilterChip(selected = state.calendarSync == mode, onClick = { vm.setCalendarSync(mode) }, label = { Text(stringResource(gcalLabel(mode))) })
+            }
+        }
+        Text(stringResource(R.string.editor_gcal_hint), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         Text(stringResource(R.string.editor_tags), style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.primary)
         FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             state.tags.forEach { tag ->
@@ -453,4 +461,10 @@ private fun ColorSwatch(number: Int, total: Int, color: Int?, selected: Boolean,
             .semantics { contentDescription = description },
         contentAlignment = Alignment.Center,
     ) { if (color == null) Text("∅") }
+}
+
+private fun gcalLabel(mode: CalendarSyncMode): Int = when (mode) {
+    CalendarSyncMode.FOLLOW -> R.string.editor_gcal_follow
+    CalendarSyncMode.ON -> R.string.editor_gcal_on
+    CalendarSyncMode.OFF -> R.string.editor_gcal_off
 }

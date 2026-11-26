@@ -135,5 +135,13 @@ object Migrations {
         }
     }
 
-    val ALL: Array<Migration> = arrayOf(V1_TO_V2, V2_TO_V3, V3_TO_V4, V4_TO_V5, V5_TO_V6, V6_TO_V7, V7_TO_V8, V8_TO_V9, V9_TO_V10)
+    const val ADD_EVENT_CALENDAR_SYNC = "ALTER TABLE `events` ADD COLUMN `calendarSync` TEXT NOT NULL DEFAULT 'FOLLOW'"
+
+    val V10_TO_V11 = object : Migration(10, 11) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL(ADD_EVENT_CALENDAR_SYNC)
+        }
+    }
+
+    val ALL: Array<Migration> = arrayOf(V1_TO_V2, V2_TO_V3, V3_TO_V4, V4_TO_V5, V5_TO_V6, V6_TO_V7, V7_TO_V8, V8_TO_V9, V9_TO_V10, V10_TO_V11)
 }

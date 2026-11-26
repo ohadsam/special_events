@@ -17,6 +17,9 @@ enum class Gender { MALE, FEMALE }
 
 enum class Recurrence { YEARLY, ONCE }
 
+/** Whether an event is also written to the phone's Google calendar: follow the global switch, always, or never. */
+enum class CalendarSyncMode { FOLLOW, ON, OFF }
+
 data class Tag(val id: Long = 0, val name: String, val colorArgb: Int? = null)
 
 /** An event as the app works with it; storage lives in `data/db` and is mapped by `EventMapper`. */
@@ -44,4 +47,5 @@ data class SpecialEvent(
     val tags: List<Tag> = emptyList(),
     val createdAt: Long = 0,
     val updatedAt: Long = 0,
+    val calendarSync: CalendarSyncMode = CalendarSyncMode.FOLLOW,
 )

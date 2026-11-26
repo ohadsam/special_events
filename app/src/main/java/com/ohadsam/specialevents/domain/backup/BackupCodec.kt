@@ -4,6 +4,7 @@ import com.ohadsam.specialevents.calendar.CalendarBasis
 import com.ohadsam.specialevents.calendar.OriginDate
 import com.ohadsam.specialevents.calendar.hasPossibleDay
 import com.ohadsam.specialevents.calendar.Tier
+import com.ohadsam.specialevents.domain.CalendarSyncMode
 import com.ohadsam.specialevents.domain.EventType
 import com.ohadsam.specialevents.domain.Gender
 import com.ohadsam.specialevents.domain.Recurrence
@@ -111,6 +112,7 @@ object BackupCodec {
         put("day", e.origin.day)
         put("recurrence", e.recurrence.name)
         put("afterSunset", e.afterSunset)
+        if (e.calendarSync != CalendarSyncMode.FOLLOW) put("calendarSync", e.calendarSync.name)
         put("timeMinutes", e.timeMinutes)
         put("notes", e.notes)
         put("colorArgb", e.colorArgb)
@@ -139,6 +141,7 @@ object BackupCodec {
             origin = OriginDate(basis, o.int("year"), month, day),
             recurrence = enumOf<Recurrence>(o.str("recurrence")) ?: if (type.yearly) Recurrence.YEARLY else Recurrence.ONCE,
             afterSunset = o.bool("afterSunset") ?: false,
+            calendarSync = enumOf<CalendarSyncMode>(o.str("calendarSync")) ?: CalendarSyncMode.FOLLOW,
             timeMinutes = o.int("timeMinutes")?.takeIf { it in 0 until MAX_MINUTES },
             notes = o.str("notes")?.take(MAX_TEXT),
             colorArgb = o.int("colorArgb"),

@@ -36,6 +36,8 @@ data class EventEntity(
     // Added in schema v3; kept last so a fresh install and an upgraded database have the same column order.
     val contactPhone: String? = null,
     val contactEmail: String? = null,
+    // Added in schema v11 (see Migrations.ADD_EVENT_CALENDAR_SYNC); kept last for the same reason as the v3 columns.
+    @ColumnInfo(defaultValue = "FOLLOW") val calendarSync: String = "FOLLOW",
 )
 
 @Entity(tableName = "tags", indices = [Index(value = ["name"], unique = true)])

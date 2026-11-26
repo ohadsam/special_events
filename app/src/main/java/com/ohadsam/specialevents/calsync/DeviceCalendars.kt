@@ -1,6 +1,7 @@
 package com.ohadsam.specialevents.calsync
 
 import android.Manifest
+import android.content.ContentProviderOperation
 import android.content.ContentResolver
 import android.content.ContentUris
 import android.content.ContentValues
@@ -13,10 +14,14 @@ import com.ohadsam.specialevents.domain.backup.ExportedDay
 import com.ohadsam.specialevents.domain.backup.IcsExport
 import com.ohadsam.specialevents.domain.calsync.CalendarImportPlanner
 import com.ohadsam.specialevents.domain.calsync.DeviceEvent
+import com.ohadsam.specialevents.domain.gcal.DesiredEntry
+import com.ohadsam.specialevents.domain.gcal.ExistingEntry
+import com.ohadsam.specialevents.domain.gcal.GcalPlanner
+import com.ohadsam.specialevents.domain.gcal.GcalTag
 import java.time.Instant
 import java.time.ZoneOffset
 
-data class DeviceCalendar(val id: Long, val name: String, val account: String)
+data class DeviceCalendar(val id: Long, val name: String, val account: String, val accountType: String = "", val writable: Boolean = false)
 
 /** Reads the device's calendars (Google, Exchange, CalDAV...) and keeps one calendar of our own. Needs READ_CALENDAR / WRITE_CALENDAR. */
 class DeviceCalendars(private val context: Context) {
@@ -28,14 +33,75 @@ class DeviceCalendars(private val context: Context) {
     /** Calendars to import from; our own is left out. */
     fun calendars(): List<DeviceCalendar> {
         val out = ArrayList<DeviceCalendar>()
-        val projection = arrayOf(CalendarContract.Calendars._ID, CalendarContract.Calendars.CALENDAR_DISPLAY_NAME, CalendarContract.Calendars.ACCOUNT_NAME, CalendarContract.Calendars.ACCOUNT_TYPE)
+        val projection = arrayOf(CalendarContract.Calendars._ID, CalendarContract.Calendars.CALENDAR_DISPLAY_NAME, CalendarContract.Calendars.ACCOUNT_NAME, CalendarContract.Calendars.ACCOUNT_TYPE, CalendarContract.Calendars.CALENDAR_ACCESS_LEVEL)
         resolver.query(CalendarContract.Calendars.CONTENT_URI, projection, null, null, "${CalendarContract.Calendars.CALENDAR_DISPLAY_NAME} ASC")?.use { c ->
             while (c.moveToNext()) {
                 if (c.getString(3) == CalendarContract.ACCOUNT_TYPE_LOCAL && c.getString(2) == ACCOUNT_NAME) continue
-                out += DeviceCalendar(c.getLong(0), c.getString(1).orEmpty(), c.getString(2).orEmpty())
+                out += DeviceCalendar(c.getLong(0), c.getString(1).orEmpty(), c.getString(2).orEmpty(), c.getString(3).orEmpty(), c.getInt(4) >= CalendarContract.Calendars.CAL_ACCESS_CONTRIBUTOR)
             }
         }
         return out
+    }
+
+    /** Google-account calendars the app may write to (Google Calendar syncs them to the cloud, so no sign-in is needed here). */
+    fun googleCalendars(): List<DeviceCalendar> = calendars().filter { it.accountType == GOOGLE_ACCOUNT_TYPE && it.writable }
+
+    fun calendarExists(id: Long): Boolean = googleCalendars().any { it.id == id }
+
+    /** The entries in [calendarId] that carry the app's mark, as the planner wants them. */
+    fun markedEntries(calendarId: Long): List<ExistingEntry> {
+        val out = ArrayList<ExistingEntry>()
+        val projection = arrayOf(CalendarContract.Events._ID, CalendarContract.Events.TITLE, CalendarContract.Events.DTSTART, CalendarContract.Events.RRULE, CalendarContract.Events.DESCRIPTION)
+        val selection = "${CalendarContract.Events.CALENDAR_ID} = ? AND ${CalendarContract.Events.DELETED} = 0 AND ${CalendarContract.Events.DESCRIPTION} LIKE ?"
+        resolver.query(CalendarContract.Events.CONTENT_URI, projection, selection, arrayOf(calendarId.toString(), "%[SE1:%"), null)?.use { c ->
+            while (c.moveToNext() && out.size < MAX_EVENTS) {
+                val title = c.getString(1).orEmpty()
+                val date = Instant.ofEpochMilli(c.getLong(2)).atZone(ZoneOffset.UTC).toLocalDate()
+                val tag = GcalTag.parse(c.getString(4))
+                val key = tag?.let { GcalPlanner.existingKey(it, title, CalendarImportPlanner.isYearlyRule(c.getString(3)), date) }
+                out += ExistingEntry(c.getLong(0), key, title, date)
+            }
+        }
+        return out
+    }
+
+    /** Writes [entries] into [calendarId] (as all-day entries, free time, no alarm: the app has its own reminders). Returns how many were written. */
+    fun insert(calendarId: Long, entries: List<DesiredEntry>): Int {
+        var written = 0
+        entries.chunked(BATCH).forEach { chunk ->
+            val ops = ArrayList<ContentProviderOperation>()
+            for (e in chunk) {
+                val start = e.date.atStartOfDay().toInstant(ZoneOffset.UTC).toEpochMilli()
+                val builder = ContentProviderOperation.newInsert(CalendarContract.Events.CONTENT_URI)
+                    .withValue(CalendarContract.Events.CALENDAR_ID, calendarId)
+                    .withValue(CalendarContract.Events.TITLE, e.title)
+                    .withValue(CalendarContract.Events.DESCRIPTION, e.description)
+                    .withValue(CalendarContract.Events.DTSTART, start)
+                    .withValue(CalendarContract.Events.ALL_DAY, 1)
+                    .withValue(CalendarContract.Events.EVENT_TIMEZONE, "UTC")
+                    .withValue(CalendarContract.Events.AVAILABILITY, CalendarContract.Events.AVAILABILITY_FREE)
+                    .withValue(CalendarContract.Events.HAS_ALARM, 0)
+                if (e.rrule != null) {
+                    // A repeating entry has a duration instead of an end.
+                    builder.withValue(CalendarContract.Events.RRULE, e.rrule).withValue(CalendarContract.Events.DURATION, "P1D")
+                } else {
+                    builder.withValue(CalendarContract.Events.DTEND, start + DAY_MILLIS)
+                }
+                ops += builder.build()
+            }
+            written += resolver.applyBatch(CalendarContract.AUTHORITY, ops).count { it.uri != null }
+        }
+        return written
+    }
+
+    /** Deletes entries by their calendar id (Google Calendar then removes them from the cloud too). */
+    fun delete(ids: List<Long>): Int {
+        var removed = 0
+        ids.chunked(BATCH).forEach { chunk ->
+            val ops = chunk.map { ContentProviderOperation.newDelete(ContentUris.withAppendedId(CalendarContract.Events.CONTENT_URI, it)).build() }
+            removed += resolver.applyBatch(CalendarContract.AUTHORITY, ArrayList(ops)).count { (it.count ?: 0) > 0 }
+        }
+        return removed
     }
 
     /** All-day entries of [calendars]; capped so a huge calendar cannot exhaust memory. */
@@ -120,6 +186,8 @@ class DeviceCalendars(private val context: Context) {
         const val CALENDAR_TITLE = "אירועים מיוחדים"
         const val CALENDAR_COLOR = 0xFF4A3AB8.toInt()
         const val MAX_EVENTS = 5_000
+        const val BATCH = 100
+        const val GOOGLE_ACCOUNT_TYPE = "com.google"
         const val DAY_MILLIS = 24 * 60 * 60 * 1000L
     }
 }

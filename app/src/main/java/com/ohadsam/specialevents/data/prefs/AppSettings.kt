@@ -49,6 +49,13 @@ data class AppSettings(
     val lastUpdateCheckAt: Long = 0,
     /** The version the user chose "later" for, so it is not offered again on every start. */
     val dismissedUpdateVersion: String = "",
+    /** Write events to a Google calendar on the phone automatically (events can still opt in or out one by one). */
+    val gcalAutoSync: Boolean = false,
+    /** The device calendar the events are written to; -1 = none chosen yet. */
+    val gcalCalendarId: Long = -1,
+    val gcalLastSyncAt: Long = 0,
+    /** "" = the last sync went fine, otherwise a short code (permission, no-calendar, write). */
+    val gcalLastError: String = "",
     val dailySummary: Boolean = false,
     val dailySummaryHour: Int = 8,
     /** Automatic backup: the folder the user picked (a persisted SAF tree URI, empty = none), how often in days (0 = off), copies to keep. */

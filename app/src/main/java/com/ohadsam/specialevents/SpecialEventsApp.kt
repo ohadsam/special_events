@@ -67,6 +67,15 @@ class SpecialEventsApp : Application() {
                 .debounce(REPLAN_DEBOUNCE_MS)
                 .collect { runCatching { c.reminderScheduler.rescheduleAll() }.onFailure { c.logger.e("App", "reschedule failed", it) } }
         }
+        // Events saved to the phone's Google calendar: any change to events or the sync settings brings the calendar up to date.
+        appScope.launch {
+            combine(c.events.allEvents, c.settings.settings.map { listOf(it.gcalAutoSync, it.gcalCalendarId, it.dateRules) }.distinctUntilChanged()) { _, _ -> Unit }
+                .debounce(GCAL_DEBOUNCE_MS)
+                .collect { runCatching { c.gcal.syncIfNeeded() }.onFailure { c.logger.e("App", "calendar sync failed", it) } }
+        }
+        appScope.launch {
+            c.settings.settings.map { it.gcalAutoSync }.distinctUntilChanged().collect { runCatching { com.ohadsam.specialevents.calsync.GoogleCalendarSync.schedule(c.appContext, it) } }
+        }
         // Widgets keep a live view only while their session lives; push a refresh whenever the data they show changes.
         appScope.launch {
             combine(c.events.allEvents, c.settings.settings, c.checklists.all) { _, _, _ -> Unit }
@@ -77,5 +86,6 @@ class SpecialEventsApp : Application() {
 
     private companion object {
         const val REPLAN_DEBOUNCE_MS = 600L
+        const val GCAL_DEBOUNCE_MS = 3_000L
     }
 }
