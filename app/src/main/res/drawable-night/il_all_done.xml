@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="240dp" android:height="200dp" android:viewportWidth="240" android:viewportHeight="200">
+    <group android:translateX="22" android:translateY="42" android:scaleX="1.45" android:scaleY="1.45">
+      <path android:pathData="M22,39H78A10,10 0 0 1 88,49V85A10,10 0 0 1 78,95H22A10,10 0 0 1 12,85V49A10,10 0 0 1 22,39z" android:fillColor="#7E57C2"/>
+      <path android:pathData="M13,29H87A8,8 0 0 1 95,37V43A8,8 0 0 1 87,51H13A8,8 0 0 1 5,43V37A8,8 0 0 1 13,29z" android:fillColor="#7E57C2"/>
+      <path android:pathData="M46,30H54A3,3 0 0 1 57,33V92A3,3 0 0 1 54,95H46A3,3 0 0 1 43,92V33A3,3 0 0 1 46,30z" android:fillColor="#FFB300"/>
+      <group android:translateX="10" android:translateY="0" android:scaleX="0.85" android:scaleY="0.85">
+        <path android:pathData="M49 31 C22 35 3 25 10 12 C19 -3 39 9 49 24 C56 4 80 -5 87 10 C96 27 72 36 49 31Z" android:fillColor="#FFB300"/>
+      </group>
+    </group>
+    <group android:translateX="130" android:translateY="70" android:scaleX="0.85" android:scaleY="0.85">
+      <path android:pathData="M5,50a45,45 0 1 0 90,0a45,45 0 1 0 -90,0z" android:fillColor="#FFFFFF"/>
+      <path android:pathData="M22 51 L43 72 L79 30" android:strokeColor="#C2185B" android:strokeWidth="12" android:strokeLineCap="round" android:strokeLineJoin="round"/>
+    </group>
+</vector>

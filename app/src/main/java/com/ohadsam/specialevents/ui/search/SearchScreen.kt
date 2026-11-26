@@ -66,6 +66,7 @@ import com.ohadsam.specialevents.domain.search.SavedSearch
 import com.ohadsam.specialevents.domain.search.SearchStep
 import com.ohadsam.specialevents.domain.search.SearchSuggestions
 import com.ohadsam.specialevents.ui.common.GregorianDatePickerDialog
+import com.ohadsam.specialevents.ui.common.Illustration
 import com.ohadsam.specialevents.ui.common.gregorianShort
 import com.ohadsam.specialevents.ui.common.labelRes
 import com.ohadsam.specialevents.ui.help.HelpButton
@@ -156,6 +157,7 @@ private fun StepChips(state: SearchState, vm: SearchViewModel) {
 private fun Results(state: SearchState, onOpenEvent: (Long) -> Unit) {
     if (state.results.isEmpty()) {
         Column(Modifier.fillMaxSize().padding(32.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
+            Illustration(R.drawable.il_empty_search, 140.dp, Modifier.padding(bottom = 12.dp))
             Text(stringResource(R.string.search_no_results_title), style = MaterialTheme.typography.titleLarge)
             Text(
                 stringResource(R.string.search_no_results_refine),

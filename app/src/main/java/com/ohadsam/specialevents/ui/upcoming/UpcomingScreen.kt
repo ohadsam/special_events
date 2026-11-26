@@ -1,5 +1,6 @@
 package com.ohadsam.specialevents.ui.upcoming
 
+import com.ohadsam.specialevents.ui.common.Illustration
 import com.ohadsam.specialevents.ui.help.TooltipIconButton
 import com.ohadsam.specialevents.ui.help.HelpTopic
 import com.ohadsam.specialevents.ui.help.HelpButton
@@ -17,10 +18,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
-import androidx.compose.material.icons.outlined.Cake
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.Search
-import androidx.compose.material.icons.outlined.SearchOff
 import androidx.compose.material.icons.outlined.Tune
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -194,8 +193,8 @@ private fun Body(state: UpcomingState, actions: ViewActions, onAddEvent: () -> U
     val groupNames = state.eventGroups.associate { it.id to listOfNotNull(it.emoji, it.name).joinToString(" ") }
     when {
         state.loading -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
-        state.noEvents -> EmptyState(Icons.Outlined.Cake, R.string.upcoming_empty_title, R.string.upcoming_empty_body, R.string.action_add_first_event, onAddEvent, R.string.import_from_contacts, onImportContacts)
-        state.groups.isEmpty() -> EmptyState(Icons.Outlined.SearchOff, R.string.search_no_results_title, R.string.search_no_results_body, null, {}, null, {})
+        state.noEvents -> EmptyState(R.drawable.il_empty_events, R.string.upcoming_empty_title, R.string.upcoming_empty_body, R.string.action_add_first_event, onAddEvent, R.string.import_from_contacts, onImportContacts)
+        state.groups.isEmpty() -> EmptyState(R.drawable.il_empty_search, R.string.search_no_results_title, R.string.search_no_results_body, null, {}, null, {})
         else -> LazyColumn(
             contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 96.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp),
@@ -225,7 +224,7 @@ private fun Body(state: UpcomingState, actions: ViewActions, onAddEvent: () -> U
 
 @Composable
 private fun EmptyState(
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    @androidx.annotation.DrawableRes art: Int,
     title: Int,
     body: Int,
     action: Int?,
@@ -234,7 +233,7 @@ private fun EmptyState(
     onSecondaryAction: () -> Unit,
 ) {
     Column(Modifier.fillMaxSize().padding(32.dp), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
-        Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.padding(bottom = 16.dp))
+        Illustration(art, 160.dp, Modifier.padding(bottom = 16.dp), breathe = art == R.drawable.il_empty_events)
         Text(stringResource(title), style = MaterialTheme.typography.titleLarge, textAlign = TextAlign.Center)
         Text(
             stringResource(body),

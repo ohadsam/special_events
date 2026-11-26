@@ -958,4 +958,11 @@
     <string name="review_amount">%1$d ₪</string>
     <string name="settings_review">סיכום שנתי</string>
     <string name="settings_review_desc">כמה אירועים, ברכות ומתנות היו בשנה</string>
+    <string name="onboarding_next">הבא</string>
+    <string name="onboarding_1_title">שני לוחות, תאריך אחד</string>
+    <string name="onboarding_1_body">כל אירוע מוצג בתאריך עברי ולועזי. אפשר פשוט לכתוב את התאריך בחופשיות — והאפליקציה מבינה.</string>
+    <string name="onboarding_2_title">תזכורת בזמן</string>
+    <string name="onboarding_2_body">כל אירוע מקבל תזכורות מוכנות לפי הסוג שלו, גם סביב שבת וחג — ואפשר לשנות אותן בכל רגע.</string>
+    <string name="onboarding_3_title">ברכה בנגיעה אחת</string>
+    <string name="onboarding_3_body">וואטסאפ, מייל או הודעה: הברכה מוכנה עם השם והתאריכים, ורק נשאר ללחוץ שליחה.</string>
 </resources>

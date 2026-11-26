@@ -91,19 +91,37 @@ class SpecialEventsApp : Application() {
         }
     }
 
-    /** Edits made in Google Calendar itself (a renamed entry, a deleted one) reach the app while it is running, so the calendar stays two-way. */
+    private val calendarChanged = Channel<Unit>(Channel.CONFLATED)
+    private var observing = false
+    private val calendarObserver = object : ContentObserver(Handler(Looper.getMainLooper())) {
+        override fun onChange(selfChange: Boolean) {
+            calendarChanged.trySend(Unit)
+        }
+    }
+
+    /**
+     * Edits made in Google Calendar itself (a renamed entry) reach the app while it is running, so the calendar stays two-way.
+     * Android refuses to register an observer on the calendar without calendar permission, so this is retried whenever the sync
+     * settings change (the permission is granted from the sync screen) and never throws.
+     */
+    private fun ensureCalendarObserver() {
+        if (observing) return
+        try {
+            contentResolver.registerContentObserver(CalendarContract.Events.CONTENT_URI, true, calendarObserver)
+            observing = true
+        } catch (e: SecurityException) {
+            container.logger.i("App", "calendar observer waits for permission")
+        }
+    }
+
     @OptIn(FlowPreview::class)
     private fun watchCalendarChanges() {
         val c = container
-        val changed = Channel<Unit>(Channel.CONFLATED)
-        val observer = object : ContentObserver(Handler(Looper.getMainLooper())) {
-            override fun onChange(selfChange: Boolean) {
-                changed.trySend(Unit)
-            }
-        }
-        contentResolver.registerContentObserver(CalendarContract.Events.CONTENT_URI, true, observer)
         appScope.launch {
-            changed.receiveAsFlow()
+            c.settings.settings.map { listOf(it.gcalAutoSync, it.gcalCalendarId) }.distinctUntilChanged().collect { ensureCalendarObserver() }
+        }
+        appScope.launch {
+            calendarChanged.receiveAsFlow()
                 .debounce(CALENDAR_OBSERVER_DEBOUNCE_MS)
                 .collect { runCatching { c.gcal.onCalendarChanged() }.onFailure { c.logger.e("App", "calendar change sync failed", it) } }
         }

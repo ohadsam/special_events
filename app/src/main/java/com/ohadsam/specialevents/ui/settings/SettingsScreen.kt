@@ -1,5 +1,8 @@
 package com.ohadsam.specialevents.ui.settings
 
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.size
+import androidx.compose.ui.res.painterResource
 import com.ohadsam.specialevents.ui.help.HelpTopic
 import com.ohadsam.specialevents.ui.help.HelpButton
 import android.os.Build
@@ -15,7 +18,6 @@ import androidx.compose.material.icons.outlined.BugReport
 import androidx.compose.material.icons.outlined.Contacts
 import androidx.compose.material.icons.outlined.Groups
 import androidx.compose.material.icons.outlined.HealthAndSafety
-import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Insights
 import androidx.compose.material.icons.outlined.Message
 import androidx.compose.material.icons.outlined.NewReleases
@@ -271,8 +273,8 @@ fun SettingsScreen(viewModel: SettingsViewModel, onOpenLogs: () -> Unit, onOpenR
                 AboutRow(Icons.Outlined.BugReport, R.string.settings_logs, R.string.settings_logs_desc, onOpenLogs)
                 AboutRow(Icons.Outlined.RestartAlt, R.string.settings_reset_all, R.string.settings_reset_all_desc) { confirmResetAll = true }
                 ListItem(
-                    leadingContent = { Icon(Icons.Outlined.Info, contentDescription = null) },
-                    headlineContent = { Text(stringResource(R.string.settings_about)) },
+                    leadingContent = { Image(painterResource(R.drawable.logo_symbol), contentDescription = stringResource(R.string.settings_about), modifier = Modifier.size(40.dp)) },
+                    headlineContent = { Text(stringResource(R.string.app_name)) },
                     supportingContent = { Text(stringResource(R.string.settings_version, BuildConfig.VERSION_NAME, BuildConfig.VERSION_CODE)) },
                 )
             }

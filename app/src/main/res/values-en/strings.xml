@@ -950,4 +950,11 @@
     <string name="review_amount">₪%1$d</string>
     <string name="settings_review">Year in review</string>
     <string name="settings_review_desc">How many events, greetings and gifts there were this year</string>
+    <string name="onboarding_next">Next</string>
+    <string name="onboarding_1_title">Two calendars, one date</string>
+    <string name="onboarding_1_body">Every event is shown with its Hebrew and Gregorian date. You can simply type the date in your own words, and the app understands.</string>
+    <string name="onboarding_2_title">A reminder on time</string>
+    <string name="onboarding_2_body">Every event gets ready-made reminders for its type, including around Shabbat and holidays, and you can change them any time.</string>
+    <string name="onboarding_3_title">A greeting with one tap</string>
+    <string name="onboarding_3_body">WhatsApp, e-mail or a message: the greeting is ready with the name and dates, and all that is left is to press send.</string>
 </resources>

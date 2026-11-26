@@ -1,27 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="108dp"
-    android:height="108dp"
-    android:viewportWidth="108"
-    android:viewportHeight="108">
-    <!-- Soft shadow -->
-    <path
-        android:fillColor="#26000000"
-        android:pathData="M33,38h42a7,7 0 0 1 7,7v33a7,7 0 0 1 -7,7h-42a7,7 0 0 1 -7,-7v-33a7,7 0 0 1 7,-7z" />
-    <!-- Calendar page -->
-    <path
-        android:fillColor="#FFFFFF"
-        android:pathData="M33,34h42a7,7 0 0 1 7,7v33a7,7 0 0 1 -7,7h-42a7,7 0 0 1 -7,-7v-33a7,7 0 0 1 7,-7z" />
-    <!-- Header band -->
-    <path
-        android:fillColor="#FFB300"
-        android:pathData="M26,48h56v-7a7,7 0 0 0 -7,-7h-42a7,7 0 0 0 -7,7z" />
-    <!-- Binder rings -->
-    <path
-        android:fillColor="#FFFFFF"
-        android:pathData="M39,28a2.5,2.5 0 0 1 5,0v10a2.5,2.5 0 0 1 -5,0zM64,28a2.5,2.5 0 0 1 5,0v10a2.5,2.5 0 0 1 -5,0z" />
-    <!-- Heart -->
-    <path
-        android:fillColor="#E91E63"
-        android:pathData="M54,75C46,69 41,64.5 41,59.5C41,56 43.7,53.5 47,53.5C49.9,53.5 52.8,55 54,57.6C55.2,55 58.1,53.5 61,53.5C64.3,53.5 67,56 67,59.5C67,64.5 62,69 54,75z" />
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="108dp" android:height="108dp" android:viewportWidth="108" android:viewportHeight="108">
+    <group android:translateX="28" android:translateY="26" android:scaleX="0.5" android:scaleY="0.5">
+      <path android:pathData="M22 91 L22 39 Q22 29 33 29 H59 C83 29 94 43 94 61 C94 80 80 90 58 90 H46 V98 Q46 106 34 106 Q22 106 22 98Z" android:fillColor="#4527A0"/>
+      <path android:pathData="M56,43H67A12,12 0 0 1 79,55V63A12,12 0 0 1 67,75H56A12,12 0 0 1 44,63V55A12,12 0 0 1 56,43z" android:fillColor="#FFFFFF"/>
+      <group android:translateX="46" android:translateY="43" android:scaleX="0.31" android:scaleY="0.31">
+        <path android:pathData="M50 77 C40 68 12 51 12 34 C12 13 37 9 50 27 C63 9 88 13 88 34 C88 51 60 68 50 77Z" android:fillColor="#C2185B"/>
+      </group>
+      <path android:pathData="M49 31 C22 35 3 25 10 12 C19 -3 39 9 49 24 C56 4 80 -5 87 10 C96 27 72 36 49 31Z" android:fillColor="#FFB300"/>
+      <path android:pathData="M45 30 L5 57 L20 62 L25 76 L57 33Z" android:fillColor="#FFB300"/>
+      <path android:pathData="M22 92 L46 76 V108 L34 100 L22 108Z" android:fillColor="#FFB300"/>
+    </group>
 </vector>

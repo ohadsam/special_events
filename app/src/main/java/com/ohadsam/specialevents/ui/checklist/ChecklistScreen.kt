@@ -1,5 +1,6 @@
 package com.ohadsam.specialevents.ui.checklist
 
+import com.ohadsam.specialevents.ui.common.Illustration
 import com.ohadsam.specialevents.ui.help.HelpTopic
 import com.ohadsam.specialevents.ui.help.HelpButton
 import androidx.compose.foundation.clickable
@@ -125,6 +126,9 @@ fun ChecklistScreen(viewModel: ChecklistViewModel, onBack: () -> Unit) {
                         }
                     }
                 }
+            }
+            if (state.items.isNotEmpty() && state.items.all { it.done }) {
+                item { Illustration(R.drawable.il_all_done, 120.dp, Modifier.padding(top = 12.dp)) }
             }
             if (state.items.isEmpty()) {
                 item {

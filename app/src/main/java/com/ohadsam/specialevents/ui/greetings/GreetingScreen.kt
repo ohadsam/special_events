@@ -1,5 +1,8 @@
 package com.ohadsam.specialevents.ui.greetings
 
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableIntStateOf
+import com.ohadsam.specialevents.ui.common.ConfettiBurst
 import com.ohadsam.specialevents.ui.help.HelpTopic
 import com.ohadsam.specialevents.ui.help.HelpButton
 import androidx.compose.foundation.horizontalScroll
@@ -93,6 +96,14 @@ fun GreetingScreen(viewModel: GreetingViewModel, onBack: () -> Unit) {
             EventUnavailable(state.loading, padding)
             return@Scaffold
         }
+        // A greeting that just became "sent" gets a short confetti burst (nothing when animations are off).
+        var wasGreeted by remember { mutableStateOf<Boolean?>(null) }
+        var burst by remember { mutableIntStateOf(0) }
+        LaunchedEffect(state.greeted) {
+            if (wasGreeted == false && state.greeted) burst++
+            wasGreeted = state.greeted
+        }
+        if (burst > 0) ConfettiBurst(burst)
         Column(
             Modifier.fillMaxSize().padding(padding).imePadding().verticalScroll(rememberScrollState()).padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(14.dp),
