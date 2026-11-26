@@ -50,13 +50,13 @@ class StoreShotsTest {
 
     @Test
     fun takeShots() {
-        // The empty state must be gone, otherwise the first picture shows "no events yet".
-        val addFirst = AppRobot.text(rule, R.string.action_add_first_event)
-        rule.waitUntil(LOAD_MS) { rule.onAllNodesWithText(addFirst).fetchSemanticsNodes().isEmpty() }
-        shot("upcoming")
+        // The first frame can still show the empty state although the data is there, so the list picture is taken after opening an event
+        // and coming back, when the list has certainly been drawn with its items.
         AppRobot.click(rule, DEMO.first().first)
         shot("event")
         AppRobot.back(rule)
+        Thread.sleep(SETTLE_MS)
+        shot("upcoming")
         AppRobot.click(rule, AppRobot.text(rule, R.string.tab_calendar))
         shot("calendar")
         AppRobot.click(rule, AppRobot.text(rule, R.string.tab_settings))
@@ -68,6 +68,7 @@ class StoreShotsTest {
 
     private companion object {
         const val LOAD_MS = 10_000L
+        const val SETTLE_MS = 600L
         const val FIRST_OFFSET_DAYS = 3L
         const val STEP_DAYS = 9L
         const val PNG_QUALITY = 100
