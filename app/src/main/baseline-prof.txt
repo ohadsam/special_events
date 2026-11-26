@@ -1,0 +1,16 @@
+# Hand-written Baseline Profile (no device in the cloud sandbox to record one): the app's own startup and first-screen code is
+# pre-compiled at install, which shortens cold start. Wildcards keep it valid when classes move. Compose and AndroidX ship their own
+# profiles in their AARs; `androidx.profileinstaller` applies this one on installs that do not come from Play (our APK updater).
+HSPLcom/ohadsam/specialevents/SpecialEventsApp;->**(**)**
+HSPLcom/ohadsam/specialevents/AppContainer;->**(**)**
+HSPLcom/ohadsam/specialevents/MainActivity;->**(**)**
+HSPLcom/ohadsam/specialevents/ui/nav/**;->**(**)**
+HSPLcom/ohadsam/specialevents/ui/upcoming/**;->**(**)**
+HSPLcom/ohadsam/specialevents/ui/theme/**;->**(**)**
+HSPLcom/ohadsam/specialevents/ui/common/**;->**(**)**
+HSPLcom/ohadsam/specialevents/domain/EventTimeline;->**(**)**
+HSPLcom/ohadsam/specialevents/domain/UpcomingFilter;->**(**)**
+HSPLcom/ohadsam/specialevents/calendar/**;->**(**)**
+HSPLcom/ohadsam/specialevents/data/**;->**(**)**
+HSPLcom/ohadsam/specialevents/data/db/**;->**(**)**
+Lcom/ohadsam/specialevents/**;
