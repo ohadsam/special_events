@@ -81,6 +81,7 @@ Read order: CLAUDE.md → docs/PLAN.md → STRUCTURE.md → the batch's section 
 - v0.34.0: Google Calendar sync (calsync/GoogleCalendarSync, domain/gcal/*: GcalTag, GcalPlanner, GcalMatcher; DB v11 events.calendarSync FOLLOW/ON/OFF). Entries are tagged `[SE1:TYPE:G|H:year|-:month:day:Y|O]` as the last description line. Gregorian yearly events = one RRULE entry; Hebrew / 29 Feb / one-time = per-occurrence entries (3 years ahead, topped up daily by GcalSyncWorker). Import review: ImportRow + MatchKind (NONE/EXACT/LIKELY/CONFLICT) -> CREATE/MERGE/IGNORE. Unverified on device: writing to a real Google account calendar, Google sync of the RRULE all-day entries, the review screen at 200% font, Hebrew-prefix name matching on real data. schemas/11.json was committed by CI and checked by hand against Migrations.ADD_EVENT_CALENDAR_SYNC (identical to Room's CREATE); MigrationSchemaV11Test now runs.
 
 ## Known issues / open items (need the owner)
+- Brand: owner wants the name "PresentSimple" inside a new logo. ChatGPT prompt ready: docs/prompts/PRESENTSIMPLE_BRAND_PROMPT.md. In-app name stays "אירועים מיוחדים" until the owner approves the rename.
 - Feature spec for "אירועים מיוחדים" not yet provided → fill `docs/SPEC.md`, then define batches in `docs/PLAN.md`.
 - **Signing key:** `app/sideload.jks` (password in app/build.gradle.kts) is committed on purpose so every CI build updates in place; NOT a store key. Never change it after users installed the app.
 - Lint (ktlint/detekt) is advisory (`ignoreFailures`); flip to enforcing once stable.
