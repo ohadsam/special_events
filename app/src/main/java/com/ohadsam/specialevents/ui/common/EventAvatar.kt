@@ -1,5 +1,6 @@
 package com.ohadsam.specialevents.ui.common
 
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -17,6 +18,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.sp
@@ -24,9 +26,12 @@ import com.ohadsam.specialevents.contacts.PhotoStore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-/** The round picture of an event: the person's photo when there is one, otherwise the icon (emoji) on the event colour. */
+/**
+ * The round picture of an event: the person's photo when there is one, otherwise the chosen icon (emoji) on the event colour, and when no
+ * icon was chosen the brand badge of the event type ([badge]).
+ */
 @Composable
-fun EventAvatar(photoUri: String?, emoji: String, color: Color, size: Dp, emojiSize: TextUnit = (size.value * 0.5f).sp) {
+fun EventAvatar(photoUri: String?, emoji: String, color: Color, size: Dp, emojiSize: TextUnit = (size.value * 0.5f).sp, @DrawableRes badge: Int? = null) {
     val px = with(LocalDensity.current) { size.roundToPx() }
     val bitmap by produceState<ImageBitmap?>(initialValue = null, photoUri, px) {
         value = photoUri?.let { withContext(Dispatchers.IO) { PhotoStore.thumb(it, px)?.asImageBitmap() } }
@@ -35,6 +40,8 @@ fun EventAvatar(photoUri: String?, emoji: String, color: Color, size: Dp, emojiS
         val image = bitmap
         if (image != null) {
             Image(image, contentDescription = null, contentScale = ContentScale.Crop, modifier = Modifier.size(size))
+        } else if (badge != null) {
+            Image(painterResource(badge), contentDescription = null, modifier = Modifier.size(size))
         } else {
             Text(emoji, fontSize = emojiSize)
         }

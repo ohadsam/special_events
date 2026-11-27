@@ -45,6 +45,7 @@ import com.ohadsam.specialevents.domain.UpcomingItem
 import com.ohadsam.specialevents.ui.common.EventAvatar
 import com.ohadsam.specialevents.ui.common.dateLabel
 import com.ohadsam.specialevents.ui.common.defaultEmoji
+import com.ohadsam.specialevents.ui.common.badgeRes
 import com.ohadsam.specialevents.ui.common.labelRes
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -92,7 +93,7 @@ private fun CardBody(item: UpcomingItem, mode: CalendarMode, greeted: Boolean) {
     val event = item.event
     val accent = event.colorArgb?.let { Color(it) } ?: MaterialTheme.colorScheme.primaryContainer
     Row(Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-        EventAvatar(event.photoUri, event.iconKey ?: event.type.defaultEmoji(), accent, 52.dp)
+        EventAvatar(event.photoUri, event.iconKey ?: event.type.defaultEmoji(), accent, 52.dp, badge = event.type.badgeRes().takeIf { event.iconKey == null })
         Column(Modifier.weight(1f)) {
             Text(event.title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis)
             Text(

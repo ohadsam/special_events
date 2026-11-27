@@ -99,4 +99,18 @@ class PrintHtmlTest {
         assertFalse(html.contains("<x>"))
         assertEquals(12, "<h2>".toRegex().findAll(html).count())
     }
+
+    @Test
+    fun framesAreSafeDataUrisInTheAccentColour() {
+        val seen = HashSet<String>()
+        CardTheme.entries.forEach { theme ->
+            val uri = com.ohadsam.specialevents.domain.print.PrintFrames.dataUri(theme, "#112233")
+            assertTrue(uri.startsWith("data:image/svg+xml;utf8,%3Csvg"))
+            assertTrue(uri.contains("%23112233"))
+            listOf('#', '<', '>', '"').forEach { assertFalse("raw $it in $theme", uri.contains(it)) }
+            assertTrue(seen.add(uri))
+        }
+        val html = PrintHtml.card(CardPage("🎉", "x", "y", theme = CardTheme.CLASSIC), PrintStyle())
+        assertTrue(html.contains("background: url(\"data:image/svg+xml"))
+    }
 }

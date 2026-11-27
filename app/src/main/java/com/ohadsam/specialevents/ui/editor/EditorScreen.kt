@@ -81,6 +81,7 @@ import com.ohadsam.specialevents.ui.common.EventAvatar
 import com.ohadsam.specialevents.ui.common.GregorianDatePickerDialog
 import com.ohadsam.specialevents.ui.common.gregorianLong
 import com.ohadsam.specialevents.ui.common.gregorianNoYear
+import com.ohadsam.specialevents.ui.common.badgeRes
 import com.ohadsam.specialevents.ui.common.labelRes
 import com.ohadsam.specialevents.ui.common.weekdayName
 import java.time.Instant
@@ -171,7 +172,7 @@ private fun PersonSection(state: EditorState, vm: EditorViewModel) {
     val pickContact = rememberLauncherForActivityResult(ActivityResultContracts.PickContact()) { uri -> uri?.let(vm::onContactPicked) }
     val accent = state.colorArgb?.let { Color(it) } ?: MaterialTheme.colorScheme.primaryContainer
     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-        EventAvatar(state.photoUri, state.emoji, accent, 72.dp)
+        EventAvatar(state.photoUri, state.emoji, accent, 72.dp, badge = state.type.badgeRes().takeIf { state.chosenEmoji == null })
         Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedButton(onClick = { pickPhoto.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) }) {

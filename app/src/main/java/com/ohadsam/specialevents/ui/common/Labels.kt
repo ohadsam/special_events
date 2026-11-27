@@ -1,5 +1,6 @@
 package com.ohadsam.specialevents.ui.common
 
+import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import com.ohadsam.specialevents.R
 import com.ohadsam.specialevents.calendar.AdarInLeapYear
@@ -16,6 +17,17 @@ import com.ohadsam.specialevents.domain.UpcomingGroup
 import com.ohadsam.specialevents.domain.reminders.Channel
 import com.ohadsam.specialevents.domain.views.GroupBy
 import com.ohadsam.specialevents.domain.views.SortBy
+
+@DrawableRes
+fun EventType.badgeRes(): Int = when (this) {
+    EventType.BIRTHDAY -> R.drawable.badge_birthday
+    EventType.ANNIVERSARY -> R.drawable.badge_anniversary
+    EventType.YAHRZEIT -> R.drawable.badge_memorial
+    EventType.BAR_BAT_MITZVAH -> R.drawable.badge_bar_bat_mitzvah
+    EventType.WORK -> R.drawable.badge_work
+    EventType.FAMILY -> R.drawable.badge_family
+    EventType.CUSTOM -> R.drawable.badge_custom
+}
 
 @StringRes
 fun EventType.labelRes(): Int = when (this) {

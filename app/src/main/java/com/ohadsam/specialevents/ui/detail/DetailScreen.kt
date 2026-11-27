@@ -68,6 +68,7 @@ import com.ohadsam.specialevents.ui.common.EventAvatar
 import com.ohadsam.specialevents.ui.common.dateLabel
 import com.ohadsam.specialevents.ui.common.defaultEmoji
 import com.ohadsam.specialevents.ui.common.gregorianLong
+import com.ohadsam.specialevents.ui.common.badgeRes
 import com.ohadsam.specialevents.ui.common.labelRes
 import com.ohadsam.specialevents.ui.common.weekdayName
 import com.ohadsam.specialevents.ui.upcoming.countdownText
@@ -241,7 +242,7 @@ private fun Header(state: DetailState) {
     val event = state.event ?: return
     val accent = event.colorArgb?.let { Color(it) } ?: MaterialTheme.colorScheme.primaryContainer
     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-        EventAvatar(event.photoUri, event.iconKey ?: event.type.defaultEmoji(), accent, 72.dp)
+        EventAvatar(event.photoUri, event.iconKey ?: event.type.defaultEmoji(), accent, 72.dp, badge = event.type.badgeRes().takeIf { event.iconKey == null })
         Column {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                 Text(event.title, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f, fill = false))

@@ -36,11 +36,8 @@ object PrintHtml {
 
     fun card(card: CardPage, style: PrintStyle): String {
         val ac = accent(style)
-        val frame = when (card.theme) {
-            CardTheme.CLASSIC -> "border: 3px double $ac; padding: 10mm;"
-            CardTheme.FESTIVE -> "border: 6px solid $ac; border-radius: 8mm; background: linear-gradient(180deg, ${ac}22, #ffffff 55%); padding: 10mm;"
-            CardTheme.MINIMAL -> "border-top: 2px solid $ac; border-bottom: 2px solid $ac; padding: 12mm 6mm;"
-        }
+        // The brand frame art is the card's background; the padding keeps the text inside the drawn border.
+        val frame = """background: url("${PrintFrames.dataUri(card.theme, ac)}") center / 100% 100% no-repeat; padding: 18mm 14mm;"""
         val photo = card.photoDataUri?.takeIf { it.startsWith("data:image/") }?.let { """<img class="photo" src="${escape(it)}" alt="">""" }.orEmpty()
         val css = """
             .card { min-height: 92vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; $frame }
